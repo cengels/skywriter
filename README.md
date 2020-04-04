@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="skywriter" src="https://github.com/cengels/skywriter/blob/master/src/main/resources/com/cengels/skywriter-javafx/air-banner.png">
+    <img alt="skywriter" src="https://github.com/cengels/skywriter-javafx/blob/master/src/main/resources/com/cengels/skywriter/air-banner.png">
 </p>
 
 <h3 align="center">

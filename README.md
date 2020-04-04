@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="skywriter" src="https://github.com/cengels/skywriter/blob/master/src/main/resources/com/cengels/skywriter/air-banner.png">
+    <img alt="skywriter" src="https://github.com/cengels/skywriter/blob/master/src/main/resources/com/cengels/skywriter-javafx/air-banner.png">
 </p>
 
 <h3 align="center">
@@ -32,15 +32,16 @@ Skywriter is specifically designed for writers of manuscripts and supports a num
 
 ## Feature List (WIP)
 
-- [x] Import from Markdown
-- [x] Export to Markdown
-- [x] Basic formatting
-- [x] Theming ([#2](https://github.com/cengels/skywriter/issues/2))
-- [x] Smart quotes ([#4](https://github.com/cengels/skywriter/issues/4))
-- [x] Find and replace ([#5](https://github.com/cengels/skywriter/issues/5))
-- [ ] Spellcheck ([#7](https://github.com/cengels/skywriter/issues/7))
-- [x] Tracker for words written per day ([#9](https://github.com/cengels/skywriter/issues/9))
-- [x] Tracker for time written per day ([#10](https://github.com/cengels/skywriter/issues/10))
+- Import from Markdown
+- Export to Markdown
+- Basic formatting
+- Theming
+- Automatic smart quotes
+- Find and replace
+- Spellcheck
+- Tracker for words written per day
+- Tracker for time written per day
+- and much more!
 
 ## Download
 

@@ -103,8 +103,6 @@ ApplicationWindow {
 
         TextArea {
             id: textArea
-            width: parent.width
-            height: parent.height
             selectByMouse: true
             text: "test"
             textFormat: TextEdit.RichText

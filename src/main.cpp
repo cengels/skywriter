@@ -2,12 +2,14 @@
 #include <QQmlApplicationEngine>
 #include <QRawFont>
 #include <QDebug>
+#include <QIcon>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/images/air.png"));
     app.setOrganizationName("cengels");
     app.setOrganizationDomain("www.cengels.com");
     app.setApplicationName("Skywriter");

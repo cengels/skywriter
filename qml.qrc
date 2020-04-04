@@ -8,4 +8,8 @@
     <qresource prefix="/fonts">
         <file alias="Baloo2-Regular.ttf">resources/fonts/Baloo2-Regular.ttf</file>
     </qresource>
+    <qresource prefix="/images">
+        <file alias="air.ico">resources/images/air.ico</file>
+        <file alias="air.png">resources/images/air.png</file>
+    </qresource>
 </RCC>

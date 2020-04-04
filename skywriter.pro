@@ -1,4 +1,5 @@
 QT += quick
+QT += widgets
 
 CONFIG += c++20
 
@@ -26,6 +27,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        src/document_handler.cpp \
+        src/formattable_text_area.cpp \
         src/main.cpp
 
 RESOURCES += qml.qrc
@@ -43,3 +46,7 @@ QML_DESIGNER_IMPORT_PATH =
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+HEADERS += \
+    src/document_handler.h \
+    src/formattable_text_area.h

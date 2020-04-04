@@ -3,6 +3,8 @@ import QtQuick.Controls 2.14
 import Qt.labs.settings 1.0
 import QtQuick.Window 2.14
 
+import com.skywriter.text 1.0
+
 ApplicationWindow {
     id: mainWindow
     title: "Skywriter"
@@ -95,6 +97,23 @@ ApplicationWindow {
         // ...
     }
 
+    FormattableTextArea {
+        // Binds itself to the text area below and modifies its document
+        id: document
+        document: textArea.textDocument
+        cursorPosition: textArea.cursorPosition
+        selectionStart: textArea.selectionStart
+        selectionEnd: textArea.selectionEnd
+//        Component.onCompleted: document.load("qrc:/texteditor.html")
+//        onLoaded: {
+//            textArea.text = text
+//        }
+//        onError: {
+//            errorDialog.text = message
+//            errorDialog.visible = true
+//        }
+    }
+
     ScrollView {
         anchors.fill: parent
         clip: true
@@ -108,6 +127,13 @@ ApplicationWindow {
             textFormat: TextEdit.RichText
             verticalAlignment: TextEdit.AlignTop
             wrapMode: TextEdit.Wrap
+            persistentSelection: true
+            Keys.onPressed: {
+                if (event.key === Qt.Key_B) {
+                    document.toggleBold();
+                    event.accepted = true;
+                }
+            }
         }
     }
 }

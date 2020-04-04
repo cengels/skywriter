@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="qtquickcontrols2.conf">resources/qtquickcontrols2.conf</file>
+    </qresource>
+    <qresource prefix="/qml">
+        <file alias="main.qml">resources/qml/main.qml</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file alias="Baloo2-Regular.ttf">resources/fonts/Baloo2-Regular.ttf</file>
+    </qresource>
+</RCC>

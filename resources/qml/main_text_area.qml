@@ -1,7 +1,9 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import Qt.labs.settings 1.0
 import QtQuick.Window 2.14
+import QtQuick.Dialogs 1.3
+import Qt.labs.settings 1.0
+import Qt.labs.platform 1.1 as Platform
 
 import com.skywriter.text 1.0
 
@@ -31,6 +33,14 @@ ApplicationWindow {
         }
     }
 
+    function save() {
+        if (document.fileUrl != null) {
+            document.saveAs(document.fileUrl);
+        } else {
+            saveDialog.open();
+        }
+    }
+
     Settings {
         category: "window"
         fileName: "skywriter.settings"
@@ -39,6 +49,39 @@ ApplicationWindow {
         property alias width: mainWindow.width
         property alias height: mainWindow.height
         property alias visibility: mainWindow.visibility
+    }
+
+    FileDialog {
+        id: openDialog
+        title: qsTr("Open...")
+        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
+        selectExisting: true
+        folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
+        onAccepted: document.load(openDialog.fileUrl)
+    }
+
+    FileDialog {
+        id: saveDialog
+        title: qsTr("Save As...")
+        defaultSuffix: "md"
+        nameFilters: openDialog.nameFilters
+        selectExisting: false
+        folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
+        onAccepted: document.saveAs(openDialog.fileUrl)
+    }
+
+    MessageDialog {
+        id: errorDialog
+    }
+
+    MessageDialog {
+        id : quitDialog
+        title: qsTr("Quit?")
+        text: qsTr("The file has been modified. Quit anyway?")
+        icon: StandardIcon.Warning
+        standardButtons: (StandardButton.Yes | StandardButton.Save | StandardButton.No)
+        onYes: Qt.quit()
+        onAccepted: save()
     }
 
     menuBar: MenuBar {
@@ -51,18 +94,18 @@ ApplicationWindow {
             Action {
                 text: qsTr("Open...")
                 shortcut: StandardKey.Open
+                onTriggered: openDialog.open()
             }
             Action {
                 text: qsTr("Save")
                 shortcut: StandardKey.Save
+                enabled: document.fileUrl != null
+                onTriggered: document.saveAs(document.fileUrl)
             }
             Action {
                 text: qsTr("Save As...")
                 shortcut: StandardKey.SaveAs
-            }
-            Action {
-                text: qsTr("Rename...")
-                shortcut: StandardKey.Replace
+                onTriggered: saveDialog.open()
             }
             Action {
                 text: qsTr("Rename...")
@@ -88,7 +131,13 @@ ApplicationWindow {
             Action {
                 text: qsTr("Quit")
                 shortcut: StandardKey.Quit
-                onTriggered: Qt.quit()
+                onTriggered: {
+                    if (document.modified) {
+                        save();
+                    } else {
+                        Qt.quit();
+                    }
+                }
             }
         }
     }
@@ -124,7 +173,7 @@ ApplicationWindow {
             id: textArea
             selectByMouse: true
             text: "test"
-            textFormat: TextEdit.RichText
+            textFormat: TextEdit.MarkdownText
             verticalAlignment: TextEdit.AlignTop
             wrapMode: TextEdit.Wrap
             persistentSelection: true

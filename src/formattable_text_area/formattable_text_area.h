@@ -54,6 +54,8 @@ class FormattableTextArea : public QObject {
         void saveAs(const QUrl &fileUrl);
 
         void toggleBold();
+        void toggleItalics();
+        void toggleStrikethrough();
 
     Q_SIGNALS:
         void documentChanged();

@@ -85,7 +85,26 @@ ApplicationWindow {
     }
 
     menuBar: MenuBar {
-        height: 30
+        font.pointSize: 10
+        contentItem.height: 20
+//        delegate: MenuBarItem {
+//            contentItem: Text {
+//                text: menuBarItem.text
+//                font: menuBarItem.font
+//                opacity: enabled ? 1.0 : 0.3
+//                color: menuBarItem.highlighted ? "#ffffff" : "#21be2b"
+//                horizontalAlignment: Text.AlignLeft
+//                verticalAlignment: Text.AlignVCenter
+//                elide: Text.ElideRight
+//            }
+
+//            background: Rectangle {
+//                implicitWidth: 20
+//                implicitHeight: 20
+//                opacity: enabled ? 1 : 0.3
+//                color: menuBarItem.highlighted ? "#21be2b" : "transparent"
+//            }
+//        }
 
         Menu {
             title: qsTr("File")
@@ -98,6 +117,7 @@ ApplicationWindow {
                 shortcut: StandardKey.Open
                 onTriggered: openDialog.open()
             }
+            MenuSeparator {}
             Action {
                 text: qsTr("Save")
                 shortcut: StandardKey.Save
@@ -112,6 +132,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("Rename...")
             }
+            MenuSeparator {}
             Action {
                 property var previousVisibility: mainWindow.visibility
                 text: qsTr("Fullscreen")
@@ -140,6 +161,137 @@ ApplicationWindow {
                         Qt.quit();
                     }
                 }
+            }
+        }
+        Menu {
+            title: qsTr("Edit")
+            Action {
+                text: qsTr("Undo")
+                onTriggered: textArea.undo()
+                enabled: textArea.canUndo
+            }
+            Action {
+                text: qsTr("Redo")
+                onTriggered: textArea.redo()
+                enabled: textArea.canRedo
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("Cut")
+                onTriggered: textArea.cut()
+                enabled: textArea.selectedText
+            }
+            Action {
+                text: qsTr("Copy")
+                onTriggered: textArea.copy()
+                enabled: textArea.selectedText
+            }
+            Action {
+                text: qsTr("Paste")
+                onTriggered: textArea.paste()
+                enabled: textArea.canPaste
+            }
+            Action {
+                text: qsTr("Paste Unformatted")
+                shortcut: "Ctrl+Shift+V"
+                enabled: textArea.canPaste
+            }
+            Action {
+                text: qsTr("Paste Untracked")
+                enabled: textArea.canPaste
+            }
+            Action {
+                text: qsTr("Delete")
+                onTriggered: textArea.remove(textArea.selectionStart, textArea.selectionEnd)
+                enabled: textArea.selectedText
+            }
+            Action {
+                text: qsTr("Delete Untracked")
+                enabled: textArea.selectedText
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("Select Word")
+                shortcut: "Ctrl+W"
+                onTriggered: textArea.selectWord()
+            }
+            Action {
+                text: qsTr("Select Line")
+            }
+            Action {
+                text: qsTr("Select All")
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("Find")
+            }
+            Action {
+                text: qsTr("Find and Replace")
+            }
+        }
+
+        Menu {
+            title: qsTr("Formatting")
+            Action {
+                text: qsTr("Bold")
+                shortcut: StandardKey.Bold
+                onTriggered: document.toggleBold()
+            }
+            Action {
+                text: qsTr("Italic")
+                shortcut: StandardKey.Italic
+                onTriggered: document.toggleItalics()
+            }
+            Action {
+                text: qsTr("Strikethrough")
+                onTriggered: document.toggleStrikethrough()
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("No heading")
+                shortcut: "Ctrl+0"
+            }
+            Action {
+                text: qsTr("Heading 1")
+                shortcut: "Ctrl+1"
+            }
+            Action {
+                text: qsTr("Heading 2")
+                shortcut: "Ctrl+2"
+            }
+            Action {
+                text: qsTr("Heading 3")
+                shortcut: "Ctrl+3"
+            }
+            Action {
+                text: qsTr("Heading 4")
+                shortcut: "Ctrl+4"
+            }
+            Action {
+                text: qsTr("Heading 5")
+                shortcut: "Ctrl+5"
+            }
+            Action {
+                text: qsTr("Heading 6")
+                shortcut: "Ctrl+6"
+            }
+        }
+        Menu {
+            title: qsTr("Tools")
+            Action {
+                text: qsTr("Appearance...")
+            }
+            Action {
+                text: qsTr("Progress...")
+            }
+        }
+        Menu {
+            title: qsTr("Help")
+            Action {
+                text: qsTr("About Skywriter...")
+            }
+            Action {
+                text: qsTr("About Qt...")
             }
         }
     }
@@ -182,12 +334,6 @@ ApplicationWindow {
             verticalAlignment: TextEdit.AlignTop
             wrapMode: TextEdit.Wrap
             persistentSelection: true
-            Keys.onPressed: {
-                if (event.key === Qt.Key_B) {
-                    document.toggleBold();
-                    event.accepted = true;
-                }
-            }
         }
     }
 }

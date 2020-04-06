@@ -94,6 +94,18 @@ void FormattableTextArea::toggleBold() {
     mergeFormat(format);
 }
 
+void FormattableTextArea::toggleItalics() {
+    QTextCharFormat format;
+    format.setFontItalic(!getSelectionFormat().fontItalic());
+    mergeFormat(format);
+}
+
+void FormattableTextArea::toggleStrikethrough() {
+    QTextCharFormat format;
+    format.setFontStrikeOut(!getSelectionFormat().fontStrikeOut());
+    mergeFormat(format);
+}
+
 QString FormattableTextArea::fileName() const
 {
     const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);

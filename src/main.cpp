@@ -4,11 +4,13 @@
 #include <QDebug>
 #include <QIcon>
 
-#include "formattable_text_area.h"
+#include "formattable_text_area/formattable_text_area.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    // Necessary to avoid flickering when resizing the window.
+    QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
     QGuiApplication::setOrganizationName("cengels");
     QGuiApplication::setOrganizationDomain("www.cengels.com");
     QGuiApplication::setApplicationName("Skywriter");

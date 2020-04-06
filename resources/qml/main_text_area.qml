@@ -85,6 +85,8 @@ ApplicationWindow {
     }
 
     menuBar: MenuBar {
+        height: 30
+
         Menu {
             title: qsTr("File")
             Action {
@@ -164,13 +166,16 @@ ApplicationWindow {
     }
 
     ScrollView {
+        id: scrollView
         anchors.fill: parent
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
         ScrollBar.vertical.minimumSize: 0.06
 
-        TextArea {
+        TextEdit {
             id: textArea
+            width: scrollView.width
+            height: scrollView.height
             selectByMouse: true
             text: "test"
             textFormat: TextEdit.MarkdownText

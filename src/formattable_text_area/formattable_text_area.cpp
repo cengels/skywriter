@@ -91,7 +91,7 @@ const QTextCharFormat FormattableTextArea::getSelectionFormat() const {
 void FormattableTextArea::toggleBold() {
     QTextCharFormat format;
     format.setFontWeight(getSelectionFormat().fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
-    mergeFormatOnWordOrSelection(format);
+    mergeFormat(format);
 }
 
 QString FormattableTextArea::fileName() const
@@ -201,11 +201,9 @@ QTextDocument *FormattableTextArea::textDocument() const
     return m_document->textDocument();
 }
 
-void FormattableTextArea::mergeFormatOnWordOrSelection(const QTextCharFormat &format)
+void FormattableTextArea::mergeFormat(const QTextCharFormat &format)
 {
     QTextCursor cursor = textCursor();
-    if (!cursor.hasSelection())
-        cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
 }
 

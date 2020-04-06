@@ -45,22 +45,24 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
     mergedFormat.setFontStrikeOut(true);
 
     for (auto iterator = startBlock.begin(); !iterator.atEnd(); iterator++) {
+        bool containsStart = false;
         if (!startReached && iterator.fragment().contains(start)) {
+            containsStart = true;
             startReached = true;
+        }
+
+        if (sameBlock && !containsStart && iterator.fragment().contains(end)) {
+            break;
         }
 
         if (startReached) {
             mergeCharFormat(mergedFormat, iterator.fragment().charFormat());
         }
-
-        if (sameBlock && iterator.fragment().contains(end)) {
-            break;
-        }
     }
 
     if (!sameBlock) {
         for (auto iterator = endBlock.begin(); !iterator.atEnd(); iterator++) {
-            if (!iterator.fragment().contains(start)) {
+            if (iterator.fragment().contains(end)) {
                 break;
             }
 

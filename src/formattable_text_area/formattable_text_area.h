@@ -75,7 +75,7 @@ class FormattableTextArea : public QObject {
         QTextCursor textCursor() const;
         QTextDocument *textDocument() const;
         const QTextCharFormat getSelectionFormat() const;
-        void mergeFormatOnWordOrSelection(const QTextCharFormat &format);
+        void mergeFormat(const QTextCharFormat &format);
 
         QQuickTextDocument *m_document;
 

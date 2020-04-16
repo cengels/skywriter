@@ -2,8 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Window 2.14
 import QtQuick.Dialogs 1.3
-import Qt.labs.settings 1.0
-import Qt.labs.platform 1.1 as Platform
+import "../controls" as Sky
 
 import com.skywriter.text 1.0
 
@@ -41,9 +40,8 @@ ApplicationWindow {
         }
     }
 
-    Settings {
+    Sky.Settings {
         category: "window"
-        fileName: "skywriter.settings"
         property alias x: mainWindow.x
         property alias y: mainWindow.y
         property alias width: mainWindow.width
@@ -84,29 +82,16 @@ ApplicationWindow {
         onAccepted: save()
     }
 
-    menuBar: MenuBar {
+    menuBar: Sky.MenuBar {
         font.pointSize: 10
-        contentItem.height: 20
-//        delegate: MenuBarItem {
-//            contentItem: Text {
-//                text: menuBarItem.text
-//                font: menuBarItem.font
-//                opacity: enabled ? 1.0 : 0.3
-//                color: menuBarItem.highlighted ? "#ffffff" : "#21be2b"
-//                horizontalAlignment: Text.AlignLeft
-//                verticalAlignment: Text.AlignVCenter
-//                elide: Text.ElideRight
-//            }
+        background: Rectangle {
+            color: palette.base
+        }
+        delegate: MenuBarItem {
+            implicitHeight: 25
+        }
 
-//            background: Rectangle {
-//                implicitWidth: 20
-//                implicitHeight: 20
-//                opacity: enabled ? 1 : 0.3
-//                color: menuBarItem.highlighted ? "#21be2b" : "transparent"
-//            }
-//        }
-
-        Menu {
+        Sky.Menu {
             title: qsTr("File")
             Action {
                 text: qsTr("New")
@@ -163,7 +148,7 @@ ApplicationWindow {
                 }
             }
         }
-        Menu {
+        Sky.Menu {
             title: qsTr("Edit")
             Action {
                 text: qsTr("Undo")
@@ -230,7 +215,7 @@ ApplicationWindow {
             }
         }
 
-        Menu {
+        Sky.Menu {
             title: qsTr("Formatting")
             Action {
                 text: qsTr("Bold")
@@ -276,7 +261,7 @@ ApplicationWindow {
                 shortcut: "Ctrl+6"
             }
         }
-        Menu {
+        Sky.Menu {
             title: qsTr("Tools")
             Action {
                 text: qsTr("Appearance...")
@@ -285,7 +270,7 @@ ApplicationWindow {
                 text: qsTr("Progress...")
             }
         }
-        Menu {
+        Sky.Menu {
             title: qsTr("Help")
             Action {
                 text: qsTr("About Skywriter...")

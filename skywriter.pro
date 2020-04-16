@@ -1,4 +1,4 @@
-QT += quick
+QT += quick quickcontrols2
 
 CONFIG += c++20
 
@@ -27,6 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
 #        src/document_handler.cpp \
+        src/colors.cpp \
         src/formattable_text_area/format.cpp \
         src/formattable_text_area/formattable_text_area.cpp \
         src/main.cpp
@@ -49,5 +50,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
 #    src/document_handler.h \
+    src/colors.h \
     src/formattable_text_area/format.h \
     src/formattable_text_area/formattable_text_area.h

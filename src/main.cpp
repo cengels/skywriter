@@ -3,11 +3,15 @@
 #include <QRawFont>
 #include <QDebug>
 #include <QIcon>
-
+#include <QQuickStyle>
+#include <QPalette>
 #include "formattable_text_area/formattable_text_area.h"
+#include "colors.h"
 
 int main(int argc, char *argv[])
 {
+    qmlRegisterType<FormattableTextArea>("com.skywriter.text", 1, 0, "FormattableTextArea");
+
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // Necessary to avoid flickering when resizing the window.
     QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
@@ -17,10 +21,11 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
                                       + QString::number(VERSION_MINOR) + "."
                                       + QString::number(VERSION_BUILD));
-    QGuiApplication app(argc, argv);
+    const QGuiApplication app(argc, argv);
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
+    QGuiApplication::setPalette(Skywriter::palette());
 
-    qmlRegisterType<FormattableTextArea>("com.skywriter.text", 1, 0, "FormattableTextArea");
+    QQuickStyle::setFallbackStyle("Fusion");
 
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QGuiApplication::setFont(QFont("Baloo 2", 11));

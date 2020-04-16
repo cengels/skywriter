@@ -12,4 +12,9 @@
         <file alias="air.ico">resources/images/air.ico</file>
         <file alias="air.png">resources/images/air.png</file>
     </qresource>
+    <qresource prefix="/controls">
+        <file alias="MenuBar.qml">resources/controls/MenuBar.qml</file>
+        <file alias="Menu.qml">resources/controls/Menu.qml</file>
+        <file alias="Settings.qml">resources/controls/Settings.qml</file>
+    </qresource>
 </RCC>

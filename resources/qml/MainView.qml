@@ -29,12 +29,13 @@ ApplicationWindow {
             mainWindow.setGeometry(Screen.width / 2 - defaultWidth / 2,
                                    Screen.height / 2 - defaultHeight / 2,
                                    defaultWidth,
-                                   defaultHeight)
+                                   defaultHeight);
         }
     }
 
     function save() {
-        if (document.fileUrl != null) {
+        if (document.fileUrl != null && document.fileUrl !== '' && document.fileName !== 'untitled.txt') {
+            console.log(document.fileUrl);
             document.saveAs(document.fileUrl);
         } else {
             saveDialog.open();
@@ -50,10 +51,17 @@ ApplicationWindow {
         property alias visibility: mainWindow.visibility
     }
 
+    Sky.Settings {
+        id: documentSettings
+        category: "document"
+        property string lastFile
+    }
+
     FileDialog {
         id: openDialog
         title: qsTr("Open...")
         nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
+        selectedNameFilter: "All files (*)"
         selectExisting: true
         folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
         onAccepted: document.load(openDialog.fileUrl)
@@ -64,9 +72,10 @@ ApplicationWindow {
         title: qsTr("Save As...")
         defaultSuffix: "md"
         nameFilters: openDialog.nameFilters
+        selectedNameFilter: "All files (*)"
         selectExisting: false
         folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
-        onAccepted: document.saveAs(openDialog.fileUrl)
+        onAccepted: document.saveAs(saveDialog.fileUrl)
     }
 
     MessageDialog {
@@ -107,8 +116,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("Save")
                 shortcut: StandardKey.Save
-                enabled: document.fileUrl != null
-                onTriggered: document.saveAs(document.fileUrl)
+                onTriggered: save()
             }
             Action {
                 text: qsTr("Save As...")
@@ -293,14 +301,21 @@ ApplicationWindow {
         cursorPosition: textArea.cursorPosition
         selectionStart: textArea.selectionStart
         selectionEnd: textArea.selectionEnd
-//        Component.onCompleted: document.load("qrc:/texteditor.html")
-//        onLoaded: {
-//            textArea.text = text
-//        }
-//        onError: {
-//            errorDialog.text = message
-//            errorDialog.visible = true
-//        }
+        Component.onCompleted: {
+            if (documentSettings.lastFile != null) {
+                document.load(Qt.resolvedUrl(documentSettings.lastFile));
+            }
+        }
+
+        onFileUrlChanged: {
+            documentSettings.lastFile = document.fileUrl.toString();
+            documentSettings.sync();
+        }
+
+        onError: {
+            errorDialog.text = message
+            errorDialog.visible = true
+        }
     }
 
     ScrollView {

@@ -4,6 +4,7 @@
     </qresource>
     <qresource prefix="/qml">
         <file alias="MainView.qml">resources/qml/MainView.qml</file>
+        <file alias="Model.qml">resources/qml/Model.qml</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Baloo2-Regular.ttf">resources/fonts/Baloo2-Regular.ttf</file>

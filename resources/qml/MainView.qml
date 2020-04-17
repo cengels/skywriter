@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Window 2.14
 import QtQuick.Dialogs 1.3
+import Qt.labs.platform 1.1 as Platform
 import "../controls" as Sky
 
 import com.skywriter.text 1.0

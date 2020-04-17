@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QGuiApplication::setFont(QFont("Baloo 2", 11));
 
-    QQmlApplicationEngine engine(":/qml/main_text_area.qml");
+    QQmlApplicationEngine engine(":/qml/MainView.qml");
 
     return app.exec();
 }

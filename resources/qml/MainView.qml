@@ -35,7 +35,6 @@ ApplicationWindow {
 
     function save() {
         if (document.fileUrl != null && document.fileUrl !== '' && document.fileName !== 'untitled.txt') {
-            console.log(document.fileUrl);
             document.saveAs(document.fileUrl);
         } else {
             saveDialog.open();

@@ -148,8 +148,17 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         QByteArray data = file.readAll();
         QTextCodec *codec = QTextCodec::codecForName("UTF-8");
         if (QTextDocument *doc = textDocument()) {
-            auto text = codec->toUnicode(data);
-            doc->setMarkdown(text, MARKDOWN_FEATURES);
+            const auto text = codec->toUnicode(data);
+            const QString fileType = QFileInfo(file).suffix();
+
+            if (fileType == "md") {
+                doc->setMarkdown(text, MARKDOWN_FEATURES);
+            } else if (fileType.contains("htm")) {
+                doc->setHtml(text);
+            } else {
+                doc->setPlainText(text);
+            }
+
             doc->setModified(false);
             emit loaded(doc->toMarkdown(MARKDOWN_FEATURES));
         }
@@ -169,13 +178,22 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         return;
 
     const QString filePath = fileUrl.toLocalFile();
+    const QString fileType = QFileInfo(filePath).suffix();
     const bool isHtml = QFileInfo(filePath).suffix().contains(QLatin1String("htm"));
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly | QFile::Truncate | (isHtml ? QFile::NotOpen : QFile::Text))) {
         emit error(tr("Cannot save: ") + file.errorString());
         return;
     }
-    file.write((isHtml ? doc->toHtml() : doc->toMarkdown(MARKDOWN_FEATURES)).toUtf8());
+
+    if (fileType == "md") {
+        file.write(doc->toMarkdown(MARKDOWN_FEATURES).toUtf8());
+    } else if (fileType.contains("htm")) {
+        file.write(doc->toHtml().toUtf8());
+    } else {
+        file.write(doc->toPlainText().toUtf8());
+    }
+
     file.close();
 
     if (fileUrl == m_fileUrl)

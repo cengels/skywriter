@@ -5,6 +5,7 @@
 #include <QIcon>
 #include <QQuickStyle>
 #include <QPalette>
+#include <QQmlContext>
 #include "formattable_text_area/formattable_text_area.h"
 #include "colors.h"
 
@@ -30,7 +31,9 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QGuiApplication::setFont(QFont("Baloo 2", 11));
 
-    QQmlApplicationEngine engine(":/qml/MainView.qml");
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
+    engine.load(":/qml/MainWindow.qml");
 
     return app.exec();
 }

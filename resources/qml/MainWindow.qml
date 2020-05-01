@@ -4,6 +4,7 @@ import QtQuick.Window 2.14
 import QtQuick.Dialogs 1.3
 import Qt.labs.platform 1.1 as Platform
 import "../controls" as Sky
+import "." as View
 
 import com.skywriter.text 1.0
 
@@ -90,6 +91,8 @@ ApplicationWindow {
         onYes: Qt.quit()
         onAccepted: save()
     }
+
+    View.AboutQt { id: aboutQt }
 
     menuBar: Sky.MenuBar {
         font.pointSize: 10
@@ -285,6 +288,7 @@ ApplicationWindow {
             }
             Action {
                 text: qsTr("About Qt...")
+                onTriggered: aboutQt.show()
             }
         }
     }

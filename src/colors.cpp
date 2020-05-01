@@ -21,12 +21,12 @@ const QPalette& Skywriter::palette() {
         skywriter_palette.setColor(QPalette::ColorRole::Light, QColor { "#ACACAC" });
         skywriter_palette.setColor(QPalette::ColorRole::Link, QColor { "#A8A8A9" });
         skywriter_palette.setColor(QPalette::ColorRole::LinkVisited, QColor { "#A8A8A9" });
-        skywriter_palette.setColor(QPalette::ColorRole::Mid, QColor { "#473C77" });
+        skywriter_palette.setColor(QPalette::ColorRole::Mid, QColor { "#584C8D" });
         skywriter_palette.setColor(QPalette::ColorRole::Shadow, QColor { "#1a1a1a" });
-        skywriter_palette.setColor(QPalette::ColorRole::Text, QColor { "#1a1a1a" });
+        skywriter_palette.setColor(QPalette::ColorRole::Text, QColor { "#96959B" });
         skywriter_palette.setColor(QPalette::ColorRole::ToolTipBase, QColor { "#403668" });
         skywriter_palette.setColor(QPalette::ColorRole::ToolTipText, QColor { "#CACACA" });
-        skywriter_palette.setColor(QPalette::ColorRole::Window, QColor { "#584C8D" });
+        skywriter_palette.setColor(QPalette::ColorRole::Window, QColor { "#473C77" });
         skywriter_palette.setColor(QPalette::ColorRole::WindowText, QColor { "#A8A8A9" });
         palette_initialized = true;
     }

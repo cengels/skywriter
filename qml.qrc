@@ -3,8 +3,14 @@
         <file alias="qtquickcontrols2.conf">resources/qtquickcontrols2.conf</file>
     </qresource>
     <qresource prefix="/qml">
-        <file alias="MainView.qml">resources/qml/MainView.qml</file>
+        <file alias="MainWindow.qml">resources/qml/MainWindow.qml</file>
         <file alias="Model.qml">resources/qml/Model.qml</file>
+        <file alias="AboutQt.qml">resources/qml/AboutQt.qml</file>
+        <file alias="AboutSkywriter.qml">resources/qml/AboutSkywriter.qml</file>
+        <file alias="Appearance.qml">resources/qml/Appearance.qml</file>
+        <file alias="Preferences.qml">resources/qml/Preferences.qml</file>
+        <file alias="Progress.qml">resources/qml/Progress.qml</file>
+        <file alias="ThemeEdit.qml">resources/qml/ThemeEdit.qml</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Baloo2-Regular.ttf">resources/fonts/Baloo2-Regular.ttf</file>
@@ -17,5 +23,9 @@
         <file alias="MenuBar.qml">resources/controls/MenuBar.qml</file>
         <file alias="Menu.qml">resources/controls/Menu.qml</file>
         <file alias="Settings.qml">resources/controls/Settings.qml</file>
+        <file alias="Dialog.qml">resources/controls/Dialog.qml</file>
+        <file alias="Text.qml">resources/controls/Text.qml</file>
+        <file alias="LinkText.qml">resources/controls/LinkText.qml</file>
+        <file alias="Button.qml">resources/controls/Button.qml</file>
     </qresource>
 </RCC>

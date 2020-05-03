@@ -93,6 +93,7 @@ ApplicationWindow {
     }
 
     View.AboutQt { id: aboutQt }
+    View.AboutSkywriter { id: aboutSkywriter }
 
     menuBar: Sky.MenuBar {
         font.pointSize: 10
@@ -285,6 +286,7 @@ ApplicationWindow {
             title: qsTr("Help")
             Action {
                 text: qsTr("About Skywriter...")
+                onTriggered: aboutSkywriter.show()
             }
             Action {
                 text: qsTr("About Qt...")

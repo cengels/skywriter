@@ -9,6 +9,8 @@ Sky.Dialog {
     padding: 5
     width: 800
     height: 440
+    minimumWidth: 800
+    minimumHeight: 440
 
     Sky.LinkText {
         anchors.fill: parent
@@ -36,6 +38,6 @@ Sky.Dialog {
               "<p>Qt and the Qt logo are trademarks of The Qt Company Ltd.</p>" +
               "<p>Qt is The Qt Company Ltd product developed as an open source " +
               "project. See <a href=\"http://%4/\">%4</a> for more information.</p>")
-              .arg(QT_VERSION).arg("2020").arg("qt.io/licensing").arg("qt.io")
+              .arg(QT_VERSION).arg(new Date().getFullYear()).arg("qt.io/licensing").arg("qt.io")
     }
 }

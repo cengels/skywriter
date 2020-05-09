@@ -325,7 +325,6 @@ ApplicationWindow {
 
         onFileUrlChanged: {
             Settings.Document.lastFile = document.fileUrl.toString();
-            Settings.Document.sync();
         }
 
         onError: {

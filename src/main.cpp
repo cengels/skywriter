@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
     QGuiApplication::setPalette(Skywriter::palette());
 
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "AppSettings", 1, 0, "Application");
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "AppSettings", 1, 0, "Document");
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "AppSettings", 1, 0, "Window");
+
     QQuickStyle::setFallbackStyle("Fusion");
 
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
@@ -33,7 +37,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
-    engine.load(":/qml/MainWindow.qml");
+    engine.addImportPath(":/");
+    engine.load(":/qml/views/MainWindow.qml");
 
     return app.exec();
 }

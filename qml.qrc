@@ -2,15 +2,14 @@
     <qresource prefix="/">
         <file alias="qtquickcontrols2.conf">resources/qtquickcontrols2.conf</file>
     </qresource>
-    <qresource prefix="/qml">
-        <file alias="MainWindow.qml">resources/qml/MainWindow.qml</file>
-        <file alias="Model.qml">resources/qml/Model.qml</file>
-        <file alias="AboutQt.qml">resources/qml/AboutQt.qml</file>
-        <file alias="AboutSkywriter.qml">resources/qml/AboutSkywriter.qml</file>
-        <file alias="Appearance.qml">resources/qml/Appearance.qml</file>
-        <file alias="Preferences.qml">resources/qml/Preferences.qml</file>
-        <file alias="Progress.qml">resources/qml/Progress.qml</file>
-        <file alias="ThemeEdit.qml">resources/qml/ThemeEdit.qml</file>
+    <qresource prefix="/qml/views">
+        <file alias="MainWindow.qml">resources/qml/views/MainWindow.qml</file>
+        <file alias="AboutQt.qml">resources/qml/views/AboutQt.qml</file>
+        <file alias="AboutSkywriter.qml">resources/qml/views/AboutSkywriter.qml</file>
+        <file alias="Appearance.qml">resources/qml/views/Appearance.qml</file>
+        <file alias="Preferences.qml">resources/qml/views/Preferences.qml</file>
+        <file alias="Progress.qml">resources/qml/views/Progress.qml</file>
+        <file alias="ThemeEdit.qml">resources/qml/views/ThemeEdit.qml</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Baloo2-Regular.ttf">resources/fonts/Baloo2-Regular.ttf</file>
@@ -19,13 +18,24 @@
         <file alias="air.ico">resources/images/air.ico</file>
         <file alias="air.png">resources/images/air.png</file>
     </qresource>
-    <qresource prefix="/controls">
-        <file alias="MenuBar.qml">resources/controls/MenuBar.qml</file>
-        <file alias="Menu.qml">resources/controls/Menu.qml</file>
-        <file alias="Settings.qml">resources/controls/Settings.qml</file>
-        <file alias="Dialog.qml">resources/controls/Dialog.qml</file>
-        <file alias="Text.qml">resources/controls/Text.qml</file>
-        <file alias="LinkText.qml">resources/controls/LinkText.qml</file>
-        <file alias="Button.qml">resources/controls/Button.qml</file>
+    <qresource prefix="/qml/controls">
+        <file alias="MenuBar.qml">resources/qml/controls/MenuBar.qml</file>
+        <file alias="Menu.qml">resources/qml/controls/Menu.qml</file>
+        <file alias="Dialog.qml">resources/qml/controls/Dialog.qml</file>
+        <file alias="Text.qml">resources/qml/controls/Text.qml</file>
+        <file alias="LinkText.qml">resources/qml/controls/LinkText.qml</file>
+        <file alias="Button.qml">resources/qml/controls/Button.qml</file>
+    </qresource>
+    <qresource prefix="/qml/types">
+        <file alias="Model.qml">resources/qml/types/Model.qml</file>
+        <file alias="Properties.qml">resources/qml/types/Properties.qml</file>
+        <file alias="Theme.qml">resources/qml/types/Theme.qml</file>
+        <file alias="DefaultTheme.qml">resources/qml/types/DefaultTheme.qml</file>
+        <file alias="Settings.qml">resources/qml/types/Settings.qml</file>
+    </qresource>
+    <qresource prefix="/qml/types/settings">
+        <file alias="ApplicationSettings.qml">resources/qml/types/settings/ApplicationSettings.qml</file>
+        <file alias="DocumentSettings.qml">resources/qml/types/settings/DocumentSettings.qml</file>
+        <file alias="WindowSettings.qml">resources/qml/types/settings/WindowSettings.qml</file>
     </qresource>
 </RCC>

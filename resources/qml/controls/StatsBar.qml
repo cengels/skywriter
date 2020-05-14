@@ -11,7 +11,7 @@ ToolBar {
         spacing: 0
 
         Label {
-            text: 'Last saved at [...]'
+            text: 'Last saved at ' + Qt.formatDateTime(document.lastModified)
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter
             font.pointSize: 10

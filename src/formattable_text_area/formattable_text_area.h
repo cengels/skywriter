@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QTextCursor>
 #include <QUrl>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -24,6 +25,7 @@ class FormattableTextArea : public QObject {
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged)
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
+    Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
 
     Q_PROPERTY(int characterCount READ characterCount NOTIFY characterCountChanged)
     Q_PROPERTY(int paragraphCount READ paragraphCount NOTIFY paragraphCountChanged)
@@ -46,6 +48,7 @@ class FormattableTextArea : public QObject {
         void setSelectionEnd(int position);
 
         bool modified() const;
+        QDateTime lastModified() const;
 
         int characterCount() const;
         int paragraphCount() const;
@@ -80,6 +83,7 @@ class FormattableTextArea : public QObject {
         void error(const QString &message);
 
         void modifiedChanged();
+        void lastModifiedChanged();
 
         void characterCountChanged();
         void paragraphCountChanged();

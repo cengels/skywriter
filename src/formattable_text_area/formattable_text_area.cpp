@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFileSelector>
+#include <QDateTime>
 #include <QQmlFile>
 #include <QQmlFileSelector>
 #include <QQuickTextDocument>
@@ -133,7 +134,14 @@ QString FormattableTextArea::fileName() const
 
 QString FormattableTextArea::fileType() const
 {
-    return QFileInfo(fileName()).suffix();
+    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
+    return QFileInfo(filePath).suffix();
+}
+
+QDateTime FormattableTextArea::lastModified() const
+{
+    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
+    return QFileInfo(filePath).lastModified();
 }
 
 QUrl FormattableTextArea::fileUrl() const
@@ -183,6 +191,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
 
         m_fileUrl = fileUrl;
         emit fileUrlChanged();
+        emit lastModifiedChanged();
     }
 }
 
@@ -194,8 +203,9 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         return;
 
     const QString filePath = fileUrl.toLocalFile();
-    const QString fileType = QFileInfo(filePath).suffix();
-    const bool isHtml = QFileInfo(filePath).suffix().contains(QLatin1String("htm"));
+    const QFileInfo fileInfo = QFileInfo(filePath);
+    const QString fileType = fileInfo.suffix();
+    const bool isHtml = fileType.contains(QLatin1String("htm"));
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly | QFile::Truncate | (isHtml ? QFile::NotOpen : QFile::Text))) {
         emit error(tr("Cannot save: ") + file.errorString());
@@ -211,6 +221,8 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
     }
 
     file.close();
+
+    emit lastModifiedChanged();
 
     if (fileUrl == m_fileUrl)
         return;

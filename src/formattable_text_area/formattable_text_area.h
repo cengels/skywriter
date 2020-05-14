@@ -25,6 +25,11 @@ class FormattableTextArea : public QObject {
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
 
+    Q_PROPERTY(int characterCount READ characterCount NOTIFY characterCountChanged)
+    Q_PROPERTY(int paragraphCount READ paragraphCount NOTIFY paragraphCountChanged)
+    Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
+    Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
+
     public:
         explicit FormattableTextArea(QObject *parent = nullptr);
 
@@ -41,6 +46,11 @@ class FormattableTextArea : public QObject {
         void setSelectionEnd(int position);
 
         bool modified() const;
+
+        int characterCount() const;
+        int paragraphCount() const;
+        int wordCount() const;
+        int pageCount() const;
 
         QString stylesheet() const;
         void setStyleSheet(const QString& stylesheet);
@@ -71,6 +81,11 @@ class FormattableTextArea : public QObject {
 
         void modifiedChanged();
 
+        void characterCountChanged();
+        void paragraphCountChanged();
+        void wordCountChanged();
+        void pageCountChanged();
+
     private:
         void reset();
 
@@ -87,6 +102,18 @@ class FormattableTextArea : public QObject {
         QUrl m_fileUrl;
 
         void setModified(bool modified);
+
+        void handleTextChange();
+
+        int m_characterCount;
+        int m_wordCount;
+        int m_paragraphCount;
+        int m_pageCount;
+        void updateCounts();
+        void updateCharacterCount();
+        void updateWordCount();
+        void updateParagraphCount();
+        void updatePageCount();
 };
 
 #endif // FORMATTABLETEXTAREA_H

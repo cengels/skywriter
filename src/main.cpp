@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<FormattableTextArea>("com.skywriter.text", 1, 0, "FormattableTextArea");
+    qmlRegisterType<FormattableTextArea>("Skywriter.Text", 1, 0, "FormattableTextArea");
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // Necessary to avoid flickering when resizing the window.
@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
     QGuiApplication::setPalette(Skywriter::palette());
 
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "AppSettings", 1, 0, "Application");
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "AppSettings", 1, 0, "Document");
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "AppSettings", 1, 0, "Window");
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
+    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
 
     QQuickStyle::setFallbackStyle("Fusion");
 

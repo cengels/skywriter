@@ -21,7 +21,11 @@ FormattableTextArea::FormattableTextArea(QObject *parent)
     , m_document(nullptr)
     , m_cursorPosition(-1)
     , m_selectionStart(0)
-    , m_selectionEnd(0) { }
+    , m_selectionEnd(0)
+    , m_characterCount(0)
+    , m_wordCount(0)
+    , m_paragraphCount(0)
+    , m_pageCount(0) { }
 
 QQuickTextDocument *FormattableTextArea::document() const
 {
@@ -33,12 +37,24 @@ void FormattableTextArea::setDocument(QQuickTextDocument *document)
     if (document == m_document)
         return;
 
-    if (m_document)
+    if (m_document) {
         m_document->textDocument()->disconnect(this);
+    }
+
     m_document = document;
-    if (m_document)
+
+    if (m_document) {
         connect(m_document->textDocument(), &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
+        connect(m_document->textDocument(), &QTextDocument::contentsChanged, this, &FormattableTextArea::handleTextChange);
+    }
+
     emit documentChanged();
+}
+
+void FormattableTextArea::handleTextChange() {
+    emit textChanged();
+
+    this->updateCounts();
 }
 
 int FormattableTextArea::cursorPosition() const

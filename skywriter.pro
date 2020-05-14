@@ -28,6 +28,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
 #        src/document_handler.cpp \
         src/colors.cpp \
+        src/formattable_text_area/counter.cpp \
         src/formattable_text_area/format.cpp \
         src/formattable_text_area/formattable_text_area.cpp \
         src/main.cpp

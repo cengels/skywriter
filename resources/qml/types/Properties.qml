@@ -1,7 +1,7 @@
 pragma Singleton
 
 import QtQuick 2.0
-import "./settings"
+import Skywriter.Settings 1.0 as Settings
 import "." as Sky
 
 QtObject {
@@ -12,7 +12,7 @@ QtObject {
     Component.onCompleted: {
         themes = [Sky.DefaultTheme]
 
-        const matchingTheme = themes.find(x => x.name === ApplicationSettings.theme);
+        const matchingTheme = themes.find(x => x.name === Settings.Application.theme);
 
         activeTheme = matchingTheme != null ? matchingTheme : Sky.DefaultTheme;
     }

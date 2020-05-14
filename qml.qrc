@@ -25,6 +25,7 @@
         <file alias="Text.qml">resources/qml/controls/Text.qml</file>
         <file alias="LinkText.qml">resources/qml/controls/LinkText.qml</file>
         <file alias="Button.qml">resources/qml/controls/Button.qml</file>
+        <file alias="StatsBar.qml">resources/qml/controls/StatsBar.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

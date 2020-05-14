@@ -2,13 +2,13 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Window 2.14
 import QtQuick.Dialogs 1.3
+import QtQuick.Layouts 1.14
 import Qt.labs.platform 1.1 as Platform
 import "../controls" as Controls
 import "../types" as Sky
-import AppSettings 1.0 as Settings
+import Skywriter.Settings 1.0 as Settings
 import "." as View
-
-import com.skywriter.text 1.0
+import Skywriter.Text 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -308,8 +308,8 @@ ApplicationWindow {
         }
     }
 
-    footer: ToolBar {
-        // ...
+    footer: Controls.StatsBar {
+        document: document
     }
 
     FormattableTextArea {
@@ -347,7 +347,6 @@ ApplicationWindow {
             width: scrollView.width
             height: scrollView.height
             selectByMouse: true
-            text: "test"
             textFormat: TextEdit.MarkdownText
             verticalAlignment: TextEdit.AlignTop
             wrapMode: TextEdit.Wrap

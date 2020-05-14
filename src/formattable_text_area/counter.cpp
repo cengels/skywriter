@@ -18,7 +18,7 @@ int FormattableTextArea::pageCount() const {
 }
 
 void FormattableTextArea::updateCharacterCount() {
-    int characterCount = this->textDocument()->characterCount();
+    const int characterCount = this->textDocument()->characterCount();
 
     if (characterCount != this->m_characterCount) {
         this->m_characterCount = characterCount;
@@ -27,12 +27,37 @@ void FormattableTextArea::updateCharacterCount() {
 }
 
 void FormattableTextArea::updateWordCount() {
+    QTextCursor textCursor = QTextCursor(this->textDocument());
+    textCursor.movePosition(QTextCursor::Start);
+    int i = 0;
+
+    while (textCursor.movePosition(QTextCursor::NextWord)) {
+        i++;
+    }
+
+    if (i != this->m_wordCount) {
+        m_wordCount = i;
+        emit wordCountChanged();
+    }
 }
 
 void FormattableTextArea::updateParagraphCount() {
+    const int blockCount = this->textDocument()->blockCount();
+
+    if (blockCount != this->m_paragraphCount) {
+        this->m_paragraphCount = blockCount;
+        emit paragraphCountChanged();
+    }
 }
 
 void FormattableTextArea::updatePageCount() {
+    const int wordCount = this->wordCount();
+    const int pageCount = wordCount / 250 + (wordCount % 250 != 0 ? 1 : 0);
+
+    if (pageCount != this->m_pageCount) {
+        this->m_pageCount = pageCount;
+        emit pageCountChanged();
+    }
 }
 
 void FormattableTextArea::updateCounts() {

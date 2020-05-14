@@ -18,6 +18,12 @@ int FormattableTextArea::pageCount() const {
 }
 
 void FormattableTextArea::updateCharacterCount() {
+    int characterCount = this->textDocument()->characterCount();
+
+    if (characterCount != this->m_characterCount) {
+        this->m_characterCount = characterCount;
+        emit characterCountChanged();
+    }
 }
 
 void FormattableTextArea::updateWordCount() {

@@ -35,14 +35,7 @@ ToolBar {
             Layout.preferredWidth: 400
 
             Label {
-                text: document.wordCount + ' words'
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-                font.pointSize: 10
-            }
-
-            Label {
-                text: document.pageCount + ' pages'
+                text: document.characterCount + ' characters'
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10
@@ -56,7 +49,14 @@ ToolBar {
             }
 
             Label {
-                text: document.characterCount + ' characters'
+                text: document.pageCount + ' pages'
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                font.pointSize: 10
+            }
+
+            Label {
+                text: document.wordCount + ' words'
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10

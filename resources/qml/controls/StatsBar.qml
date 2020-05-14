@@ -11,7 +11,7 @@ ToolBar {
         spacing: 0
 
         Label {
-            text: 'Last saved at ' + Qt.formatDateTime(document.lastModified)
+            text: qsTr('Last saved %1').arg(Qt.formatDateTime(document.lastModified))
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter
             font.pointSize: 10
@@ -20,7 +20,7 @@ ToolBar {
         }
 
         Label {
-            text: '0 added today'
+            text: qsTr('%1 added today').arg(0)
             horizontalAlignment: Qt.AlignHCenter
             verticalAlignment: Qt.AlignVCenter
             font.pointSize: 10
@@ -35,28 +35,28 @@ ToolBar {
             Layout.preferredWidth: 400
 
             Label {
-                text: document.characterCount + ' characters'
+                text: qsTr('%1 characters').arg(document.characterCount)
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10
             }
 
             Label {
-                text: document.paragraphCount + ' paragraphs'
+                text: qsTr('%1 paragraphs').arg(document.paragraphCount)
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10
             }
 
             Label {
-                text: document.pageCount + ' pages'
+                text: qsTr('%1 pages').arg(document.pageCount)
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10
             }
 
             Label {
-                text: document.wordCount + ' words'
+                text: qsTr('%1 words').arg(document.wordCount)
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 font.pointSize: 10

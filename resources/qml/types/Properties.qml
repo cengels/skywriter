@@ -2,18 +2,18 @@ pragma Singleton
 
 import QtQuick 2.0
 import "./settings"
-import "."
+import "." as Sky
 
 QtObject {
     objectName: "properties"
-    property Theme activeTheme
+    property Sky.Theme activeTheme
     property list themes
 
     Component.onCompleted: {
-        themes = [DefaultTheme]
+        themes = [Sky.DefaultTheme]
 
         const matchingTheme = themes.find(x => x.name === ApplicationSettings.theme);
 
-        activeTheme = matchingTheme != null ? matchingTheme : DefaultTheme;
+        activeTheme = matchingTheme != null ? matchingTheme : Sky.DefaultTheme;
     }
 }

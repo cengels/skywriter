@@ -1,7 +1,7 @@
 import QtQuick 2.14
-import "."
+import "." as Sky
 
-Theme {
+Sky.Theme {
     name: "Default"
     defaultTheme: true
 }

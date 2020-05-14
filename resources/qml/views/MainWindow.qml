@@ -15,8 +15,8 @@ ApplicationWindow {
     title: "Skywriter"
     visible: true
 
-//    readonly property int defaultWidth: 800
-//    readonly property int defaultHeight: 600
+    readonly property int defaultWidth: 800
+    readonly property int defaultHeight: 600
 
     minimumWidth: 500
     minimumHeight: 200
@@ -105,6 +105,7 @@ ApplicationWindow {
 
     View.AboutQt { id: aboutQt }
     View.AboutSkywriter { id: aboutSkywriter }
+    View.Appearance { id: appearance }
 
     menuBar: Controls.MenuBar {
         font.pointSize: 10
@@ -288,6 +289,7 @@ ApplicationWindow {
             title: qsTr("Tools")
             Action {
                 text: qsTr("Appearance...")
+                onTriggered: appearance.show()
             }
             Action {
                 text: qsTr("Progress...")

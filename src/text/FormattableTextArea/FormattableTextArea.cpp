@@ -12,8 +12,8 @@
 #include <QTextFrame>
 #include <QTextFragment>
 
-#include "formattable_text_area.h"
-#include "format.h"
+#include "FormattableTextArea.h"
+#include "../format.h"
 
 constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
 

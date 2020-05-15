@@ -1,5 +1,5 @@
 #include <QTextDocument>
-#include "formattable_text_area.h"
+#include "FormattableTextArea.h"
 
 int FormattableTextArea::characterCount() const {
     return this->m_characterCount;

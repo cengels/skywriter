@@ -27,10 +27,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
 #        src/document_handler.cpp \
+        src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/colors.cpp \
-        src/formattable_text_area/counter.cpp \
-        src/formattable_text_area/format.cpp \
-        src/formattable_text_area/formattable_text_area.cpp \
+        src/text/FormattableTextArea/counter.cpp \
+        src/text/format.cpp \
         src/main.cpp
 
 RESOURCES += qml.qrc
@@ -51,6 +51,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
 #    src/document_handler.h \
+    src/text/FormattableTextArea/FormattableTextArea.h \
     src/colors.h \
-    src/formattable_text_area/format.h \
-    src/formattable_text_area/formattable_text_area.h
+    src/text/format.h

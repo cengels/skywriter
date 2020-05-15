@@ -5,23 +5,25 @@
 #include <QDebug>
 #include "format.h"
 
-bool isInRange(const QTextLayout::FormatRange& range, const int position) {
-    return position >= range.start && position <= range.start + range.length;
-}
+namespace {
+    bool isInRange(const QTextLayout::FormatRange& range, const int position) {
+        return position >= range.start && position <= range.start + range.length;
+    }
 
-void mergeCharFormat(QTextCharFormat& merger, const QTextCharFormat& toMerge) {
-    if (merger.fontWeight() == QFont::Bold && toMerge.fontWeight() == QFont::Normal) {
-        merger.setFontWeight(QFont::Normal);
-    }
-    if (merger.fontItalic() && !toMerge.fontItalic()) {
-        merger.setFontItalic(false);
-    }
-    // Commented out since Markdown does not support underlining.
-    // if (mergedFormat.fontUnderline() && !range.format.fontUnderline()) {
-    //     mergedFormat.setFontUnderline(false);
-    // }
-    if (merger.fontStrikeOut() && !toMerge.fontStrikeOut()) {
-        merger.setFontStrikeOut(false);
+    void mergeCharFormat(QTextCharFormat& merger, const QTextCharFormat& toMerge) {
+        if (merger.fontWeight() == QFont::Bold && toMerge.fontWeight() == QFont::Normal) {
+            merger.setFontWeight(QFont::Normal);
+        }
+        if (merger.fontItalic() && !toMerge.fontItalic()) {
+            merger.setFontItalic(false);
+        }
+        // Commented out since Markdown does not support underlining.
+        // if (mergedFormat.fontUnderline() && !range.format.fontUnderline()) {
+        //     mergedFormat.setFontUnderline(false);
+        // }
+        if (merger.fontStrikeOut() && !toMerge.fontStrikeOut()) {
+            merger.setFontStrikeOut(false);
+        }
     }
 }
 

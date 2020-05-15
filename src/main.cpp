@@ -6,7 +6,7 @@
 #include <QQuickStyle>
 #include <QPalette>
 #include <QQmlContext>
-#include "formattable_text_area/formattable_text_area.h"
+#include "text/FormattableTextArea/FormattableTextArea.h"
 #include "colors.h"
 
 int main(int argc, char *argv[])

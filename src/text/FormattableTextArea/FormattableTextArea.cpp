@@ -15,7 +15,9 @@
 #include "FormattableTextArea.h"
 #include "../format.h"
 
-constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
+namespace {
+    constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
+}
 
 FormattableTextArea::FormattableTextArea(QObject *parent)
     : QObject(parent)
@@ -52,7 +54,8 @@ void FormattableTextArea::setDocument(QQuickTextDocument *document)
     emit documentChanged();
 }
 
-void FormattableTextArea::handleTextChange() {
+void FormattableTextArea::handleTextChange()
+{
     emit textChanged();
 
     this->updateCounts();
@@ -101,23 +104,27 @@ void FormattableTextArea::setSelectionEnd(int position)
     emit selectionEndChanged();
 }
 
-const QTextCharFormat FormattableTextArea::getSelectionFormat() const {
+const QTextCharFormat FormattableTextArea::getSelectionFormat() const
+{
     return format::getMergedCharFormat(textCursor());
 }
 
-void FormattableTextArea::toggleBold() {
+void FormattableTextArea::toggleBold()
+{
     QTextCharFormat format;
     format.setFontWeight(getSelectionFormat().fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
     mergeFormat(format);
 }
 
-void FormattableTextArea::toggleItalics() {
+void FormattableTextArea::toggleItalics()
+{
     QTextCharFormat format;
     format.setFontItalic(!getSelectionFormat().fontItalic());
     mergeFormat(format);
 }
 
-void FormattableTextArea::toggleStrikethrough() {
+void FormattableTextArea::toggleStrikethrough()
+{
     QTextCharFormat format;
     format.setFontStrikeOut(!getSelectionFormat().fontStrikeOut());
     mergeFormat(format);

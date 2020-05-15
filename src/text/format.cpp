@@ -6,11 +6,13 @@
 #include "format.h"
 
 namespace {
-    bool isInRange(const QTextLayout::FormatRange& range, const int position) {
+    bool isInRange(const QTextLayout::FormatRange& range, const int position)
+    {
         return position >= range.start && position <= range.start + range.length;
     }
 
-    void mergeCharFormat(QTextCharFormat& merger, const QTextCharFormat& toMerge) {
+    void mergeCharFormat(QTextCharFormat& merger, const QTextCharFormat& toMerge)
+    {
         if (merger.fontWeight() == QFont::Bold && toMerge.fontWeight() == QFont::Normal) {
             merger.setFontWeight(QFont::Normal);
         }
@@ -33,7 +35,8 @@ namespace {
 //! For instance, if the cursor selects a range where half the range is
 //! italicized and half the range is not, the resulting format will have
 //! fontItalics() set to false.
-const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor) {
+const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
+{
     const int start = textCursor.selectionStart();
     const int end = textCursor.selectionEnd();
     const QTextBlock startBlock = textCursor.document()->findBlock(start);

@@ -4,11 +4,12 @@ import QtQuick.Window 2.14
 import QtQuick.Dialogs 1.3
 import QtQuick.Layouts 1.14
 import Qt.labs.platform 1.1 as Platform
+import Skywriter.Settings 1.0 as Settings
+import Skywriter.Text 1.0
+import Skywriter.Progress 1.0
 import "../controls" as Controls
 import "../types" as Sky
-import Skywriter.Settings 1.0 as Settings
 import "." as View
-import Skywriter.Text 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -44,6 +45,13 @@ ApplicationWindow {
         }
     }
 
+    function loadDocument(url) {
+        document.progressSuspended = true;
+        document.load(url);
+        ProgressTracker.changeActiveFile(url);
+        document.progressSuspended = false;
+    }
+
     x: Settings.Window.x;
     y: Settings.Window.y;
     width: Settings.Window.width;
@@ -68,6 +76,11 @@ ApplicationWindow {
         Settings.Window.visibility = visibility;
     }
 
+    Component.onCompleted: {
+        ProgressTracker.maximumIdleMinutes = Qt.binding(() => Settings.Application.maximumProgressIdleMinutes);
+        ProgressTracker.autosaveMinutes = Qt.binding(() => Settings.Application.progressAutosaveMinutes);
+    }
+
     FileDialog {
         id: openDialog
         title: qsTr("Open...")
@@ -75,7 +88,7 @@ ApplicationWindow {
         selectedNameFilter: "All files (*)"
         selectExisting: true
         folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
-        onAccepted: document.load(openDialog.fileUrl)
+        onAccepted: loadDocument(openDialog.fileUrl)
     }
 
     FileDialog {
@@ -86,7 +99,13 @@ ApplicationWindow {
         selectedNameFilter: "All files (*)"
         selectExisting: false
         folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
-        onAccepted: document.saveAs(saveDialog.fileUrl)
+        onAccepted: {
+            document.saveAs(saveDialog.fileUrl);
+
+            if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
+                ProgressTracker.renameActiveFile(saveDialog.fileUrl);
+            }
+        }
     }
 
     MessageDialog {
@@ -121,6 +140,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("New")
                 shortcut: StandardKey.New
+                // Remember ProgressTracker integration
             }
             Action {
                 text: qsTr("Open...")
@@ -140,6 +160,7 @@ ApplicationWindow {
             }
             Action {
                 text: qsTr("Rename...")
+                // Remember to rename file in ProgressTracker as well
             }
             MenuSeparator {}
             Action {
@@ -196,6 +217,7 @@ ApplicationWindow {
                 enabled: textArea.selectedText
             }
             Action {
+                id: pasteAction
                 text: qsTr("Paste")
                 onTriggered: textArea.paste()
                 enabled: textArea.canPaste
@@ -208,8 +230,14 @@ ApplicationWindow {
             Action {
                 text: qsTr("Paste Untracked")
                 enabled: textArea.canPaste
+                onTriggered: {
+                    document.progressSuspended = true;
+                    pasteAction.trigger();
+                    document.progressSuspended = false;
+                }
             }
             Action {
+                id: deleteAction
                 text: qsTr("Delete")
                 onTriggered: textArea.remove(textArea.selectionStart, textArea.selectionEnd)
                 enabled: textArea.selectedText
@@ -217,6 +245,11 @@ ApplicationWindow {
             Action {
                 text: qsTr("Delete Untracked")
                 enabled: textArea.selectedText
+                onTriggered: {
+                    document.progressSuspended = true;
+                    deleteAction.trigger();
+                    document.progressSuspended = false;
+                }
             }
             MenuSeparator {}
             Action {
@@ -321,7 +354,7 @@ ApplicationWindow {
         selectionEnd: textArea.selectionEnd
         Component.onCompleted: {
             if (Settings.Document.lastFile != null) {
-                document.load(Qt.resolvedUrl(Settings.Document.lastFile));
+                loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
             }
         }
 
@@ -329,9 +362,19 @@ ApplicationWindow {
             Settings.Document.lastFile = document.fileUrl.toString();
         }
 
+        property int oldWordCount;
+        property bool progressSuspended: false;
+        onWordCountChanged: {
+            if (!progressSuspended && oldWordCount !== wordCount) {
+                ProgressTracker.addProgress(wordCount - oldWordCount);
+            }
+
+            oldWordCount = wordCount;
+        }
+
         onError: {
-            errorDialog.text = message
-            errorDialog.visible = true
+            errorDialog.text = message;
+            errorDialog.visible = true;
         }
     }
 

@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import Skywriter.Text 1.0
+import Skywriter.Progress 1.0
 
 ToolBar {
     property FormattableTextArea document;
@@ -20,7 +21,7 @@ ToolBar {
         }
 
         Label {
-            text: qsTr('%1 added today').arg(0)
+            text: qsTr('%1 added today').arg(ProgressTracker.progressToday)
             horizontalAlignment: Qt.AlignHCenter
             verticalAlignment: Qt.AlignVCenter
             font.pointSize: 10

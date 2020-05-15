@@ -5,7 +5,8 @@
 QPalette skywriter_palette;
 bool palette_initialized = false;
 
-const QPalette& Skywriter::palette() {
+const QPalette& Skywriter::palette()
+{
     if (!palette_initialized) {
         // This is necessary because custom style palettes cannot be defined
         // in qtquickcontrols2.conf.

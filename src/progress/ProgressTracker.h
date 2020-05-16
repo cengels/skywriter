@@ -84,6 +84,10 @@ class ProgressTracker : public QObject {
         int m_autosaveMinutes;
         QTime m_dailyReset;
         QUrl m_fileUrl;
+        bool m_hasRunningTimer;
+
+    private Q_SLOTS:
+        void autosave();
 };
 
 #endif // PROGRESSTRACKER_H

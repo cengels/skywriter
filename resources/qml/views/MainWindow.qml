@@ -79,6 +79,8 @@ ApplicationWindow {
     Component.onCompleted: {
         ProgressTracker.maximumIdleMinutes = Qt.binding(() => Settings.Application.maximumProgressIdleMinutes);
         ProgressTracker.autosaveMinutes = Qt.binding(() => Settings.Application.progressAutosaveMinutes);
+        ProgressTracker.dailyReset = Qt.binding(() => Settings.Application.dailyReset);
+        ProgressTracker.load();
     }
 
     FileDialog {

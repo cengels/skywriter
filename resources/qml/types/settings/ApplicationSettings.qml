@@ -7,5 +7,6 @@ Sky.Settings {
     property string theme: "Default"
     property int maximumProgressIdleMinutes: 5
     property int progressAutosaveMinutes: 5
+    property string dailyReset: "06:00:00"
     property int autosaveMinutes: 0
 }

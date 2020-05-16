@@ -51,6 +51,9 @@ class ProgressTracker : public QObject {
         //! Reads all progress items from the specified year and month.
         //! If month is 0, reads the entire year.
         static QList<ProgressItem*> read(int year, int month = 0, const QTime& adjustBy = QTime(), QObject* parent = nullptr);
+        //! If new progress items have been added since the last save, writes
+        //! them to the file system, else does nothing.
+        void save();
 
         //! Adds the specified number of words for the currently active file.
         void addProgress(const int words);
@@ -73,10 +76,9 @@ class ProgressTracker : public QObject {
         void activeFileChanged();
 
     private:
-        void save();
-
         int m_progressToday;
         QList<ProgressItem*> m_items;
+        QList<ProgressItem*> m_items_to_save;
         ProgressItem* m_activeProgressItem;
         int m_maximumIdleMinutes;
         int m_autosaveMinutes;

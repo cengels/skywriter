@@ -74,6 +74,8 @@ ApplicationWindow {
         Settings.Window.width = width;
         Settings.Window.height = height;
         Settings.Window.visibility = visibility;
+
+        ProgressTracker.save();
     }
 
     Component.onCompleted: {

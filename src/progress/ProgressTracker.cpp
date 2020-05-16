@@ -32,7 +32,8 @@ namespace {
 ProgressTracker::ProgressTracker(QObject *parent)
     : QObject(parent)
     , m_progressToday(0)
-    , m_items()
+    , m_items(),
+      m_items_to_save()
     , m_activeProgressItem(nullptr)
     , m_maximumIdleMinutes(0)
     , m_autosaveMinutes(0)
@@ -106,6 +107,7 @@ void ProgressTracker::addProgress(const int words)
             progressItem->setFileUrl(this->m_fileUrl);
             progressItem->setStart(QDateTime::currentDateTime());
             this->m_items.append(progressItem);
+            this->m_items_to_save.append(progressItem);
             this->m_activeProgressItem = progressItem;
             emit itemsChanged();
         }
@@ -172,7 +174,6 @@ void ProgressTracker::load()
 
     this->m_items = read(today.year(), today.month(), m_dailyReset);
 
-    // this->m_items.append(new ProgressItem{ this, QUrl(), QDateTime::fromString("2020-05-16T16:25:00", Qt::DateFormat::ISODate), QDateTime::fromString("2020-05-16T16:33:00", Qt::DateFormat::ISODate), 500 });
     const auto end = this->m_items.crend();
 
     for (auto i = this->m_items.crbegin(); i != end; i++) {
@@ -194,5 +195,19 @@ void ProgressTracker::load()
 
 void ProgressTracker::save()
 {
+    if (!m_items_to_save.isEmpty()) {
+        QFile file(progressPath());
+        if (file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+            QTextStream out(&file);
 
+            foreach (const ProgressItem* item, m_items_to_save) {
+                out << item->toCsv() << '\n';
+            }
+
+            file.close();
+            m_items_to_save.clear();
+        } else {
+            qCritical("Couldn't open progress.csv.");
+        }
+    }
 }

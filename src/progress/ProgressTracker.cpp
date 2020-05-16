@@ -132,7 +132,7 @@ void ProgressTracker::save()
 
 
 const QDate ProgressTracker::getAdjustedDate(const QDateTime& dateTime) {
-    return dateTime.time() < m_dailyReset
+    return m_dailyReset.isValid() && dateTime.time() < m_dailyReset
         ? dateTime.date().addDays(-1)
         : dateTime.date();
 }

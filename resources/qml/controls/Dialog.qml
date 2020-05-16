@@ -21,8 +21,15 @@ Window {
     color: palette.window
     property int padding: 5
     property int standardButtons: DialogButtonBox.Ok
-    default property var content
     property int result
+    property var buttonAlignment: Qt.AlignRight | Qt.AlignVCenter
+    default property var content
+
+    signal accepted
+    signal applied
+    signal discarded
+    signal helpRequested
+    signal rejected
 
     onResultChanged: {
         if (result === Sky.Dialog.Result.Accepted
@@ -47,14 +54,21 @@ Window {
         contentChildren: dialog.content
 
         footer: DialogButtonBox {
+            alignment: dialog.buttonAlignment
             standardButtons: dialog.standardButtons
-            delegate: Sky.Button {}
+            delegate: Sky.Button {
+                onTextChanged: {
+                    if (text === qsTr("Save")) {
+                        DialogButtonBox.buttonRole = DialogButtonBox.ApplyRole
+                    }
+                }
+            }
 
-            onAccepted: dialog.result = Sky.Dialog.Result.Accepted
-            onApplied: dialog.result = Sky.Dialog.Result.Applied
-            onDiscarded: dialog.result = Sky.Dialog.Result.Discarded
-            onHelpRequested: dialog.result = Sky.Dialog.Result.HelpRequested
-            onRejected: dialog.result = Sky.Dialog.Result.Rejected
+            onAccepted: { dialog.result = Sky.Dialog.Result.Accepted; dialog.accepted(); }
+            onApplied: { dialog.result = Sky.Dialog.Result.Applied; dialog.applied(); }
+            onDiscarded: { dialog.result = Sky.Dialog.Result.Discarded; dialog.discarded(); }
+            onHelpRequested: { dialog.result = Sky.Dialog.Result.HelpRequested; dialog.helpRequested(); }
+            onRejected: { dialog.result = Sky.Dialog.Result.Rejected; dialog.rejected(); }
         }
     }
 }

@@ -13,7 +13,7 @@ import "." as View
 
 ApplicationWindow {
     id: mainWindow
-    title: "Skywriter"
+    title: document.fileName + (document.modified ? "*" : "") + "  •  Skywriter"
     visible: true
 
     readonly property int defaultWidth: 800
@@ -68,7 +68,16 @@ ApplicationWindow {
                 ? Window.AutomaticVisibility
                 : Settings.Window.visibility;
 
+    property bool forceClose: false;
+
     onClosing: {
+        if (document.modified && !forceClose) {
+            close.accepted = false;
+            quitDialog.show();
+
+            return;
+        }
+
         Settings.Window.x = x;
         Settings.Window.y = y;
         Settings.Window.width = width;
@@ -116,18 +125,24 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog {
+    Controls.MessageDialog {
         id: errorDialog
+        title: qsTr("Error")
     }
 
-    MessageDialog {
+    Controls.MessageDialog {
         id : quitDialog
         title: qsTr("Quit?")
         text: qsTr("The file has been modified. Quit anyway?")
-        icon: StandardIcon.Warning
-        standardButtons: (StandardButton.Yes | StandardButton.Save | StandardButton.No)
-        onYes: Qt.quit()
-        onAccepted: save()
+        standardButtons: (StandardButton.Yes | StandardButton.No | StandardButton.Save)
+        onApplied: {
+            save();
+            mainWindow.close();
+        }
+        onAccepted: {
+            forceClose = true;
+            mainWindow.close();
+        }
     }
 
     View.AboutQt { id: aboutQt }
@@ -192,13 +207,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("Quit")
                 shortcut: StandardKey.Quit
-                onTriggered: {
-                    if (document.modified) {
-                        save();
-                    } else {
-                        Qt.quit();
-                    }
-                }
+                onTriggered: mainWindow.close();
             }
         }
         Controls.Menu {
@@ -382,7 +391,7 @@ ApplicationWindow {
 
         onError: {
             errorDialog.text = message;
-            errorDialog.visible = true;
+            errorDialog.show();
         }
 
         property int progressAtLastSave;

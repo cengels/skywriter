@@ -80,7 +80,6 @@ class FormattableTextArea : public QObject {
         void fileUrlChanged();
 
         void loaded(const QString &text);
-        void saved();
         void error(const QString &message);
 
         void modifiedChanged();

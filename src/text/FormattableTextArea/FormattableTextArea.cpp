@@ -229,6 +229,8 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
 
     file.close();
 
+    this->setModified(false);
+
     emit lastModifiedChanged();
 
     if (fileUrl == m_fileUrl)

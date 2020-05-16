@@ -90,6 +90,10 @@ QUrl ProgressTracker::fileUrl() const
 
 void ProgressTracker::addProgress(const int words)
 {
+    if (words == 0) {
+        return;
+    }
+
     bool skipIdleCheck = false;
     const QDateTime& now = QDateTime::currentDateTime();
 
@@ -201,7 +205,9 @@ void ProgressTracker::save()
             QTextStream out(&file);
 
             foreach (const ProgressItem* item, m_items_to_save) {
-                out << item->toCsv() << '\n';
+                if (item->words() != 0) {
+                    out << item->toCsv() << '\n';
+                }
             }
 
             file.close();

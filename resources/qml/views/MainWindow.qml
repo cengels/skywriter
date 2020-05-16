@@ -75,6 +75,10 @@ ApplicationWindow {
         Settings.Window.height = height;
         Settings.Window.visibility = visibility;
 
+        // Ensures that, if the user chose to quit without saving, their
+        // unsaved progress is not saved. If they *did* save their progress,
+        // (progressAtLastSave - progressToday) will be 0.
+        ProgressTracker.addProgress(document.progressAtLastSave - ProgressTracker.progressToday);
         ProgressTracker.save();
     }
 
@@ -379,6 +383,12 @@ ApplicationWindow {
         onError: {
             errorDialog.text = message;
             errorDialog.visible = true;
+        }
+
+        property int progressAtLastSave;
+        onLastModifiedChanged: {
+            // called whenever the file is saved
+            progressAtLastSave = ProgressTracker.progressToday;
         }
     }
 

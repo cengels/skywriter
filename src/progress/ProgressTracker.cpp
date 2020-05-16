@@ -64,18 +64,27 @@ QUrl ProgressTracker::fileUrl() const
 
 void ProgressTracker::addProgress(const int words)
 {
+    bool skipIdleCheck = false;
+    const QDateTime& now = QDateTime::currentDateTime();
+
     if (this->m_activeProgressItem != nullptr
-            && this->m_activeProgressItem->end().secsTo(QDateTime::currentDateTime()) >= this->m_maximumIdleMinutes * 60) {
+            && this->m_activeProgressItem->end().secsTo(now) > this->m_maximumIdleMinutes * 60) {
         this->m_activeProgressItem = nullptr;
+        skipIdleCheck = true;
     }
 
     if (this->m_activeProgressItem == nullptr) {
-        // TODO: Retrieve last progress item if it's less than maximumIdleTime past
-        this->m_activeProgressItem = new ProgressItem{ this };
-        this->m_activeProgressItem->setFileUrl(this->m_fileUrl);
-        this->m_activeProgressItem->setStart(QDateTime::currentDateTime());
-        this->m_items.append(this->m_activeProgressItem);
-        emit itemsChanged();
+        if (!skipIdleCheck && !this->m_items.isEmpty() && this->m_items.constLast()->end().secsTo(now) <= this->m_maximumIdleMinutes * 60) {
+            qDebug() << "Using last";
+            this->m_activeProgressItem = this->m_items.last();
+        } else {
+            qDebug() << "Creating new";
+            this->m_activeProgressItem = new ProgressItem{ this };
+            this->m_activeProgressItem->setFileUrl(this->m_fileUrl);
+            this->m_activeProgressItem->setStart(QDateTime::currentDateTime());
+            this->m_items.append(this->m_activeProgressItem);
+            emit itemsChanged();
+        }
     }
 
     this->m_activeProgressItem->setWords(this->m_activeProgressItem->words() + words);
@@ -105,7 +114,7 @@ void ProgressTracker::load()
 {
     // Consider loading only the items for the current day to save memory.
     // More items can be loaded on-demand in the Progress view.
-    // this->m_items.append(new ProgressItem{ this, QUrl(), QDateTime::fromString("2020-05-16T04:05:00", Qt::DateFormat::ISODate), QDateTime::fromString("2020-05-16T04:10:00", Qt::DateFormat::ISODate), 500 });
+//     this->m_items.append(new ProgressItem{ this, QUrl(), QDateTime::fromString("2020-05-16T16:25:00", Qt::DateFormat::ISODate), QDateTime::fromString("2020-05-16T16:33:00", Qt::DateFormat::ISODate), 500 });
 
     const QDate& today = this->getAdjustedDate(QDateTime::currentDateTime());
     const auto end = this->m_items.crend();

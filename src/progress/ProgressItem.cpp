@@ -71,3 +71,27 @@ QString ProgressItem::toCsv() const {
             .arg(m_end.toString(Qt::DateFormat::ISODate))
             .arg(m_words);
 }
+
+ProgressItem* ProgressItem::fromCsv(const QString& line) {
+    if (line.contains('\n')) {
+        qCritical("fromCsv() argument must be a single line.");
+
+        return new ProgressItem();
+    }
+
+    const auto split = line.split(',');
+
+    if (split.length() != 4) {
+        qCritical("Line must have exactly 4 values but had: %d", split.length());
+
+        return new ProgressItem();
+    }
+
+    return new ProgressItem {
+        nullptr,
+        QUrl::fromLocalFile(split.at(0)),
+        QDateTime::fromString(split.at(1), Qt::DateFormat::ISODate),
+        QDateTime::fromString(split.at(2), Qt::DateFormat::ISODate),
+        split.at(3).toInt()
+    };
+}

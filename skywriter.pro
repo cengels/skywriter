@@ -28,6 +28,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 
 SOURCES += \
 #        src/document_handler.cpp \
+        src/persistence.cpp \
         src/progress/ProgressItem.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
@@ -54,6 +55,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
 #    src/document_handler.h \
+    src/persistence.h \
     src/progress/ProgressItem.h \
     src/text/FormattableTextArea/FormattableTextArea.h \
     src/text/format.h \

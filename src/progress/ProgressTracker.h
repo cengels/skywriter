@@ -48,6 +48,10 @@ class ProgressTracker : public QObject {
         QUrl fileUrl() const;
 
     public Q_SLOTS:
+        //! Reads all progress items from the specified year and month.
+        //! If month is 0, reads the entire year.
+        static QList<ProgressItem*> read(int year, int month = 0, const QTime& adjustBy = QTime(), QObject* parent = nullptr);
+
         //! Adds the specified number of words for the currently active file.
         void addProgress(const int words);
         //! Sets a new file. Note that this closes any active progress items.
@@ -70,9 +74,6 @@ class ProgressTracker : public QObject {
 
     private:
         void save();
-        //! Gets the date component of the specified QDateTime. If the time
-        //! is before the specified dailyReset, the previous day is returned.
-        const QDate getAdjustedDate(const QDateTime& dateTime);
 
         int m_progressToday;
         QList<ProgressItem*> m_items;

@@ -36,6 +36,7 @@ struct ProgressItem : public QObject
         void setWords(int words);
 
         QString toCsv() const;
+        static ProgressItem* fromCsv(const QString& line);
 
     Q_SIGNALS:
         void fileUrlChanged();

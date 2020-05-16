@@ -1,8 +1,33 @@
 #include <QObject>
 #include <QDebug>
+#include <QStandardPaths>
+#include <QFile>
+#include <QGuiApplication>
 
 #include "ProgressTracker.h"
 #include "ProgressItem.h"
+#include "../persistence.h"
+
+namespace {
+    QString m_progressPath = QString();
+    QString progressPath()
+    {
+        if (m_progressPath.isNull()) {
+            m_progressPath = persistence::documentsPath() + "/progress2.csv";
+        }
+
+        return m_progressPath;
+    }
+
+    //! Gets the date component of the specified QDateTime. If the time
+    //! is before the specified dailyReset, the previous day is returned.
+    const QDate getAdjustedDate(const QDateTime& dateTime, const QTime& adjustBy)
+    {
+        return adjustBy.isValid() && dateTime.time() < adjustBy
+            ? dateTime.date().addDays(-1)
+            : dateTime.date();
+    }
+}
 
 ProgressTracker::ProgressTracker(QObject *parent)
     : QObject(parent)
@@ -75,14 +100,13 @@ void ProgressTracker::addProgress(const int words)
 
     if (this->m_activeProgressItem == nullptr) {
         if (!skipIdleCheck && !this->m_items.isEmpty() && this->m_items.constLast()->end().secsTo(now) <= this->m_maximumIdleMinutes * 60) {
-            qDebug() << "Using last";
             this->m_activeProgressItem = this->m_items.last();
         } else {
-            qDebug() << "Creating new";
-            this->m_activeProgressItem = new ProgressItem{ this };
-            this->m_activeProgressItem->setFileUrl(this->m_fileUrl);
-            this->m_activeProgressItem->setStart(QDateTime::currentDateTime());
-            this->m_items.append(this->m_activeProgressItem);
+            ProgressItem* progressItem = new ProgressItem(this);
+            progressItem->setFileUrl(this->m_fileUrl);
+            progressItem->setStart(QDateTime::currentDateTime());
+            this->m_items.append(progressItem);
+            this->m_activeProgressItem = progressItem;
             emit itemsChanged();
         }
     }
@@ -110,17 +134,49 @@ void ProgressTracker::renameActiveFile(const QUrl& fileUrl)
     emit fileUrlChanged();
 }
 
+QList<ProgressItem*> ProgressTracker::read(int year, int month, const QTime& adjustBy, QObject* parent)
+{
+    QList<ProgressItem*> list;
+    QFile file(progressPath());
+
+    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        QTextStream in(&file);
+
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            ProgressItem* item = ProgressItem::fromCsv(line);
+            const QDate& date = getAdjustedDate(item->start(), adjustBy);
+
+            if (date.year() == year && (month == 0 || date.month() == month)) {
+                item->setParent(parent);
+                list.append(item);
+            }
+        }
+
+        file.close();
+    } else {
+        qCritical("Couldn't open progress.csv.");
+    }
+
+    return list;
+}
+
 void ProgressTracker::load()
 {
-    // Consider loading only the items for the current day to save memory.
-    // More items can be loaded on-demand in the Progress view.
-//     this->m_items.append(new ProgressItem{ this, QUrl(), QDateTime::fromString("2020-05-16T16:25:00", Qt::DateFormat::ISODate), QDateTime::fromString("2020-05-16T16:33:00", Qt::DateFormat::ISODate), 500 });
+    const QDate& today = getAdjustedDate(QDateTime::currentDateTime(), m_dailyReset);
 
-    const QDate& today = this->getAdjustedDate(QDateTime::currentDateTime());
+    if (!this->m_items.isEmpty()) {
+        qDeleteAll(this->m_items);
+        this->m_items.clear();
+    }
+
+    this->m_items = read(today.year(), today.month(), m_dailyReset);
+
+    // this->m_items.append(new ProgressItem{ this, QUrl(), QDateTime::fromString("2020-05-16T16:25:00", Qt::DateFormat::ISODate), QDateTime::fromString("2020-05-16T16:33:00", Qt::DateFormat::ISODate), 500 });
     const auto end = this->m_items.crend();
 
     for (auto i = this->m_items.crbegin(); i != end; i++) {
-        const QDate& start = this->getAdjustedDate((*i)->start());
+        const QDate& start = getAdjustedDate((*i)->start(), m_dailyReset);
 
         if (start != today) {
             break;
@@ -128,6 +184,8 @@ void ProgressTracker::load()
 
         m_progressToday += (*i)->words();
     }
+
+    emit itemsChanged();
 
     if (m_progressToday > 0) {
         emit progressTodayChanged();
@@ -137,11 +195,4 @@ void ProgressTracker::load()
 void ProgressTracker::save()
 {
 
-}
-
-
-const QDate ProgressTracker::getAdjustedDate(const QDateTime& dateTime) {
-    return m_dailyReset.isValid() && dateTime.time() < m_dailyReset
-        ? dateTime.date().addDays(-1)
-        : dateTime.date();
 }

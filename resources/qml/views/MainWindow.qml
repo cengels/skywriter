@@ -460,8 +460,8 @@ ApplicationWindow {
             anchors.right: container.right
             anchors.bottom: container.bottom
             contentItem.opacity: 1
-            size: scrollView.height / textArea.height
-            visible: textArea.height > scrollView.height
+            size: scrollView.height / textAreaContainer.contentHeight
+            visible: textAreaContainer.contentHeight > scrollView.height
         }
 
         MouseArea {
@@ -470,9 +470,12 @@ ApplicationWindow {
                 wheel.accepted = true;
 
                 if (wheel.modifiers === Qt.NoModifier) {
+                    // Scrolls about 72 pixels per wheel "click"
+                    const delta = (wheel.angleDelta.y * 0.6) / textAreaContainer.contentHeight;
+
                     verticalScrollbar.setPosition(wheel.angleDelta.y < 0
-                            ? Math.min(verticalScrollbar.position + 0.05, 1.0 - verticalScrollbar.size)
-                            : Math.max(verticalScrollbar.position - 0.05, 0.0));
+                            ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
+                            : Math.max(verticalScrollbar.position - delta, 0.0));
                 }
             }
         }
@@ -491,6 +494,7 @@ ApplicationWindow {
                 clip: true
 
                 Flickable {
+                    id: textAreaContainer
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: verticalScrollbar
                     contentWidth: textArea.width
@@ -499,11 +503,12 @@ ApplicationWindow {
                     TextEdit {
                         id: textArea
                         width: scrollView.width
-                        height: contentHeight
+                        height: contentHeight + scrollView.height * 1.9
+                        anchors.verticalCenter: parent.verticalCenter
 
                         selectByMouse: true
                         textFormat: TextEdit.MarkdownText
-                        verticalAlignment: TextEdit.AlignTop
+                        verticalAlignment: TextEdit.AlignVCenter
                         horizontalAlignment: ThemeManager.activeTheme.textAlignment
                         wrapMode: TextEdit.Wrap
                         persistentSelection: true

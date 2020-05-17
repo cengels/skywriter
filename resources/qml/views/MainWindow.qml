@@ -488,6 +488,19 @@ ApplicationWindow {
                         color: ThemeManager.activeTheme.fontColor
                         font.pointSize: ThemeManager.activeTheme.fontSize
                         font.family: ThemeManager.activeTheme.fontFamily
+
+                        onTextChanged: {
+                            const caretPosition = cursorRectangle.y;
+                            // parent.y is always negative
+                            const visibleStartY = -parent.y;
+                            const visibleEndY = -parent.y + scrollView.height;
+
+                            if (caretPosition < visibleStartY) {
+                                verticalScrollbar.position = caretPosition / parent.height;
+                            } else if (caretPosition > visibleEndY) {
+                                verticalScrollbar.position = (caretPosition + cursorRectangle.height - visibleEndY) / parent.height;
+                            }
+                        }
                     }
                 }
             }

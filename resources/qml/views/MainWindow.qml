@@ -424,50 +424,71 @@ ApplicationWindow {
         color: ThemeManager.activeTheme.windowBackground
     }
 
-    ScrollView {
-        id: scrollView
-        anchors.fill: parent
-        clip: true
-        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-        ScrollBar.vertical.minimumSize: 0.06
-        contentWidth: textAreaContainer.width
-        contentHeight: textAreaContainer.height
-
+    Control {
+        id: container
         background: ThemeManager.activeTheme.backgroundImage === '' ? backgroundRectangle : backgroundImage
+        anchors.fill: parent
 
-        Flickable {
-            boundsBehavior: Flickable.StopAtBounds
+        ScrollBar {
+            id: verticalScrollbar
+            z: 99
+            hoverEnabled: true
+            parent: container
+            anchors.top: container.top
+            anchors.right: container.right
+            anchors.bottom: container.bottom
+            contentItem.opacity: 1
+            size: scrollView.height / textArea.height
+            visible: textArea.height > scrollView.height
+        }
 
-            Rectangle {
-                id: textAreaContainer
-                // Add PaddingVertical
-                width: textArea.width
-                height: textArea.height
-                color: ThemeManager.activeTheme.documentBackground
-                x: scrollView.width / 2 - width / 2
+        MouseArea {
+            anchors.fill: parent
+            onWheel: {
+                wheel.accepted = true;
 
-                TextEdit {
-                    id: textArea
-                    width: ThemeManager.activeTheme.documentWidth > 1 ? ThemeManager.activeTheme.documentWidth : ThemeManager.activeTheme.documentWidth * scrollView.width
-                    height: {
-                        const textHeight = contentHeight < scrollView.height ? scrollView.height : contentHeight;
+                if (wheel.modifiers === Qt.NoModifier) {
+                    verticalScrollbar.setPosition(wheel.angleDelta.y < 0
+                            ? Math.min(verticalScrollbar.position + 0.05, 1.0 - verticalScrollbar.size)
+                            : Math.max(verticalScrollbar.position - 0.05, 0.0));
+                }
+            }
+        }
 
-                        return ThemeManager.activeTheme.documentHeight > 1
-                                ? ThemeManager.activeTheme.documentHeight
-                                : ThemeManager.activeTheme.documentHeight * textHeight;
+        Rectangle {
+            width: ThemeManager.activeTheme.documentWidth > 1 ? ThemeManager.activeTheme.documentWidth : ThemeManager.activeTheme.documentWidth * container.width
+            height: ThemeManager.activeTheme.documentHeight > 1 ? ThemeManager.activeTheme.documentHeight : ThemeManager.activeTheme.documentHeight * container.height
+            anchors.centerIn: parent
+            color: ThemeManager.activeTheme.documentBackground
+
+            Item {
+                id: scrollView
+                height: parent.height - ThemeManager.activeTheme.paddingVertical * 2
+                width: parent.width - ThemeManager.activeTheme.paddingHorizontal * 2
+                anchors.centerIn: parent
+                clip: true
+
+                Flickable {
+                    boundsBehavior: Flickable.StopAtBounds
+                    ScrollBar.vertical: verticalScrollbar
+                    contentWidth: textArea.width
+                    contentHeight: textArea.height
+
+                    TextEdit {
+                        id: textArea
+                        width: scrollView.width
+                        height: contentHeight
+
+                        selectByMouse: true
+                        textFormat: TextEdit.MarkdownText
+                        verticalAlignment: TextEdit.AlignTop
+                        horizontalAlignment: ThemeManager.activeTheme.textAlignment
+                        wrapMode: TextEdit.Wrap
+                        persistentSelection: true
+                        color: ThemeManager.activeTheme.fontColor
+                        font.pointSize: ThemeManager.activeTheme.fontSize
+                        font.family: ThemeManager.activeTheme.fontFamily
                     }
-
-                    leftPadding: ThemeManager.activeTheme.paddingHorizontal
-                    rightPadding: ThemeManager.activeTheme.paddingHorizontal
-                    selectByMouse: true
-                    textFormat: TextEdit.MarkdownText
-                    verticalAlignment: TextEdit.AlignTop
-                    horizontalAlignment: ThemeManager.activeTheme.textAlignment
-                    wrapMode: TextEdit.Wrap
-                    persistentSelection: true
-                    color: ThemeManager.activeTheme.fontColor
-                    font.pointSize: ThemeManager.activeTheme.fontSize
-                    font.family: ThemeManager.activeTheme.fontFamily
                 }
             }
         }

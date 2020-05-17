@@ -34,6 +34,8 @@ SOURCES += \
         src/text/FormattableTextArea/counter.cpp \
         src/text/format.cpp \
         src/progress/ProgressTracker.cpp \
+        src/theming/ThemeManager.cpp \
+        src/theming/Theme.cpp \
         src/colors.cpp \
         src/main.cpp
 
@@ -60,4 +62,6 @@ HEADERS += \
     src/text/FormattableTextArea/FormattableTextArea.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
+    src/theming/ThemeManager.h \
+    src/theming/Theme.h \
     src/colors.h

@@ -30,9 +30,6 @@
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>
-        <file alias="Properties.qml">resources/qml/types/Properties.qml</file>
-        <file alias="Theme.qml">resources/qml/types/Theme.qml</file>
-        <file alias="DefaultTheme.qml">resources/qml/types/DefaultTheme.qml</file>
         <file alias="Settings.qml">resources/qml/types/Settings.qml</file>
     </qresource>
     <qresource prefix="/qml/types/settings">

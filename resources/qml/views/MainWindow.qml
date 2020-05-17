@@ -7,6 +7,7 @@ import Qt.labs.platform 1.1 as Platform
 import Skywriter.Settings 1.0 as Settings
 import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
+import Skywriter.Theming 1.0
 import "../controls" as Controls
 import "../types" as Sky
 import "." as View
@@ -147,7 +148,11 @@ ApplicationWindow {
 
     View.AboutQt { id: aboutQt }
     View.AboutSkywriter { id: aboutSkywriter }
-    View.Appearance { id: appearance }
+    View.Appearance {
+        id: appearance
+        property int oldThemeIndex;
+        onRejected: ThemeManager.activeThemeIndex = oldThemeIndex;
+    }
 
     menuBar: Controls.MenuBar {
         font.pointSize: 10
@@ -339,7 +344,10 @@ ApplicationWindow {
             title: qsTr("Tools")
             Action {
                 text: qsTr("Appearance...")
-                onTriggered: appearance.show()
+                onTriggered: {
+                    appearance.oldThemeIndex = ThemeManager.activeThemeIndex;
+                    appearance.show();
+                }
             }
             Action {
                 text: qsTr("Progress...")

@@ -9,6 +9,35 @@
 #include "text/FormattableTextArea/FormattableTextArea.h"
 #include "progress/ProgressTracker.h"
 #include "colors.h"
+#include "theming/Theme.h"
+#include "theming/ThemeManager.h"
+
+namespace {
+    template <typename T>
+    void registerSingleton(const char *uri, int versionMajor, int versionMinor, const char *qmlName) {
+        qmlRegisterSingletonType<ProgressTracker>(uri, versionMajor, versionMinor, qmlName, [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+
+            T *singleton = new T();
+            return singleton;
+        });
+    }
+
+    void registerQmlTypes()
+    {
+        qmlRegisterType<FormattableTextArea>("Skywriter.Text", 1, 0, "FormattableTextArea");
+
+        registerSingleton<ProgressTracker>("Skywriter.Progress", 1, 0, "ProgressTracker");
+
+        qmlRegisterType<Theme>("Skywriter.Theming", 1, 0, "Theme");
+        registerSingleton<ThemeManager>("Skywriter.Theming", 1, 0, "ThemeManager");
+
+        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -25,19 +54,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
     QGuiApplication::setPalette(Skywriter::palette());
 
-    qmlRegisterType<FormattableTextArea>("Skywriter.Text", 1, 0, "FormattableTextArea");
-
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
-    qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
-
-    qmlRegisterSingletonType<ProgressTracker>("Skywriter.Progress", 1, 0, "ProgressTracker", [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-        Q_UNUSED(engine)
-        Q_UNUSED(scriptEngine)
-
-        ProgressTracker *progressTracker = new ProgressTracker();
-        return progressTracker;
-    });
+    registerQmlTypes();
 
     QQuickStyle::setFallbackStyle("Fusion");
 

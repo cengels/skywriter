@@ -5,6 +5,7 @@ import QtQuick.Window 2.14
 import "../controls" as Sky
 import "../types" as SkyT
 import Skywriter.Theming 1.0
+import Skywriter.Settings 1.0 as Settings
 
 Sky.Dialog {
     title: qsTr("Appearance")
@@ -19,6 +20,10 @@ Sky.Dialog {
         if (visible) {
             grid.currentIndex = ThemeManager.activeThemeIndex;
         }
+    }
+
+    onAccepted: {
+        Settings.Application.theme = ThemeManager.activeTheme.name;
     }
 
     GridView {

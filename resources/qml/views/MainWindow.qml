@@ -93,6 +93,11 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        const foundIndex = ThemeManager.themes.findIndex(x => x.name === Settings.Application.theme);
+        if (foundIndex !== -1) {
+            ThemeManager.activeThemeIndex = foundIndex;
+        }
+
         ProgressTracker.maximumIdleMinutes = Qt.binding(() => Settings.Application.maximumProgressIdleMinutes);
         ProgressTracker.autosaveMinutes = Qt.binding(() => Settings.Application.progressAutosaveMinutes);
         ProgressTracker.dailyReset = Qt.binding(() => Settings.Application.dailyReset);

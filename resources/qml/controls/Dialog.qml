@@ -5,46 +5,27 @@ import QtQuick.Window 2.14
 import "./" as Sky
 
 Window {
-    enum Result {
-        None,
-        Accepted,
-        Applied,
-        Discarded,
-        HelpRequested,
-        Rejected
-    }
-
     id: dialog
     minimumWidth: 250
     minimumHeight: 200
+    flags: Qt.Dialog
     modality: Qt.WindowModal
     color: palette.window
     property int padding: 5
-    property int standardButtons: DialogButtonBox.Ok
-    property int result
+    property int standardButtons: 0
+    property list<Sky.Button> buttons
     property var buttonAlignment: Qt.AlignRight | Qt.AlignVCenter
     default property var content
 
     signal accepted
     signal applied
     signal discarded
-    signal helpRequested
     signal rejected
-
-    onResultChanged: {
-        if (result === Sky.Dialog.Result.Accepted
-                || result === Sky.Dialog.Result.Applied
-                || result === Sky.Dialog.Result.Discarded
-                || result === Sky.Dialog.Result.Rejected) {
-            close();
-        }
-    }
-
-    onVisibleChanged: {
-        if (visible) {
-            result = Sky.Dialog.Result.None
-        }
-    }
+    signal action
+    signal helpRequested
+    signal yes
+    signal no
+    signal reset
 
     Page {
         width: parent.width
@@ -55,20 +36,26 @@ Window {
 
         footer: DialogButtonBox {
             alignment: dialog.buttonAlignment
+            delegate: Sky.Button { }
+
+            contentChildren: dialog.buttons != null ? dialog.buttons : {}
             standardButtons: dialog.standardButtons
-            delegate: Sky.Button {
-                onTextChanged: {
-                    if (text === qsTr("Save")) {
-                        DialogButtonBox.buttonRole = DialogButtonBox.ApplyRole
-                    }
+
+            onClicked: {
+                dialog.close();
+
+                switch (button.DialogButtonBox.buttonRole) {
+                    case DialogButtonBox.AcceptRole: dialog.accepted(); break;
+                    case DialogButtonBox.RejectRole: dialog.rejected(); break;
+                    case DialogButtonBox.DestructiveRole: dialog.discarded(); break;
+                    case DialogButtonBox.ActionRole: dialog.action(); break;
+                    case DialogButtonBox.HelpRole: dialog.helpRequested(); break;
+                    case DialogButtonBox.YesRole: dialog.yes(); break;
+                    case DialogButtonBox.NoRole: dialog.no(); break;
+                    case DialogButtonBox.ResetRole: dialog.reset(); break;
+                    case DialogButtonBox.ApplyRole: dialog.applied(); break;
                 }
             }
-
-            onAccepted: { dialog.result = Sky.Dialog.Result.Accepted; dialog.accepted(); }
-            onApplied: { dialog.result = Sky.Dialog.Result.Applied; dialog.applied(); }
-            onDiscarded: { dialog.result = Sky.Dialog.Result.Discarded; dialog.discarded(); }
-            onHelpRequested: { dialog.result = Sky.Dialog.Result.HelpRequested; dialog.helpRequested(); }
-            onRejected: { dialog.result = Sky.Dialog.Result.Rejected; dialog.rejected(); }
         }
     }
 }

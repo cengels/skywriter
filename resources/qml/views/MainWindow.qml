@@ -134,13 +134,30 @@ ApplicationWindow {
     Controls.MessageDialog {
         id : quitDialog
         title: qsTr("Quit?")
-        text: qsTr("The file has been modified. Quit anyway?")
-        standardButtons: (StandardButton.Yes | StandardButton.No | StandardButton.Save)
-        onApplied: {
+        text: qsTr("You have unsaved changes. Do you want to save your changes before quitting?")
+        buttons: [
+            Controls.Button {
+                text: qsTr("Save")
+                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            },
+
+            Controls.Button {
+                text: qsTr("Don't Save")
+                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+            },
+
+            Controls.Button {
+                text: qsTr("Cancel")
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+            }
+        ]
+
+
+        onAccepted: {
             save();
             mainWindow.close();
         }
-        onAccepted: {
+        onDiscarded: {
             forceClose = true;
             mainWindow.close();
         }

@@ -4,14 +4,17 @@
 #include <QObject>
 #include <QUrl>
 #include <QColor>
+#include <QFont>
 
 struct Theme : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged);
     Q_PROPERTY(bool isReadOnly MEMBER m_isReadOnly NOTIFY isReadOnlyChanged);
-    Q_PROPERTY(double fontSize MEMBER m_fontSize NOTIFY fontSizeChanged);
-    Q_PROPERTY(QString fontFamily MEMBER m_fontFamily NOTIFY fontFamilyChanged);
+    Q_PROPERTY(double fontSize READ fontSize WRITE setFontSize NOTIFY fontSizeChanged);
+    Q_PROPERTY(QString fontFamily READ fontFamily WRITE setFontFamily NOTIFY fontFamilyChanged);
+    Q_PROPERTY(QFont font READ font NOTIFY fontChanged);
+    Q_PROPERTY(QColor fontColor MEMBER m_fontColor NOTIFY fontColorChanged);
     Q_PROPERTY(QString backgroundImage MEMBER m_backgroundImage NOTIFY backgroundImageChanged);
     Q_PROPERTY(FillMode fillMode MEMBER m_fillMode NOTIFY fillModeChanged);
     Q_PROPERTY(double documentWidth MEMBER m_documentWidth NOTIFY documentWidthChanged);
@@ -21,7 +24,6 @@ struct Theme : public QObject
     Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged);
     Q_PROPERTY(double lineHeight MEMBER m_lineHeight NOTIFY lineHeightChanged);
     Q_PROPERTY(double paragraphSpacing MEMBER m_paragraphSpacing NOTIFY paragraphSpacingChanged);
-    Q_PROPERTY(QColor fontColor MEMBER m_fontColor NOTIFY fontColorChanged);
     Q_PROPERTY(QColor windowBackground MEMBER m_windowBackground NOTIFY windowBackgroundChanged);
     Q_PROPERTY(QColor documentBackground MEMBER m_documentBackground NOTIFY documentBackgroundChanged);
     Q_PROPERTY(HAlignment textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
@@ -43,11 +45,20 @@ struct Theme : public QObject
         //! Returns the default dark theme.
         static Theme* defaultDark();
 
+        const QFont font() const;
+
+        QString fontFamily() const;
+        void setFontFamily(const QString& fontFamily);
+
+        double fontSize() const;
+        void setFontSize(double size);
+
     Q_SIGNALS:
         void nameChanged();
         void isReadOnlyChanged();
         void fontSizeChanged();
         void fontFamilyChanged();
+        void fontChanged();
         void backgroundImageChanged();
         void fillModeChanged();
         void documentWidthChanged();
@@ -65,8 +76,7 @@ struct Theme : public QObject
     private:
         QString m_name;
         bool m_isReadOnly;
-        double m_fontSize;
-        QString m_fontFamily;
+        QFont m_font;
         QString m_backgroundImage;
         FillMode m_fillMode;
         double m_documentWidth;

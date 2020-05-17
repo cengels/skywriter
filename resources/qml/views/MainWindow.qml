@@ -430,14 +430,14 @@ ApplicationWindow {
 
     Image {
         id: backgroundImage
-        anchors.fill: parent
+        anchors.fill: container
         source: ThemeManager.activeTheme.backgroundImage
         fillMode: ThemeManager.activeTheme.fillMode
     }
 
     Rectangle {
         id: backgroundRectangle
-        anchors.fill: parent
+        anchors.fill: container
         color: ThemeManager.activeTheme.windowBackground
     }
 
@@ -503,8 +503,7 @@ ApplicationWindow {
                         wrapMode: TextEdit.Wrap
                         persistentSelection: true
                         color: ThemeManager.activeTheme.fontColor
-                        font.pointSize: ThemeManager.activeTheme.fontSize
-                        font.family: ThemeManager.activeTheme.fontFamily
+                        font: ThemeManager.activeTheme.font
 
                         onTextChanged: {
                             const caretPosition = cursorRectangle.y;

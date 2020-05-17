@@ -59,7 +59,9 @@ int main(int argc, char *argv[])
     QQuickStyle::setFallbackStyle("Fusion");
 
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
-    QGuiApplication::setFont(QFont("Baloo 2", 11));
+    QFont font("Baloo 2", 11);
+    font.setStyleStrategy(QFont::PreferAntialias);
+    QGuiApplication::setFont(font);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());

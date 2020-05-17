@@ -30,6 +30,7 @@ struct Theme : public QObject
 
     public:
         explicit Theme(QObject *parent = nullptr);
+        explicit Theme(const Theme& copy, QObject *parent = nullptr);
 
         enum FillMode { Stretch, PreserveAspectFit, PreserveAspectCrop, Tile, TileVertically, TileHorizontally, Pad };
         Q_ENUM(FillMode);
@@ -52,6 +53,9 @@ struct Theme : public QObject
 
         double fontSize() const;
         void setFontSize(double size);
+
+        void read(const QJsonObject& json);
+        void write(QJsonArray& json) const;
 
     Q_SIGNALS:
         void nameChanged();

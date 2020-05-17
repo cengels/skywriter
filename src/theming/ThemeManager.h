@@ -12,7 +12,7 @@
 class ThemeManager : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(const QList<Theme*> themes READ themes NOTIFY themesChanged);
+    Q_PROPERTY(QList<Theme*> themes READ themes NOTIFY themesChanged);
     Q_PROPERTY(Theme* activeTheme READ activeTheme NOTIFY activeThemeChanged);
     Q_PROPERTY(int activeThemeIndex READ activeThemeIndex WRITE setActiveThemeIndex NOTIFY activeThemeIndexChanged);
 
@@ -27,6 +27,10 @@ class ThemeManager : public QObject {
         void setActiveThemeIndex(int index);
 
     public Q_SLOTS:
+        //! Loads all themes from the file system.
+        void load();
+        //! Saves all themes to the file system.
+        void save() const;
 
     Q_SIGNALS:
         void themesChanged();
@@ -34,7 +38,7 @@ class ThemeManager : public QObject {
         void activeThemeIndexChanged();
 
     private:
-        const QList<Theme*> m_themes;
+        QList<Theme*> m_themes;
         int m_activeThemeIndex;
 };
 

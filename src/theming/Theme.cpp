@@ -1,9 +1,38 @@
 #include <QColor>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QVariant>
+#include <QMetaEnum>
 #include "Theme.h"
 
 namespace {
     Theme* m_defaultLight = new Theme();
     Theme* m_defaultDark = new Theme();
+
+    QString duplicateName(const QString& name) {
+        if (name[name.length() - 1].isDigit()) {
+            QString suffix;
+
+            const auto end = suffix.crend();
+
+            for (auto i = suffix.crbegin(); i != end; i++) {
+                const auto character = (*i);
+
+                if (!character.isDigit()) {
+                    break;
+                }
+
+                suffix.prepend(character);
+            }
+
+            const int number = suffix.toInt();
+            return QStringLiteral("%1 %2")
+                    .arg(name.chopped(suffix.length()))
+                    .arg(number);
+        }
+
+        return QStringLiteral("%1 %2").arg(name).arg(1);
+    }
 }
 
 Theme::Theme(QObject *parent) : QObject(parent),
@@ -23,6 +52,28 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_windowBackground(QColor(Qt::GlobalColor::lightGray)),
     m_documentBackground(QColor(Qt::GlobalColor::white)),
     m_textAlignment(HAlignment::AlignLeft)
+{
+    m_font.setStyleStrategy(QFont::PreferAntialias);
+    m_font.setHintingPreference(QFont::PreferFullHinting);
+}
+
+Theme::Theme(const Theme& copy, QObject *parent) : QObject(parent),
+    m_name(duplicateName(copy.m_name)),
+    m_isReadOnly(false),
+    m_font(copy.m_font),
+    m_backgroundImage(copy.m_backgroundImage),
+    m_fillMode(copy.m_fillMode),
+    m_documentWidth(copy.m_documentWidth),
+    m_documentHeight(copy.m_documentHeight),
+    m_paddingVertical(copy.m_paddingVertical),
+    m_paddingHorizontal(copy.m_paddingHorizontal),
+    m_firstLineIndent(copy.m_firstLineIndent),
+    m_lineHeight(copy.m_lineHeight),
+    m_paragraphSpacing(copy.m_paragraphSpacing),
+    m_fontColor(copy.m_fontColor),
+    m_windowBackground(copy.m_windowBackground),
+    m_documentBackground(copy.m_documentBackground),
+    m_textAlignment(copy.m_textAlignment)
 {
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
@@ -78,5 +129,76 @@ void Theme::setFontSize(double size)
     m_font.setPointSizeF(size);
     emit fontSizeChanged();
     emit fontChanged();
+}
+
+void Theme::read(const QJsonObject& json)
+{
+    m_name = json["name"].toString();
+    m_font = QFont(json["fontFamily"].toString(), json["fontSize"].toDouble());
+    m_fillMode = FillMode(QMetaEnum::fromType<FillMode>().keyToValue(json["fillMode"].toString().toUtf8()));
+    m_documentWidth = json["documentWidth"].toDouble();
+    m_documentHeight = json["documentHeight"].toDouble();
+    m_paddingHorizontal = json["paddingHorizontal"].toDouble();
+    m_paddingVertical = json["paddingVertical"].toDouble();
+
+    if (json.contains("firstLineIndent")) {
+        m_firstLineIndent = json["firstLineIndent"].toDouble();
+    }
+
+    if (json.contains("lineHeight")) {
+        m_lineHeight = json["lineHeight"].toDouble();
+    }
+
+    if (json.contains("paragraphSpacing")) {
+        m_paragraphSpacing = json["paragraphSpacing"].toDouble();
+    }
+
+    if (json.contains("backgroundImage")) {
+        m_backgroundImage = json["backgroundImage"].toString();
+    }
+
+    m_fontColor = QColor(json["fontColor"].toString());
+    m_windowBackground = QColor(json["windowBackground"].toString());
+    m_documentBackground = QColor(json["documentBackground"].toString());
+
+    m_textAlignment = HAlignment(QMetaEnum::fromType<HAlignment>().keyToValue(json["textAlignment"].toString().toUtf8()));
+}
+
+void Theme::write(QJsonArray& json) const
+{
+    if (!m_isReadOnly) {
+        QJsonObject object;
+        object["name"] = m_name;
+        object["fontFamily"] = fontFamily();
+        object["fontSize"] = fontSize();
+        object["fillMode"] = QMetaEnum::fromType<FillMode>().valueToKey(m_fillMode);
+        object["documentWidth"] = m_documentWidth;
+        object["documentHeight"] = m_documentHeight;
+        object["paddingHorizontal"] = m_paddingHorizontal;
+        object["paddingVertical"] = m_paddingVertical;
+
+        if (m_firstLineIndent > 0.0) {
+            object["firstLineIndent"] = m_firstLineIndent;
+        }
+
+        if (m_lineHeight > 0.0) {
+            object["lineHeight"] = m_lineHeight;
+        }
+
+        if (m_paragraphSpacing > 0.0) {
+            object["paragraphSpacing"] = m_paragraphSpacing;
+        }
+
+        if (!m_backgroundImage.isEmpty()) {
+            object["backgroundImage"] = m_backgroundImage;
+        }
+
+        object["fontColor"] = QJsonValue::fromVariant(QVariant(m_fontColor));
+        object["windowBackground"] = QJsonValue::fromVariant(QVariant(m_windowBackground));
+        object["documentBackground"] = QJsonValue::fromVariant(QVariant(m_documentBackground));
+        object["textAlignment"] = QMetaEnum::fromType<HAlignment>().valueToKey(m_textAlignment);
+
+        json.append(object);
+    }
 }
 

@@ -32,6 +32,8 @@ class FormattableTextArea : public QObject {
     Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
 
+    Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
+
     public:
         explicit FormattableTextArea(QObject *parent = nullptr);
 
@@ -79,7 +81,7 @@ class FormattableTextArea : public QObject {
         void textChanged();
         void fileUrlChanged();
 
-        void loaded(const QString &text);
+        void loaded();
         void error(const QString &message);
 
         void modifiedChanged();
@@ -89,6 +91,8 @@ class FormattableTextArea : public QObject {
         void paragraphCountChanged();
         void wordCountChanged();
         void pageCountChanged();
+
+        void firstLineIndentChanged();
 
     private:
         void reset();
@@ -118,6 +122,8 @@ class FormattableTextArea : public QObject {
         void updateWordCount();
         void updateParagraphCount();
         void updatePageCount();
+
+        int m_firstLineIndent;
 };
 
 #endif // FORMATTABLETEXTAREA_H

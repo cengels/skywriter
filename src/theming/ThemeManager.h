@@ -13,7 +13,7 @@ class ThemeManager : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(const QList<Theme*> themes READ themes NOTIFY themesChanged);
-    Q_PROPERTY(const Theme* activeTheme READ activeTheme NOTIFY activeThemeChanged);
+    Q_PROPERTY(Theme* activeTheme READ activeTheme NOTIFY activeThemeChanged);
     Q_PROPERTY(int activeThemeIndex READ activeThemeIndex WRITE setActiveThemeIndex NOTIFY activeThemeIndexChanged);
 
     public:
@@ -21,7 +21,7 @@ class ThemeManager : public QObject {
 
         const QList<Theme*> themes() const;
 
-        const Theme* activeTheme() const;
+        Theme* activeTheme() const;
 
         int activeThemeIndex() const;
         void setActiveThemeIndex(int index);

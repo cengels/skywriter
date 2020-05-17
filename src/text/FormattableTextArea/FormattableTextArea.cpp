@@ -11,6 +11,7 @@
 #include <QTextObject>
 #include <QTextFrame>
 #include <QTextFragment>
+#include <QDebug>
 
 #include "FormattableTextArea.h"
 #include "../format.h"
@@ -28,7 +29,8 @@ FormattableTextArea::FormattableTextArea(QObject *parent)
     , m_characterCount(0)
     , m_wordCount(0)
     , m_paragraphCount(0)
-    , m_pageCount(0) { }
+    , m_pageCount(0)
+    , m_firstLineIndent(0.0) { }
 
 QQuickTextDocument *FormattableTextArea::document() const
 {
@@ -45,6 +47,13 @@ void FormattableTextArea::setDocument(QQuickTextDocument *document)
     }
 
     m_document = document;
+
+    // In order to use a custom stylesheet, the text must be set as HTML.
+    // Even then, though, it just doesn't work. Reason currently unknown.
+    // It may just be broken in the current Qt version.
+
+    // To implement first line indent, line height, and paragraph spacing,
+    // check out QAbstractTextDocumentLayout.
 
     if (m_document) {
         connect(m_document->textDocument(), &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
@@ -191,7 +200,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             }
 
             doc->setModified(false);
-            emit loaded(doc->toMarkdown(MARKDOWN_FEATURES));
+            emit loaded();
         }
 
         reset();

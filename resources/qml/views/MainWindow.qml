@@ -377,6 +377,8 @@ ApplicationWindow {
         cursorPosition: textArea.cursorPosition
         selectionStart: textArea.selectionStart
         selectionEnd: textArea.selectionEnd
+        firstLineIndent: ThemeManager.activeTheme.firstLineIndent
+
         Component.onCompleted: {
             if (Settings.Document.lastFile != null) {
                 loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
@@ -409,22 +411,65 @@ ApplicationWindow {
         }
     }
 
+    Image {
+        id: backgroundImage
+        anchors.fill: parent
+        source: ThemeManager.activeTheme.backgroundImage
+        fillMode: ThemeManager.activeTheme.fillMode
+    }
+
+    Rectangle {
+        id: backgroundRectangle
+        anchors.fill: parent
+        color: ThemeManager.activeTheme.windowBackground
+    }
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
         clip: true
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
         ScrollBar.vertical.minimumSize: 0.06
+        contentWidth: textAreaContainer.width
+        contentHeight: textAreaContainer.height
 
-        TextEdit {
-            id: textArea
-            width: scrollView.width
-            height: scrollView.height
-            selectByMouse: true
-            textFormat: TextEdit.MarkdownText
-            verticalAlignment: TextEdit.AlignTop
-            wrapMode: TextEdit.Wrap
-            persistentSelection: true
+        background: ThemeManager.activeTheme.backgroundImage === '' ? backgroundRectangle : backgroundImage
+
+        Flickable {
+            boundsBehavior: Flickable.StopAtBounds
+
+            Rectangle {
+                id: textAreaContainer
+                // Add PaddingVertical
+                width: textArea.width
+                height: textArea.height
+                color: ThemeManager.activeTheme.documentBackground
+                x: scrollView.width / 2 - width / 2
+
+                TextEdit {
+                    id: textArea
+                    width: ThemeManager.activeTheme.documentWidth > 1 ? ThemeManager.activeTheme.documentWidth : ThemeManager.activeTheme.documentWidth * scrollView.width
+                    height: {
+                        const textHeight = contentHeight < scrollView.height ? scrollView.height : contentHeight;
+
+                        return ThemeManager.activeTheme.documentHeight > 1
+                                ? ThemeManager.activeTheme.documentHeight
+                                : ThemeManager.activeTheme.documentHeight * textHeight;
+                    }
+
+                    leftPadding: ThemeManager.activeTheme.paddingHorizontal
+                    rightPadding: ThemeManager.activeTheme.paddingHorizontal
+                    selectByMouse: true
+                    textFormat: TextEdit.MarkdownText
+                    verticalAlignment: TextEdit.AlignTop
+                    horizontalAlignment: ThemeManager.activeTheme.textAlignment
+                    wrapMode: TextEdit.Wrap
+                    persistentSelection: true
+                    color: ThemeManager.activeTheme.fontColor
+                    font.pointSize: ThemeManager.activeTheme.fontSize
+                    font.family: ThemeManager.activeTheme.fontFamily
+                }
+            }
         }
     }
 }

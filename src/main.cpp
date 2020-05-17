@@ -15,7 +15,7 @@
 namespace {
     template <typename T>
     void registerSingleton(const char *uri, int versionMajor, int versionMinor, const char *qmlName) {
-        qmlRegisterSingletonType<ProgressTracker>(uri, versionMajor, versionMinor, qmlName, [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+        qmlRegisterSingletonType<T>(uri, versionMajor, versionMinor, qmlName, [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
             Q_UNUSED(engine)
             Q_UNUSED(scriptEngine)
 

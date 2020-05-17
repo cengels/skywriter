@@ -11,7 +11,7 @@ const QList<Theme*> ThemeManager::themes() const {
     return m_themes;
 }
 
-const Theme* ThemeManager::activeTheme() const {
+Theme* ThemeManager::activeTheme() const {
     return m_themes.at(m_activeThemeIndex);
 }
 

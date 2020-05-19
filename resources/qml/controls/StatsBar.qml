@@ -4,12 +4,15 @@ import QtQuick.Layouts 1.14
 import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 
-ToolBar {
+Pane {
+    horizontalPadding: 5
+    verticalPadding: 2
     property FormattableTextArea document;
-    position: ToolBar.Footer
 
     RowLayout {
-        anchors.fill: parent
+        id: rowLayout
+        anchors.left: parent.left
+        anchors.right: parent.right
         spacing: 0
 
         Label {

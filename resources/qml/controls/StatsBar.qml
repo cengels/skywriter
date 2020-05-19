@@ -6,6 +6,7 @@ import Skywriter.Progress 1.0
 
 ToolBar {
     property FormattableTextArea document;
+    position: ToolBar.Footer
 
     RowLayout {
         anchors.fill: parent

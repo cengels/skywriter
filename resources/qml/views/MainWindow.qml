@@ -19,6 +19,7 @@ ApplicationWindow {
 
     readonly property int defaultWidth: 800
     readonly property int defaultHeight: 600
+    readonly property int hoverTolerance: 25
 
     minimumWidth: 500
     minimumHeight: 200
@@ -176,220 +177,256 @@ ApplicationWindow {
         onRejected: ThemeManager.activeThemeIndex = oldThemeIndex;
     }
 
-    menuBar: Controls.MenuBar {
-        font.pointSize: 10
-        background: Rectangle {
-            color: palette.base
-        }
-        delegate: MenuBarItem {
-            implicitHeight: 25
+    menuBar: Item {
+        MouseArea {
+            id: menuBarHoverArea
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: menuBar.height
+            anchors.top: parent.top
+            hoverEnabled: true
+            z: 99
         }
 
-        Controls.Menu {
-            title: qsTr("File")
-            Action {
-                text: qsTr("New")
-                shortcut: StandardKey.New
-                // Remember ProgressTracker integration
-            }
-            Action {
-                text: qsTr("Open...")
-                shortcut: StandardKey.Open
-                onTriggered: openDialog.open()
-            }
-            MenuSeparator {}
-            Action {
-                text: qsTr("Save")
-                shortcut: StandardKey.Save
-                onTriggered: save()
-            }
-            Action {
-                text: qsTr("Save As...")
-                shortcut: StandardKey.SaveAs
-                onTriggered: saveDialog.open()
-            }
-            Action {
-                text: qsTr("Rename...")
-                // Remember to rename file in ProgressTracker as well
-            }
-            MenuSeparator {}
-            Action {
-                property var previousVisibility: mainWindow.visibility
-                text: qsTr("Fullscreen")
-                shortcut: StandardKey.FullScreen
-                onTriggered: {
-                    if (mainWindow.visibility === Window.FullScreen) {
-                        mainWindow.visibility = previousVisibility === Window.FullScreen ? Window.AutomaticVisibility : previousVisibility;
-                        previousVisibility = null;
-                    } else {
-                        previousVisibility = mainWindow.visibility;
-                        mainWindow.showFullScreen();
+        Controls.MenuBar {
+            id: menuBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            y: shouldShow ? 0 : -height
+            opacity: shouldShow ? 1.0 : 0.0
+
+            property bool shouldShow: mainWindow.visibility !== Window.FullScreen || menuBarHoverArea.containsMouse
+
+            Behavior on y {
+                animation: NumberAnimation {
+                    easing {
+                        type: Easing.InOutSine
+                        amplitude: 1.0
+                        period: 0.5
                     }
                 }
             }
-            Action {
-                text: qsTr("Preferences...")
-                shortcut: StandardKey.Preferences
-            }
-            Action {
-                text: qsTr("Quit")
-                shortcut: StandardKey.Quit
-                onTriggered: mainWindow.close();
-            }
-        }
-        Controls.Menu {
-            title: qsTr("Edit")
-            Action {
-                text: qsTr("Undo")
-                onTriggered: textArea.undo()
-                enabled: textArea.canUndo
-            }
-            Action {
-                text: qsTr("Redo")
-                onTriggered: textArea.redo()
-                enabled: textArea.canRedo
-            }
-            MenuSeparator {}
-            Action {
-                text: qsTr("Cut")
-                onTriggered: textArea.cut()
-                enabled: textArea.selectedText
-            }
-            Action {
-                text: qsTr("Copy")
-                onTriggered: textArea.copy()
-                enabled: textArea.selectedText
-            }
-            Action {
-                id: pasteAction
-                text: qsTr("Paste")
-                onTriggered: textArea.paste()
-                enabled: textArea.canPaste
-            }
-            Action {
-                text: qsTr("Paste Unformatted")
-                shortcut: "Ctrl+Shift+V"
-                enabled: textArea.canPaste
-            }
-            Action {
-                text: qsTr("Paste Untracked")
-                enabled: textArea.canPaste
-                onTriggered: {
-                    document.progressSuspended = true;
-                    pasteAction.trigger();
-                    document.progressSuspended = false;
-                }
-            }
-            Action {
-                id: deleteAction
-                text: qsTr("Delete")
-                onTriggered: textArea.remove(textArea.selectionStart, textArea.selectionEnd)
-                enabled: textArea.selectedText
-            }
-            Action {
-                text: qsTr("Delete Untracked")
-                enabled: textArea.selectedText
-                onTriggered: {
-                    document.progressSuspended = true;
-                    deleteAction.trigger();
-                    document.progressSuspended = false;
-                }
-            }
-            MenuSeparator {}
-            Action {
-                text: qsTr("Select Word")
-                shortcut: "Ctrl+W"
-                onTriggered: textArea.selectWord()
-            }
-            Action {
-                text: qsTr("Select Line")
-            }
-            Action {
-                text: qsTr("Select All")
-            }
-            MenuSeparator {}
-            Action {
-                text: qsTr("Find")
-            }
-            Action {
-                text: qsTr("Find and Replace")
-            }
-        }
 
-        Controls.Menu {
-            title: qsTr("Formatting")
-            Action {
-                text: qsTr("Bold")
-                shortcut: StandardKey.Bold
-                onTriggered: document.toggleBold()
-            }
-            Action {
-                text: qsTr("Italic")
-                shortcut: StandardKey.Italic
-                onTriggered: document.toggleItalics()
-            }
-            Action {
-                text: qsTr("Strikethrough")
-                onTriggered: document.toggleStrikethrough()
-            }
-            MenuSeparator {}
-            Action {
-                text: qsTr("No heading")
-                shortcut: "Ctrl+0"
-            }
-            Action {
-                text: qsTr("Heading 1")
-                shortcut: "Ctrl+1"
-            }
-            Action {
-                text: qsTr("Heading 2")
-                shortcut: "Ctrl+2"
-            }
-            Action {
-                text: qsTr("Heading 3")
-                shortcut: "Ctrl+3"
-            }
-            Action {
-                text: qsTr("Heading 4")
-                shortcut: "Ctrl+4"
-            }
-            Action {
-                text: qsTr("Heading 5")
-                shortcut: "Ctrl+5"
-            }
-            Action {
-                text: qsTr("Heading 6")
-                shortcut: "Ctrl+6"
-            }
-        }
-        Controls.Menu {
-            title: qsTr("Tools")
-            Action {
-                text: qsTr("Appearance...")
-                onTriggered: {
-                    appearance.oldThemeIndex = ThemeManager.activeThemeIndex;
-                    appearance.show();
+            Behavior on opacity {
+                animation: NumberAnimation {
+                    easing {
+                        type: Easing.InOutSine
+                        amplitude: 1.0
+                        period: 0.4
+                    }
                 }
             }
-            Action {
-                text: qsTr("Progress...")
-            }
-        }
-        Controls.Menu {
-            title: qsTr("Help")
-            Action {
-                text: qsTr("About Skywriter...")
-                onTriggered: aboutSkywriter.show()
-            }
-            Action {
-                text: qsTr("About Qt...")
-                onTriggered: aboutQt.show()
-            }
-        }
-    }
 
-    footer: Controls.StatsBar {
-        document: document
+            font.pointSize: 10
+            background: Rectangle {
+                color: palette.base
+            }
+            delegate: MenuBarItem {
+                implicitHeight: 25
+            }
+
+            Controls.Menu {
+                title: qsTr("File")
+                Action {
+                    text: qsTr("New")
+                    shortcut: StandardKey.New
+                    // Remember ProgressTracker integration
+                }
+                Action {
+                    text: qsTr("Open...")
+                    shortcut: StandardKey.Open
+                    onTriggered: openDialog.open()
+                }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("Save")
+                    shortcut: StandardKey.Save
+                    onTriggered: save()
+                }
+                Action {
+                    text: qsTr("Save As...")
+                    shortcut: StandardKey.SaveAs
+                    onTriggered: saveDialog.open()
+                }
+                Action {
+                    text: qsTr("Rename...")
+                    // Remember to rename file in ProgressTracker as well
+                }
+                MenuSeparator {}
+                Action {
+                    property var previousVisibility: mainWindow.visibility
+                    text: qsTr("Fullscreen")
+                    shortcut: "F11"
+                    onTriggered: {
+                        if (mainWindow.visibility === Window.FullScreen) {
+                            mainWindow.visibility = previousVisibility === Window.FullScreen ? Window.AutomaticVisibility : previousVisibility;
+                            previousVisibility = null;
+                        } else {
+                            previousVisibility = mainWindow.visibility;
+                            mainWindow.showFullScreen();
+                        }
+                    }
+                }
+                Action {
+                    text: qsTr("Preferences...")
+                    shortcut: StandardKey.Preferences
+                }
+                Action {
+                    text: qsTr("Quit")
+                    shortcut: StandardKey.Quit
+                    onTriggered: mainWindow.close();
+                }
+            }
+            Controls.Menu {
+                title: qsTr("Edit")
+                Action {
+                    text: qsTr("Undo")
+                    onTriggered: textArea.undo()
+                    enabled: textArea.canUndo
+                }
+                Action {
+                    text: qsTr("Redo")
+                    onTriggered: textArea.redo()
+                    enabled: textArea.canRedo
+                }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("Cut")
+                    onTriggered: textArea.cut()
+                    enabled: textArea.selectedText
+                }
+                Action {
+                    text: qsTr("Copy")
+                    onTriggered: textArea.copy()
+                    enabled: textArea.selectedText
+                }
+                Action {
+                    id: pasteAction
+                    text: qsTr("Paste")
+                    onTriggered: textArea.paste()
+                    enabled: textArea.canPaste
+                }
+                Action {
+                    text: qsTr("Paste Unformatted")
+                    shortcut: "Ctrl+Shift+V"
+                    enabled: textArea.canPaste
+                }
+                Action {
+                    text: qsTr("Paste Untracked")
+                    enabled: textArea.canPaste
+                    onTriggered: {
+                        document.progressSuspended = true;
+                        pasteAction.trigger();
+                        document.progressSuspended = false;
+                    }
+                }
+                Action {
+                    id: deleteAction
+                    text: qsTr("Delete")
+                    onTriggered: textArea.remove(textArea.selectionStart, textArea.selectionEnd)
+                    enabled: textArea.selectedText
+                }
+                Action {
+                    text: qsTr("Delete Untracked")
+                    enabled: textArea.selectedText
+                    onTriggered: {
+                        document.progressSuspended = true;
+                        deleteAction.trigger();
+                        document.progressSuspended = false;
+                    }
+                }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("Select Word")
+                    shortcut: "Ctrl+W"
+                    onTriggered: textArea.selectWord()
+                }
+                Action {
+                    text: qsTr("Select Line")
+                }
+                Action {
+                    text: qsTr("Select All")
+                }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("Find")
+                }
+                Action {
+                    text: qsTr("Find and Replace")
+                }
+            }
+
+            Controls.Menu {
+                title: qsTr("Formatting")
+                Action {
+                    text: qsTr("Bold")
+                    shortcut: StandardKey.Bold
+                    onTriggered: document.toggleBold()
+                }
+                Action {
+                    text: qsTr("Italic")
+                    shortcut: StandardKey.Italic
+                    onTriggered: document.toggleItalics()
+                }
+                Action {
+                    text: qsTr("Strikethrough")
+                    onTriggered: document.toggleStrikethrough()
+                }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("No heading")
+                    shortcut: "Ctrl+0"
+                }
+                Action {
+                    text: qsTr("Heading 1")
+                    shortcut: "Ctrl+1"
+                }
+                Action {
+                    text: qsTr("Heading 2")
+                    shortcut: "Ctrl+2"
+                }
+                Action {
+                    text: qsTr("Heading 3")
+                    shortcut: "Ctrl+3"
+                }
+                Action {
+                    text: qsTr("Heading 4")
+                    shortcut: "Ctrl+4"
+                }
+                Action {
+                    text: qsTr("Heading 5")
+                    shortcut: "Ctrl+5"
+                }
+                Action {
+                    text: qsTr("Heading 6")
+                    shortcut: "Ctrl+6"
+                }
+            }
+            Controls.Menu {
+                title: qsTr("Tools")
+                Action {
+                    text: qsTr("Appearance...")
+                    onTriggered: {
+                        appearance.oldThemeIndex = ThemeManager.activeThemeIndex;
+                        appearance.show();
+                    }
+                }
+                Action {
+                    text: qsTr("Progress...")
+                }
+            }
+            Controls.Menu {
+                title: qsTr("Help")
+                Action {
+                    text: qsTr("About Skywriter...")
+                    onTriggered: aboutSkywriter.show()
+                }
+                Action {
+                    text: qsTr("About Qt...")
+                    onTriggered: aboutQt.show()
+                }
+            }
+        }
     }
 
     FormattableTextArea {
@@ -530,6 +567,53 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+
+    footer: Item {
+        // The StatsBar is wrapped in an Item because otherwise it would not be
+        // possible to manipulate the y property (as a footer element).
+        // Simply detaching it as footer is also not possible, as this will
+        // cause an ugly snap when the window is fullscreened (and therefore
+        // grows).
+        Controls.StatsBar {
+            id: statsBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            document: document
+            y: shouldShow ? -height : 0
+            opacity: shouldShow ? 1.0 : 0.0
+
+            property bool shouldShow: mainWindow.visibility !== Window.FullScreen || statsHoverArea.containsMouse
+
+            Behavior on y {
+                animation: NumberAnimation {
+                    easing {
+                        type: Easing.InOutSine
+                        amplitude: 1.0
+                        period: 0.5
+                    }
+                }
+            }
+
+            Behavior on opacity {
+                animation: NumberAnimation {
+                    easing {
+                        type: Easing.InOutSine
+                        amplitude: 1.0
+                        period: 0.4
+                    }
+                }
+            }
+        }
+
+        MouseArea {
+            id: statsHoverArea
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: statsBar.height
+            anchors.bottom: parent.bottom
+            hoverEnabled: true
         }
     }
 }

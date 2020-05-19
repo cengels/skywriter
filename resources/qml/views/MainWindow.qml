@@ -21,7 +21,7 @@ ApplicationWindow {
     readonly property int defaultWidth: Screen.width - windowSizeSubtraction
     readonly property int defaultHeight: Screen.height - windowSizeSubtraction
 
-    minimumWidth: 500
+    minimumWidth: 820
     minimumHeight: 200
 
     onVisibilityChanged: {
@@ -69,6 +69,14 @@ ApplicationWindow {
              || Settings.Window.visibility === Window.Minimized
                 ? Window.AutomaticVisibility
                 : Settings.Window.visibility;
+
+    property int previousWidth
+
+    onWidthChanged: {
+        // See verticalScrollbar. This works because QML calls this function
+        // last, after all bindings and layouts are updated.
+        previousWidth = width;
+    }
 
     property bool forceClose: false;
 
@@ -499,6 +507,22 @@ ApplicationWindow {
             contentItem.opacity: 1
             size: scrollView.height / textAreaContainer.contentHeight
             visible: textAreaContainer.contentHeight > scrollView.height
+
+            /* Section: maintain scroll position if window width changes */
+            property double lastSize: 0
+            property double lastPosition: 0
+            onPositionChanged: {
+                if (mainWindow.width !== previousWidth) {
+                    // scroll position changed because window width was changed
+
+                    if (lastPosition !== 0) {
+                        position = lastPosition - (size - lastSize) / 2;
+                    }
+                }
+
+                lastPosition = position;
+                lastSize = size;
+            }
         }
 
         MouseArea {

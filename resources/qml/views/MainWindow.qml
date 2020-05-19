@@ -17,9 +17,9 @@ ApplicationWindow {
     title: document.fileName + (document.modified ? "*" : "") + "  •  Skywriter"
     visible: true
 
-    readonly property int defaultWidth: 800
-    readonly property int defaultHeight: 600
-    readonly property int hoverTolerance: 25
+    readonly property int windowSizeSubtraction: 250
+    readonly property int defaultWidth: Screen.width - windowSizeSubtraction
+    readonly property int defaultHeight: Screen.height - windowSizeSubtraction
 
     minimumWidth: 500
     minimumHeight: 200

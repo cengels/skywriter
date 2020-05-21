@@ -18,7 +18,7 @@ class Mouse : public QObject
         explicit Mouse(QObject *parent = nullptr);
 
     public Q_SLOTS:
-        bool isInside(const QQuickItem* item);
+        bool isInside(const QQuickItem* item) const;
         void setCursor(Qt::CursorShape cursorShape);
         void resetCursor();
 

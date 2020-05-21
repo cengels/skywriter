@@ -131,6 +131,8 @@ const QFont Theme::font() const
     return m_font;
 }
 
+const QColor Theme::fontColor() const { return m_fontColor; }
+
 QString Theme::fontFamily() const
 {
     return m_font.family();

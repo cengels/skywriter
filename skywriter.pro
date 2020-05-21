@@ -33,6 +33,7 @@ SOURCES += \
         src/progress/ProgressItem.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
+        src/text/TextHighlighter.cpp \
         src/text/format.cpp \
         src/progress/ProgressTracker.cpp \
         src/theming/ThemeManager.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     src/persistence.h \
     src/progress/ProgressItem.h \
     src/text/FormattableTextArea/FormattableTextArea.h \
+    src/text/TextHighlighter.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
     src/theming/ThemeManager.h \

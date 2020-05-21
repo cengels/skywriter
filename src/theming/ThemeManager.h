@@ -26,6 +26,8 @@ class ThemeManager : public QObject {
         int activeThemeIndex() const;
         void setActiveThemeIndex(int index);
 
+        static ThemeManager* instance();
+
     public Q_SLOTS:
         //! Loads all themes from the file system.
         void load();

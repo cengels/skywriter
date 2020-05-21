@@ -15,6 +15,7 @@
 
 #include "FormattableTextArea.h"
 #include "../format.h"
+#include "../TextHighlighter.h"
 
 namespace {
     constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
@@ -23,6 +24,7 @@ namespace {
 FormattableTextArea::FormattableTextArea(QObject *parent)
     : QObject(parent)
     , m_document(nullptr)
+    , m_highlighter(nullptr)
     , m_cursorPosition(-1)
     , m_selectionStart(0)
     , m_selectionEnd(0)
@@ -58,6 +60,8 @@ void FormattableTextArea::setDocument(QQuickTextDocument *document)
     if (m_document) {
         connect(m_document->textDocument(), &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
         connect(m_document->textDocument(), &QTextDocument::contentsChanged, this, &FormattableTextArea::handleTextChange);
+
+        m_highlighter = new TextHighlighter(m_document->textDocument());
     }
 
     emit documentChanged();
@@ -65,7 +69,10 @@ void FormattableTextArea::setDocument(QQuickTextDocument *document)
 
 void FormattableTextArea::handleTextChange()
 {
-    emit textChanged();
+    // Calling m_highlighter.rehighlight() for some reason sends text change events
+    if (!m_highlighter->refreshing()) {
+        emit textChanged();
+    }
 
     this->updateCounts();
 }

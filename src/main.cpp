@@ -25,16 +25,6 @@ namespace {
         });
     }
 
-    template <typename T>
-    void registerSingleton(const char *uri, int versionMajor, int versionMinor, const char *qmlName, T* object) {
-        qmlRegisterSingletonType<T>(uri, versionMajor, versionMinor, qmlName, [object](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
-            Q_UNUSED(engine)
-            Q_UNUSED(scriptEngine)
-
-            return object;
-        });
-    }
-
     void registerQmlTypes()
     {
         qmlRegisterType<FormattableTextArea>("Skywriter.Text", 1, 0, "FormattableTextArea");
@@ -42,7 +32,6 @@ namespace {
         registerSingleton<ProgressTracker>("Skywriter.Progress", 1, 0, "ProgressTracker");
 
         qmlRegisterType<Theme>("Skywriter.Theming", 1, 0, "Theme");
-        registerSingleton<ThemeManager>("Skywriter.Theming", 1, 0, "ThemeManager");
 
         qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
         qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
@@ -75,7 +64,8 @@ int main(int argc, char *argv[])
     QGuiApplication::setFont(font);
     Mouse* mouse = new Mouse(&app);
     app.installEventFilter(mouse);
-    registerSingleton<Mouse>("Skywriter.Events", 1, 0, "Mouse", mouse);
+    qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);
+    qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());

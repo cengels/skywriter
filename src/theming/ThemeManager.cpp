@@ -1,3 +1,4 @@
+#include <cassert>
 #include <QColor>
 #include <QFile>
 #include <QJsonArray>
@@ -17,12 +18,15 @@ namespace {
 
         return m_progressPath;
     }
+    ThemeManager* m_instance = nullptr;
 }
 
 ThemeManager::ThemeManager(QObject *parent) : QObject(parent),
     m_themes({ Theme::defaultSky(), Theme::defaultLight(), Theme::defaultDark() }),
     m_activeThemeIndex(0)
 {
+    assert(!m_instance);
+
     load();
 }
 
@@ -91,4 +95,12 @@ void ThemeManager::save() const {
 
     saveFile.write(document.toJson());
     saveFile.close();
+}
+
+ThemeManager* ThemeManager::instance() {
+    if (!m_instance) {
+        m_instance = new ThemeManager();
+    }
+
+    return m_instance;
 }

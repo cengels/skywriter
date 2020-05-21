@@ -41,6 +41,8 @@ void FormattableTextArea::updateWordCount()
         i++;
     }
 
+    i -= m_highlighter->comments();
+
     if (i != this->m_wordCount) {
         m_wordCount = i;
         emit wordCountChanged();

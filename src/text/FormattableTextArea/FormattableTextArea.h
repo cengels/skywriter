@@ -7,6 +7,8 @@
 #include <QUrl>
 #include <QDateTime>
 
+#include "../TextHighlighter.h"
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QQuickTextDocument;
@@ -103,6 +105,7 @@ class FormattableTextArea : public QObject {
         void mergeFormat(const QTextCharFormat &format);
 
         QQuickTextDocument *m_document;
+        TextHighlighter* m_highlighter;
 
         int m_cursorPosition;
         int m_selectionStart;

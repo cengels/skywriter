@@ -14,7 +14,7 @@ struct Theme : public QObject
     Q_PROPERTY(double fontSize READ fontSize WRITE setFontSize NOTIFY fontSizeChanged);
     Q_PROPERTY(QString fontFamily READ fontFamily WRITE setFontFamily NOTIFY fontFamilyChanged);
     Q_PROPERTY(QFont font READ font NOTIFY fontChanged);
-    Q_PROPERTY(QColor fontColor MEMBER m_fontColor NOTIFY fontColorChanged);
+    Q_PROPERTY(QColor fontColor READ fontColor MEMBER m_fontColor NOTIFY fontColorChanged);
     Q_PROPERTY(QString backgroundImage MEMBER m_backgroundImage NOTIFY backgroundImageChanged);
     Q_PROPERTY(FillMode fillMode MEMBER m_fillMode NOTIFY fillModeChanged);
     Q_PROPERTY(double documentWidth MEMBER m_documentWidth NOTIFY documentWidthChanged);
@@ -51,6 +51,7 @@ struct Theme : public QObject
         static Theme* defaultSky();
 
         const QFont font() const;
+        const QColor fontColor() const;
 
         QString fontFamily() const;
         void setFontFamily(const QString& fontFamily);

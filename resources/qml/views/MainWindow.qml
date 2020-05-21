@@ -459,6 +459,19 @@ ApplicationWindow {
             // called whenever the file is saved
             progressAtLastSave = ProgressTracker.progressToday;
         }
+
+        onTextChanged: {
+            const caretPosition = textArea.cursorRectangle.y;
+            // parent.y is always negative
+            const visibleStartY = -textArea.parent.y;
+            const visibleEndY = -textArea.parent.y + scrollView.height;
+
+            if (caretPosition < visibleStartY) {
+                verticalScrollbar.position = caretPosition / textArea.parent.height;
+            } else if (caretPosition > visibleEndY) {
+                verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY) / textArea.parent.height;
+            }
+        }
     }
 
     Image {
@@ -495,18 +508,37 @@ ApplicationWindow {
             /* Section: maintain scroll position if window width changes */
             property double lastSize: 0
             property double lastPosition: 0
-            onPositionChanged: {
-                if (mainWindow.width !== previousWidth) {
-                    // scroll position changed because window width was changed
+            property string lastTheme: ""
+            property bool fixPositionNext: false
+            onPositionChanged: adjustPosition();
+            onSizeChanged: adjustPosition();
 
-                    if (lastPosition !== 0) {
+            function adjustPosition() {
+                if (mainWindow.width !== previousWidth
+                        || lastTheme !== ThemeManager.activeTheme.name
+                        || fixPositionNext) {
+                    // scroll position changed because window width was changed
+                    // or because theme was changed
+
+                    lastTheme = ThemeManager.activeTheme.name;
+                    fixPositionNext = lastSize === size || lastPosition === position;
+
+                    // TODO: Fix a bug where changing theme still changes position
+                    // despite this call. For some reason, there is another call
+                    // that changes position to an arbitrary value, but the
+                    // stack trace QML supplies is completely useless.
+                    if (lastPosition !== 0 && !fixPositionNext) {
                         position = lastPosition - (size - lastSize) / 2;
                     }
                 }
 
-                lastPosition = position;
-                lastSize = size;
+                if (!fixPositionNext) {
+                    lastPosition = position;
+                    lastSize = size;
+                }
             }
+
+            Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
 
             /* Section: handle mouse moves with pressed middle mouse */
             property double middleMouseOriginY: -1
@@ -628,19 +660,6 @@ ApplicationWindow {
                         persistentSelection: true
                         color: ThemeManager.activeTheme.fontColor
                         font: ThemeManager.activeTheme.font
-
-                        onTextChanged: {
-                            const caretPosition = cursorRectangle.y;
-                            // parent.y is always negative
-                            const visibleStartY = -parent.y;
-                            const visibleEndY = -parent.y + scrollView.height;
-
-                            if (caretPosition < visibleStartY) {
-                                verticalScrollbar.position = caretPosition / parent.height;
-                            } else if (caretPosition > visibleEndY) {
-                                verticalScrollbar.position = (caretPosition + cursorRectangle.height - visibleEndY) / parent.height;
-                            }
-                        }
                     }
                 }
             }

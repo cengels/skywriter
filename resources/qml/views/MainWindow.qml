@@ -58,6 +58,10 @@ ApplicationWindow {
         document.progressSuspended = false;
     }
 
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
     x: Settings.Window.x;
     y: Settings.Window.y;
     width: Settings.Window.width;
@@ -502,6 +506,8 @@ ApplicationWindow {
             size: scrollView.height / textAreaContainer.contentHeight
             visible: textAreaContainer.contentHeight > scrollView.height
 
+            readonly property int middleMouseThreshold: 32
+
             /* Section: maintain scroll position if window width changes */
             property double lastSize: 0
             property double lastPosition: 0
@@ -516,6 +522,54 @@ ApplicationWindow {
 
                 lastPosition = position;
                 lastSize = size;
+            }
+
+            /* Section: handle mouse moves with pressed middle mouse */
+            property double middleMouseOriginY: -1
+            property double movementFactor: 0
+
+            Timer {
+                interval: 1
+                running: verticalScrollbar.movementFactor !== 0
+                repeat: true
+                triggeredOnStart: true
+                onTriggered: {
+                    verticalScrollbar.position = clamp(verticalScrollbar.position + verticalScrollbar.movementFactor, 0, 1);
+                }
+            }
+
+            Connections {
+                target: Mouse
+                onPressed: {
+                    if (button === Qt.MiddleButton) {
+                        if (verticalScrollbar.middleMouseOriginY >= 0) {
+                            verticalScrollbar.middleMouseOriginY = -1;
+                            verticalScrollbar.movementFactor = 0;
+                            Mouse.resetCursor();
+                        } else {
+                            verticalScrollbar.middleMouseOriginY = Mouse.globalPosition.y;
+                            Mouse.setCursor(Qt.SizeAllCursor);
+                        }
+                    }
+                }
+                onReleased: {
+                    if (button === Qt.MiddleButton && longPress) {
+                        verticalScrollbar.middleMouseOriginY = -1;
+                        verticalScrollbar.movementFactor = 0;
+                        Mouse.resetCursor();
+                    }
+                }
+                onMove: {
+                    if (verticalScrollbar.middleMouseOriginY >= 0) {
+                        const yDelta = verticalScrollbar.middleMouseOriginY - Mouse.globalPosition.y;
+
+                        if (Math.abs(yDelta) > verticalScrollbar.middleMouseThreshold) {
+                            verticalScrollbar.movementFactor = -(yDelta / container.height / 150);
+                        } else {
+                            verticalScrollbar.movementFactor = 0;
+                        }
+                    }
+                }
             }
 
             contentItem: Rectangle {
@@ -539,6 +593,7 @@ ApplicationWindow {
 
         MouseArea {
             anchors.fill: parent
+            preventStealing: true
             onWheel: {
                 wheel.accepted = true;
 
@@ -546,9 +601,9 @@ ApplicationWindow {
                     // Scrolls about 72 pixels per wheel "click"
                     const delta = (wheel.angleDelta.y * 0.6) / textAreaContainer.contentHeight;
 
-                    verticalScrollbar.setPosition(wheel.angleDelta.y < 0
+                    verticalScrollbar.position = wheel.angleDelta.y < 0
                             ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
-                            : Math.max(verticalScrollbar.position - delta, 0.0));
+                            : Math.max(verticalScrollbar.position - delta, 0.0);
                 }
             }
         }

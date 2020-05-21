@@ -499,7 +499,6 @@ ApplicationWindow {
             anchors.top: container.top
             anchors.right: container.right
             anchors.bottom: container.bottom
-            contentItem.opacity: 1
             size: scrollView.height / textAreaContainer.contentHeight
             visible: textAreaContainer.contentHeight > scrollView.height
 
@@ -517,6 +516,24 @@ ApplicationWindow {
 
                 lastPosition = position;
                 lastSize = size;
+            }
+
+            contentItem: Rectangle {
+                opacity: 1
+                implicitWidth: 10
+                radius: width / 2
+                color: verticalScrollbar.pressed ? palette.highlight
+                           : scrollBarHoverArea.containsMouse
+                               ? palette.dark
+                               : palette.button
+
+                MouseArea {
+                    id: scrollBarHoverArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    propagateComposedEvents: true
+                    acceptedButtons: Qt.NoButton
+                }
             }
         }
 

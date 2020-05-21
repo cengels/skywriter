@@ -204,6 +204,14 @@ ApplicationWindow {
             property bool collapsed: mainWindow.visibility === Window.FullScreen
                 && Mouse.windowPosition.y >= height + edgeTolerance
 
+            onCollapsedChanged: {
+                if (collapsed) {
+                    for (const i in menus) {
+                        menus[i].close();
+                    }
+                }
+            }
+
             Behavior on y {
                 animation: NumberAnimation {
                     easing {

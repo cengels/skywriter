@@ -11,6 +11,7 @@
 #include "colors.h"
 #include "theming/Theme.h"
 #include "theming/ThemeManager.h"
+#include "Mouse.h"
 
 namespace {
     template <typename T>
@@ -21,6 +22,16 @@ namespace {
 
             T *singleton = new T();
             return singleton;
+        });
+    }
+
+    template <typename T>
+    void registerSingleton(const char *uri, int versionMajor, int versionMinor, const char *qmlName, T* object) {
+        qmlRegisterSingletonType<T>(uri, versionMajor, versionMinor, qmlName, [object](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
+            Q_UNUSED(engine)
+            Q_UNUSED(scriptEngine)
+
+            return object;
         });
     }
 
@@ -50,7 +61,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
                                       + QString::number(VERSION_MINOR) + "."
                                       + QString::number(VERSION_BUILD));
-    const QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
     QGuiApplication::setPalette(Skywriter::palette());
 
@@ -62,6 +73,9 @@ int main(int argc, char *argv[])
     QFont font("Baloo 2", 11);
     font.setStyleStrategy(QFont::PreferAntialias);
     QGuiApplication::setFont(font);
+    Mouse* mouse = new Mouse(&app);
+    app.installEventFilter(mouse);
+    registerSingleton<Mouse>("Skywriter.Events", 1, 0, "Mouse", mouse);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());

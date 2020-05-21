@@ -8,6 +8,7 @@ import Skywriter.Settings 1.0 as Settings
 import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
+import Skywriter.Events 1.0
 import "../controls" as Controls
 import "../types" as Sky
 import "." as View
@@ -20,6 +21,9 @@ ApplicationWindow {
     readonly property int windowSizeSubtraction: 250
     readonly property int defaultWidth: Screen.width - windowSizeSubtraction
     readonly property int defaultHeight: Screen.height - windowSizeSubtraction
+    // The number in pixels away from a collapsed control's original edge
+    // that the collapsed control is uncollapsed.
+    readonly property int edgeTolerance: 16
 
     minimumWidth: 820
     minimumHeight: 200
@@ -186,28 +190,15 @@ ApplicationWindow {
     }
 
     menuBar: Item {
-        MouseArea {
-            id: menuBarHoverArea
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: menuBar.height
-            anchors.top: parent.top
-            hoverEnabled: true
-            propagateComposedEvents: true
-            acceptedButtons: Qt.NoButton
-            z: menuBar.z + 1
-
-            onPositionChanged: mouse.accepted = false
-        }
-
         Controls.MenuBar {
             id: menuBar
             anchors.left: parent.left
             anchors.right: parent.right
-            y: shouldShow ? 0 : -height
-            opacity: shouldShow ? 1.0 : 0.0
+            y: collapsed ? -height : 0
+            opacity: collapsed ? 0.0 : 1.0
 
-            property bool shouldShow: mainWindow.visibility !== Window.FullScreen || menuBarHoverArea.containsMouse
+            property bool collapsed: mainWindow.visibility === Window.FullScreen
+                && Mouse.windowPosition.y >= height + edgeTolerance
 
             Behavior on y {
                 animation: NumberAnimation {
@@ -609,10 +600,11 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             document: document
-            y: shouldShow ? -height : 0
-            opacity: shouldShow ? 1.0 : 0.0
+            y: collapsed ? 0 : -height
+            opacity: collapsed ? 0.0 : 1.0
 
-            property bool shouldShow: mainWindow.visibility !== Window.FullScreen || statsHoverArea.containsMouse
+            property bool collapsed: mainWindow.visibility === Window.FullScreen
+                && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
 
             Behavior on y {
                 animation: NumberAnimation {
@@ -633,15 +625,6 @@ ApplicationWindow {
                     }
                 }
             }
-        }
-
-        MouseArea {
-            id: statsHoverArea
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: statsBar.height
-            anchors.bottom: parent.bottom
-            hoverEnabled: true
         }
     }
 }

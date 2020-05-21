@@ -193,7 +193,11 @@ ApplicationWindow {
             height: menuBar.height
             anchors.top: parent.top
             hoverEnabled: true
-            z: 99
+            propagateComposedEvents: true
+            acceptedButtons: Qt.NoButton
+            z: menuBar.z + 1
+
+            onPositionChanged: mouse.accepted = false
         }
 
         Controls.MenuBar {

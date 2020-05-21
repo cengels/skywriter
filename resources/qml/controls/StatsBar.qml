@@ -5,7 +5,7 @@ import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 
 Pane {
-    horizontalPadding: 5
+    horizontalPadding: 7
     verticalPadding: 2
     property FormattableTextArea document;
 

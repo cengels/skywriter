@@ -103,6 +103,9 @@ ApplicationWindow {
         Settings.Window.height = height;
         Settings.Window.visibility = visibility;
 
+        // safety call in case the active theme was renamed
+        Settings.Application.theme = ThemeManager.activeTheme.name;
+
         // Ensures that, if the user chose to quit without saving, their
         // unsaved progress is not saved. If they *did* save their progress,
         // (progressAtLastSave - progressToday) will be 0.

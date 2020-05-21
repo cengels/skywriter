@@ -20,7 +20,7 @@ namespace {
 }
 
 ThemeManager::ThemeManager(QObject *parent) : QObject(parent),
-    m_themes({ Theme::defaultLight(), Theme::defaultDark() }),
+    m_themes({ Theme::defaultSky(), Theme::defaultLight(), Theme::defaultDark() }),
     m_activeThemeIndex(0)
 {
     load();

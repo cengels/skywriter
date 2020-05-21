@@ -10,6 +10,7 @@
 namespace {
     Theme* m_defaultLight = new Theme();
     Theme* m_defaultDark = new Theme();
+    Theme* m_defaultSky = new Theme();
 
     QString duplicateName(const QString& name) {
         if (name[name.length() - 1].isDigit()) {
@@ -40,7 +41,7 @@ namespace {
 Theme::Theme(QObject *parent) : QObject(parent),
     m_name(""),
     m_isReadOnly(false),
-    m_font("Times New Roman", 12),
+    m_font("Times New Roman", 18),
     m_backgroundImage(""),
     m_fillMode(FillMode::PreserveAspectCrop),
     m_documentWidth(0.9),
@@ -108,6 +109,21 @@ Theme* Theme::defaultDark()
     }
 
     return m_defaultDark;
+}
+
+Theme* Theme::defaultSky()
+{
+    if (!m_defaultSky->m_isReadOnly) {
+        m_defaultSky->m_isReadOnly = true;
+        m_defaultSky->m_name = "Default (Sky)";
+        m_defaultSky->m_fontColor = Skywriter::palette().text().color();
+        m_defaultSky->m_documentBackground = Skywriter::palette().dark().color();
+        m_defaultSky->m_windowBackground = Skywriter::palette().base().color();
+        m_defaultSky->m_uiBackground = Skywriter::palette().alternateBase().color();
+        m_defaultSky->m_uiColor = Skywriter::palette().text().color();
+    }
+
+    return m_defaultSky;
 }
 
 const QFont Theme::font() const

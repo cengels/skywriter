@@ -47,6 +47,8 @@ struct Theme : public QObject
         static Theme* defaultLight();
         //! Returns the default dark theme.
         static Theme* defaultDark();
+        //! Returns the default application theme.
+        static Theme* defaultSky();
 
         const QFont font() const;
 

@@ -227,6 +227,11 @@ ApplicationWindow {
             font.pointSize: 10
             background: Rectangle {
                 color: palette.base
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.ArrowCursor
+                }
             }
             delegate: MenuBarItem {
                 implicitHeight: 25

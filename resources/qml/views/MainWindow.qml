@@ -194,10 +194,10 @@ ApplicationWindow {
     }
 
     menuBar: Item {
+        height: mainWindow.visibility === Window.FullScreen ? 0 : menuBar.implicitHeight
         Controls.MenuBar {
             id: menuBar
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             y: collapsed ? -height : 0
             opacity: collapsed ? 0.0 : 1.0
 
@@ -662,6 +662,7 @@ ApplicationWindow {
     }
 
     footer: Item {
+        height: mainWindow.visibility === Window.FullScreen ? 0 : statsBar.implicitHeight
         // The StatsBar is wrapped in an Item because otherwise it would not be
         // possible to manipulate the y property (as a footer element).
         // Simply detaching it as footer is also not possible, as this will
@@ -669,8 +670,7 @@ ApplicationWindow {
         // grows).
         Controls.StatsBar {
             id: statsBar
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             document: document
             y: collapsed ? 0 : -height
             opacity: collapsed ? 0.0 : 1.0

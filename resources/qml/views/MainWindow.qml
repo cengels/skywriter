@@ -12,6 +12,7 @@ import Skywriter.Events 1.0
 import "../controls" as Controls
 import "../types" as Sky
 import "." as View
+import "qrc:/js/color.js" as Color
 
 ApplicationWindow {
     id: mainWindow
@@ -210,39 +211,6 @@ ApplicationWindow {
                         menus[i].close();
                     }
                 }
-            }
-
-            Behavior on y {
-                animation: NumberAnimation {
-                    easing {
-                        type: Easing.InOutSine
-                        amplitude: 1.0
-                        period: 0.5
-                    }
-                }
-            }
-
-            Behavior on opacity {
-                animation: NumberAnimation {
-                    easing {
-                        type: Easing.InOutSine
-                        amplitude: 1.0
-                        period: 0.4
-                    }
-                }
-            }
-
-            font.pointSize: 10
-            background: Rectangle {
-                color: palette.base
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.ArrowCursor
-                }
-            }
-            delegate: MenuBarItem {
-                implicitHeight: 25
             }
 
             Controls.Menu {
@@ -589,10 +557,12 @@ ApplicationWindow {
                 opacity: 1
                 implicitWidth: 10
                 radius: width / 2
-                color: verticalScrollbar.pressed ? palette.highlight
-                           : scrollBarHoverArea.containsMouse
-                               ? palette.dark
-                               : palette.button
+                color: verticalScrollbar.pressed
+                         ? Color.adjustContrast(Color.highlight(ThemeManager.activeTheme.documentBackground, 0.5), ThemeManager.activeTheme.windowBackground)
+                         : scrollBarHoverArea.containsMouse
+                             ? Color.adjustContrast(Color.highlight(ThemeManager.activeTheme.documentBackground, 0.85), ThemeManager.activeTheme.windowBackground)
+                             : Color.adjustContrast(ThemeManager.activeTheme.documentBackground, ThemeManager.activeTheme.windowBackground);
+
 
                 MouseArea {
                     id: scrollBarHoverArea
@@ -690,6 +660,15 @@ ApplicationWindow {
 
             property bool collapsed: mainWindow.visibility === Window.FullScreen
                 && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
+
+            background: Rectangle {
+                color: ThemeManager.activeTheme.uiBackground
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.ArrowCursor
+                }
+            }
 
             Behavior on y {
                 animation: NumberAnimation {

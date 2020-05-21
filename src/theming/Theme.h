@@ -27,6 +27,8 @@ struct Theme : public QObject
     Q_PROPERTY(QColor windowBackground MEMBER m_windowBackground NOTIFY windowBackgroundChanged);
     Q_PROPERTY(QColor documentBackground MEMBER m_documentBackground NOTIFY documentBackgroundChanged);
     Q_PROPERTY(HAlignment textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
+    Q_PROPERTY(QColor uiBackground MEMBER m_uiBackground NOTIFY uiBackgroundChanged);
+    Q_PROPERTY(QColor uiColor MEMBER m_uiColor NOTIFY uiColorChanged);
 
     public:
         explicit Theme(QObject *parent = nullptr);
@@ -76,6 +78,8 @@ struct Theme : public QObject
         void windowBackgroundChanged();
         void documentBackgroundChanged();
         void textAlignmentChanged();
+        void uiBackgroundChanged();
+        void uiColorChanged();
 
     private:
         QString m_name;
@@ -94,6 +98,8 @@ struct Theme : public QObject
         QColor m_windowBackground;
         QColor m_documentBackground;
         HAlignment m_textAlignment;
+        QColor m_uiBackground;
+        QColor m_uiColor;
 
 };
 

@@ -1,9 +1,11 @@
 #include <QColor>
+#include <QPalette>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariant>
 #include <QMetaEnum>
 #include "Theme.h"
+#include "../colors.h"
 
 namespace {
     Theme* m_defaultLight = new Theme();
@@ -51,7 +53,9 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_fontColor(QColor(Qt::GlobalColor::black)),
     m_windowBackground(QColor(Qt::GlobalColor::lightGray)),
     m_documentBackground(QColor(Qt::GlobalColor::white)),
-    m_textAlignment(HAlignment::AlignLeft)
+    m_textAlignment(HAlignment::AlignLeft),
+    m_uiBackground(QColor("#d9d9d9")),
+    m_uiColor(QColor("#1a1a1a"))
 {
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
@@ -73,7 +77,9 @@ Theme::Theme(const Theme& copy, QObject *parent) : QObject(parent),
     m_fontColor(copy.m_fontColor),
     m_windowBackground(copy.m_windowBackground),
     m_documentBackground(copy.m_documentBackground),
-    m_textAlignment(copy.m_textAlignment)
+    m_textAlignment(copy.m_textAlignment),
+    m_uiBackground(copy.m_uiBackground),
+    m_uiColor(copy.m_uiColor)
 {
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
@@ -97,6 +103,8 @@ Theme* Theme::defaultDark()
         m_defaultDark->m_fontColor = QColor(QColor(200, 200, 200));
         m_defaultDark->m_documentBackground = QColor(60, 60, 60);
         m_defaultDark->m_windowBackground = QColor(30, 30, 30);
+        m_defaultDark->m_uiBackground = QColor(36, 36, 36);
+        m_defaultDark->m_uiColor = QColor(184, 184, 184);
     }
 
     return m_defaultDark;
@@ -162,6 +170,14 @@ void Theme::read(const QJsonObject& json)
     m_documentBackground = QColor(json["documentBackground"].toString());
 
     m_textAlignment = HAlignment(QMetaEnum::fromType<HAlignment>().keyToValue(json["textAlignment"].toString().toUtf8()));
+
+    if (json.contains("uiBackground")) {
+        m_uiBackground = QColor(json["uiBackground"].toString());
+    }
+
+    if (json.contains("uiColor")) {
+        m_uiColor = QColor(json["uiColor"].toString());
+    }
 }
 
 void Theme::write(QJsonArray& json) const
@@ -197,6 +213,8 @@ void Theme::write(QJsonArray& json) const
         object["windowBackground"] = QJsonValue::fromVariant(QVariant(m_windowBackground));
         object["documentBackground"] = QJsonValue::fromVariant(QVariant(m_documentBackground));
         object["textAlignment"] = QMetaEnum::fromType<HAlignment>().valueToKey(m_textAlignment);
+        object["uiBackground"] = QJsonValue::fromVariant(QVariant(m_uiBackground));
+        object["uiColor"] = QJsonValue::fromVariant(QVariant(m_uiColor));
 
         json.append(object);
     }

@@ -37,4 +37,7 @@
         <file alias="DocumentSettings.qml">resources/qml/types/settings/DocumentSettings.qml</file>
         <file alias="WindowSettings.qml">resources/qml/types/settings/WindowSettings.qml</file>
     </qresource>
+    <qresource prefix="/js">
+        <file alias="color.js">resources/js/color.js</file>
+    </qresource>
 </RCC>

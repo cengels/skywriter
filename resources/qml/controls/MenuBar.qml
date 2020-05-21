@@ -1,34 +1,57 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.14
+import Skywriter.Theming 1.0
+import "qrc:/js/color.js" as Color
 
 MenuBar {
     font.pointSize: 10
+
     background: Rectangle {
-        color: palette.base
+        color: ThemeManager.activeTheme.uiBackground
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.ArrowCursor
+        }
     }
+
     delegate: MenuBarItem {
         id: menuBarItem
         implicitHeight: 25
-//        visible: true
 
-//        contentItem: Text {
-//            text: menuBarItem.text
-//            font: menuBarItem.font
-//            opacity: enabled ? 1.0 : 0.3
-//            color: menuBarItem.highlighted ? "#ffffff" : "#ffffff"
-//            horizontalAlignment: Text.AlignLeft
-//            verticalAlignment: Text.AlignVCenter
-//            elide: Text.ElideRight
-//            visible: true
-//        }
+        background: Rectangle {
+            opacity: enabled ? 1 : 0.3
+            color: menuBarItem.highlighted ? Color.highlight(ThemeManager.activeTheme.uiBackground, 0.7) : "transparent"
+        }
 
-//        background: Rectangle {
-//            anchors.fill: parent
-//            implicitWidth: 40
-//            implicitHeight: 40
-//            opacity: enabled ? 1 : 0.3
-//            color: menuBarItem.highlighted ? "#21be2b" : "#000000"
-//            visible: true
-//        }
+        contentItem: Text {
+            text: menuBarItem.text
+            font: menuBarItem.font
+            opacity: enabled ? 1.0 : 0.3
+            color: menuBarItem.highlighted ? Color.highlight(ThemeManager.activeTheme.uiColor, 1.2) : ThemeManager.activeTheme.uiColor
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+        }
+    }
+
+    Behavior on y {
+        animation: NumberAnimation {
+            easing {
+                type: Easing.InOutSine
+                amplitude: 1.0
+                period: 0.5
+            }
+        }
+    }
+
+    Behavior on opacity {
+        animation: NumberAnimation {
+            easing {
+                type: Easing.InOutSine
+                amplitude: 1.0
+                period: 0.4
+            }
+        }
     }
 }

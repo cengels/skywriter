@@ -5,4 +5,5 @@ Sky.Settings {
     id: documentSettings
     category: "document"
     property string lastFile
+    property int caretPosition
 }

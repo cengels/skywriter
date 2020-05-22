@@ -428,11 +428,17 @@ ApplicationWindow {
         selectionStart: textArea.selectionStart
         selectionEnd: textArea.selectionEnd
         firstLineIndent: ThemeManager.activeTheme.firstLineIndent
+        property bool loaded: false
 
         Component.onCompleted: {
             if (Settings.Document.lastFile != null) {
                 loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
+                textArea.cursorPosition = Settings.Document.caretPosition;
+                verticalScrollbar.centerOnCaret();
             }
+
+            Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
+            loaded = true;
         }
 
         onFileUrlChanged: {
@@ -461,15 +467,8 @@ ApplicationWindow {
         }
 
         onTextChanged: {
-            const caretPosition = textArea.cursorRectangle.y;
-            // parent.y is always negative
-            const visibleStartY = -textArea.parent.y;
-            const visibleEndY = -textArea.parent.y + scrollView.height;
-
-            if (caretPosition < visibleStartY) {
-                verticalScrollbar.position = caretPosition / textArea.parent.height;
-            } else if (caretPosition > visibleEndY) {
-                verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY) / textArea.parent.height;
+            if (loaded) {
+                verticalScrollbar.scrollToCaret();
             }
         }
     }
@@ -511,7 +510,7 @@ ApplicationWindow {
             property string lastTheme: ""
             property bool fixPositionNext: false
             onPositionChanged: adjustPosition();
-            onSizeChanged: adjustPosition();
+            onSizeChanged: adjustPosition()
 
             function adjustPosition() {
                 if (mainWindow.width !== previousWidth
@@ -536,6 +535,27 @@ ApplicationWindow {
                     lastPosition = position;
                     lastSize = size;
                 }
+            }
+
+            function scrollToCaret() {
+                const caretPosition = textArea.cursorRectangle.y;
+                // parent.y is always negative
+                const visibleStartY = -textArea.parent.y;
+                const visibleEndY = -textArea.parent.y + scrollView.height;
+
+                if (caretPosition < visibleStartY) {
+                    verticalScrollbar.position = caretPosition / textArea.parent.height;
+                } else if (caretPosition > visibleEndY) {
+                    verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY + visibleStartY) / textArea.parent.height;
+                }
+            }
+
+            function centerOnCaret() {
+                const verticalCaretCenter = textArea.cursorRectangle.y + textArea.cursorRectangle.height / 2;
+                const relativeCaretPosition = verticalCaretCenter / textArea.parent.height;
+                const verticalScrollViewCenter = -textArea.parent.y + scrollView.height / 2;
+                const relativeScrollViewCenter = verticalScrollViewCenter / textArea.parent.height;
+                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
             }
 
             Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
@@ -651,6 +671,7 @@ ApplicationWindow {
                         width: scrollView.width
                         height: contentHeight + scrollView.height * 1.9
                         anchors.verticalCenter: parent.verticalCenter
+                        focus: true
 
                         selectByMouse: true
                         textFormat: TextEdit.MarkdownText

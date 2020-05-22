@@ -7,10 +7,19 @@
 
 #include "Mouse.h"
 
+namespace {
+    bool isLongPress(QMouseEvent& event1, QMouseEvent& event2) {
+        return event1.timestamp() - event2.timestamp()
+                > static_cast<unsigned long>(QGuiApplication::styleHints()->mousePressAndHoldInterval())
+                || event1.x() != event2.x()
+                || event1.y() != event2.y();
+    }
+}
+
 Mouse::Mouse(QObject *parent) : QObject(parent),
     m_globalPosition(),
     m_windowPosition(),
-    m_lastPressTimestamp(0)
+    m_lastPressMouseEvent(QMouseEvent(QEvent::None, QPointF(), Qt::MouseButton::NoButton, 0, 0))
 {
 }
 
@@ -27,14 +36,14 @@ bool Mouse::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         m_buttons = mouseEvent->buttons();
-        m_lastPressTimestamp = mouseEvent->timestamp();
+        m_lastPressMouseEvent = *mouseEvent;
         emit pressed(static_cast<int>(mouseEvent->button()));
         emit buttonsChanged();
     } else if (event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         m_buttons = mouseEvent->buttons();
-        bool longPress = mouseEvent->timestamp() - m_lastPressTimestamp > static_cast<unsigned long>(QGuiApplication::styleHints()->mousePressAndHoldInterval());
+        bool longPress = isLongPress(*mouseEvent, m_lastPressMouseEvent);
         emit released(static_cast<int>(mouseEvent->button()), longPress);
         emit buttonsChanged();
     }
@@ -49,7 +58,6 @@ bool Mouse::isInside(const QQuickItem* item) const
 
 void Mouse::setCursor(Qt::CursorShape cursorShape)
 {
-    QGuiApplication::styleHints()->mousePressAndHoldInterval();
     QGuiApplication::setOverrideCursor(cursorShape);
 }
 

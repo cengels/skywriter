@@ -37,7 +37,7 @@ class Mouse : public QObject
         QPointF m_globalPosition;
         QPointF m_windowPosition;
         Qt::MouseButtons m_buttons;
-        unsigned long m_lastPressTimestamp;
+        QMouseEvent m_lastPressMouseEvent;
 
 };
 

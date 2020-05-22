@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QIcon>
 #include <QQuickStyle>
+#include <QStyleHints>
 #include <QPalette>
 #include <QQmlContext>
 #include "text/FormattableTextArea/FormattableTextArea.h"
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
     QGuiApplication::setPalette(Skywriter::palette());
+    QGuiApplication::styleHints()->setMousePressAndHoldInterval(300);
 
     registerQmlTypes();
 

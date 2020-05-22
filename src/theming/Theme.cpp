@@ -126,6 +126,11 @@ Theme* Theme::defaultSky()
     return m_defaultSky;
 }
 
+const QString& Theme::name() const
+{
+    return m_name;
+}
+
 const QFont Theme::font() const
 {
     return m_font;

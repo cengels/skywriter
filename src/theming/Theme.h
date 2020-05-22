@@ -9,7 +9,7 @@
 struct Theme : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name MEMBER m_name NOTIFY nameChanged);
+    Q_PROPERTY(QString name READ name MEMBER m_name NOTIFY nameChanged);
     Q_PROPERTY(bool isReadOnly MEMBER m_isReadOnly NOTIFY isReadOnlyChanged);
     Q_PROPERTY(double fontSize READ fontSize WRITE setFontSize NOTIFY fontSizeChanged);
     Q_PROPERTY(QString fontFamily READ fontFamily WRITE setFontFamily NOTIFY fontFamilyChanged);
@@ -49,6 +49,8 @@ struct Theme : public QObject
         static Theme* defaultDark();
         //! Returns the default application theme.
         static Theme* defaultSky();
+
+        const QString& name() const;
 
         const QFont font() const;
         const QColor fontColor() const;

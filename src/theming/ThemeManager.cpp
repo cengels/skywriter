@@ -72,7 +72,13 @@ void ThemeManager::load() {
     foreach (const QJsonValue value, array) {
         Theme* theme = new Theme(this);
         theme->read(value.toObject());
-        m_themes.append(theme);
+
+        if (!std::any_of(m_themes.cbegin(), m_themes.cend(), [&theme](const Theme* item) { return item->name() == theme->name(); })) {
+            // If the user manually edited the themes.json file so that there
+            // are now duplicate names, ignores all subsequent themes with the
+            // same name to avoid issues.
+            m_themes.append(theme);
+        }
     }
 }
 

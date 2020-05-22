@@ -1,5 +1,8 @@
 #include <QTextDocument>
+#include <QQuickTextDocument>
+#include <QTextDocument>
 #include "FormattableTextArea.h"
+#include "../TextIterator.h"
 
 int FormattableTextArea::characterCount() const
 {
@@ -33,13 +36,16 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::updateWordCount()
 {
-    QTextCursor textCursor = QTextCursor(this->textDocument());
-    textCursor.movePosition(QTextCursor::Start);
+    TextIterator textIterator = TextIterator(this->document()->textDocument()->toPlainText(), TextIterator::IterationType::ByWord);
     int i = 0;
 
-    while (textCursor.movePosition(QTextCursor::NextWord)) {
-        i++;
-    }
+    while (!textIterator.atEnd()) {
+        if (!textIterator.current().isEmpty()) {
+            i++;
+        }
+
+        textIterator++;
+    };
 
     i -= m_highlighter->comments();
 

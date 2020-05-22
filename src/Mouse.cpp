@@ -42,15 +42,18 @@ bool Mouse::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-bool Mouse::isInside(const QQuickItem* item) const {
+bool Mouse::isInside(const QQuickItem* item) const
+{
     return item->contains(item->mapFromGlobal(m_globalPosition));
 }
 
-void Mouse::setCursor(Qt::CursorShape cursorShape) {
+void Mouse::setCursor(Qt::CursorShape cursorShape)
+{
     QGuiApplication::styleHints()->mousePressAndHoldInterval();
     QGuiApplication::setOverrideCursor(cursorShape);
 }
 
-void Mouse::resetCursor() {
+void Mouse::resetCursor()
+{
     QGuiApplication::restoreOverrideCursor();
 }

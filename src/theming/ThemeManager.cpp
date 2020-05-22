@@ -1,4 +1,3 @@
-#include <cassert>
 #include <QColor>
 #include <QFile>
 #include <QJsonArray>
@@ -25,7 +24,7 @@ ThemeManager::ThemeManager(QObject *parent) : QObject(parent),
     m_themes({ Theme::defaultSky(), Theme::defaultLight(), Theme::defaultDark() }),
     m_activeThemeIndex(0)
 {
-    assert(!m_instance);
+    Q_ASSERT(!m_instance);
 
     load();
 }

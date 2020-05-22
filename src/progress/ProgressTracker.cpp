@@ -10,13 +10,24 @@
 
 namespace {
     QString m_progressPath = QString();
+    QString m_tempProgressPath = QString();
+    const QString progressFileName = "/progress2.csv";
     QString progressPath()
     {
         if (m_progressPath.isNull()) {
-            m_progressPath = persistence::documentsPath() + "/progress2.csv";
+            m_progressPath = persistence::documentsPath() + progressFileName;
         }
 
         return m_progressPath;
+    }
+
+    QString tempProgressPath()
+    {
+        if (m_tempProgressPath.isNull()) {
+            m_tempProgressPath = persistence::documentsPath() + "/progress.temp";
+        }
+
+        return m_tempProgressPath;
     }
 
     //! Gets the date component of the specified QDateTime. If the time
@@ -26,6 +37,31 @@ namespace {
         return adjustBy.isValid() && dateTime.time() < adjustBy
             ? dateTime.date().addDays(-1)
             : dateTime.date();
+    }
+
+    bool safelyReplaceFile(QFile& from, QFile& to) {
+        from.close();
+        to.close();
+
+        const QString originalPath = to.fileName();
+        const QString backupPath = originalPath + ".bak";
+
+        if (!to.rename(backupPath)) {
+            if (QFile::exists(backupPath)) {
+                if (!QFile::remove(backupPath) || !to.rename(backupPath)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        if (!from.rename(originalPath)) {
+            to.rename(originalPath);
+            return false;
+        }
+
+        return true;
     }
 }
 
@@ -105,8 +141,12 @@ void ProgressTracker::addProgress(const int words)
     }
 
     if (this->m_activeProgressItem == nullptr) {
-        if (!skipIdleCheck && !this->m_items.isEmpty() && this->m_items.constLast()->end().secsTo(now) <= this->m_maximumIdleMinutes * 60) {
+        if (!skipIdleCheck
+                && !this->m_items.isEmpty()
+                && this->m_items.constLast()->fileUrl() == m_fileUrl
+                && this->m_items.constLast()->end().secsTo(now) <= this->m_maximumIdleMinutes * 60) {
             this->m_activeProgressItem = this->m_items.last();
+            this->m_items_to_save.append(m_activeProgressItem);
         } else {
             ProgressItem* progressItem = new ProgressItem(this);
             progressItem->setFileUrl(this->m_fileUrl);
@@ -152,7 +192,36 @@ void ProgressTracker::changeActiveFile(const QUrl& fileUrl)
 void ProgressTracker::renameActiveFile(const QUrl& fileUrl)
 {
     this->m_activeProgressItem->setFileUrl(fileUrl);
+    QString previousUrl = m_fileUrl.toLocalFile();
     this->m_fileUrl = fileUrl;
+
+    QFile inputFile(progressPath());
+    QFile outputFile(tempProgressPath());
+    if (inputFile.open(QIODevice::ReadWrite | QIODevice::Text) && outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream input(&inputFile);
+        QTextStream output(&outputFile);
+
+        while (!input.atEnd()) {
+            QString line = input.readLine();
+            if (!line.isEmpty()) {
+                if (line.startsWith(previousUrl)) {
+                    auto split = line.split(',');
+                    split.replace(0, previousUrl);
+                    output << split.join(',') << '\n';
+                } else {
+                    output << line << '\n';
+                }
+            }
+        }
+
+        bool success = safelyReplaceFile(outputFile, inputFile);
+
+        if (!success) {
+            qCritical() << "Failed to rename file.";
+        }
+    } else {
+        qCritical() << "Failed to rename file. Couldn't open file.";
+    }
 
     emit fileUrlChanged();
 }
@@ -167,12 +236,14 @@ QList<ProgressItem*> ProgressTracker::read(int year, int month, const QTime& adj
 
         while (!in.atEnd()) {
             QString line = in.readLine();
-            ProgressItem* item = ProgressItem::fromCsv(line);
-            const QDate& date = getAdjustedDate(item->start(), adjustBy);
+            if (!line.isEmpty()) {
+                ProgressItem* item = ProgressItem::fromCsv(line);
+                const QDate& date = getAdjustedDate(item->start(), adjustBy);
 
-            if (date.year() == year && (month == 0 || date.month() == month)) {
-                item->setParent(parent);
-                list.append(item);
+                if (date.year() == year && (month == 0 || date.month() == month)) {
+                    item->setParent(parent);
+                    list.append(item);
+                }
             }
         }
 
@@ -209,7 +280,7 @@ void ProgressTracker::load()
 
     emit itemsChanged();
 
-    if (m_progressToday > 0) {
+    if (m_progressToday != 0) {
         emit progressTodayChanged();
     }
 }
@@ -217,17 +288,50 @@ void ProgressTracker::load()
 void ProgressTracker::save()
 {
     if (!m_items_to_save.isEmpty()) {
-        QFile file(progressPath());
-        if (file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-            QTextStream out(&file);
+        QFile inputFile(progressPath());
+        QFile outputFile(tempProgressPath());
+        if (inputFile.open(QIODevice::ReadWrite | QIODevice::Text) && outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream input(&inputFile);
+            QTextStream output(&outputFile);
 
-            foreach (const ProgressItem* item, m_items_to_save) {
-                if (item->words() != 0) {
-                    out << item->toCsv() << '\n';
+            while (!input.atEnd()) {
+                const QString line = input.readLine();
+                const ProgressItem* matchingItem = nullptr;
+
+                // Try to match items to existing lines and overwrite them
+                // if found
+
+                foreach (ProgressItem* item, m_items_to_save) {
+                    if (item->isCsv(line)) {
+                        matchingItem = item;
+                        m_items_to_save.removeOne(item);
+                        break;
+                    }
+                }
+
+                if (matchingItem != nullptr) {
+                    if (matchingItem->words() != 0) {
+                        output << matchingItem->toCsv() << '\n';
+                    }
+                } else {
+                    output << line << '\n';
                 }
             }
 
-            file.close();
+            // Append the items that could not be matched
+
+            foreach (ProgressItem* item, m_items_to_save) {
+                if (item->words() != 0) {
+                    output << item->toCsv() << '\n';
+                }
+            }
+
+            bool success = safelyReplaceFile(outputFile, inputFile);
+
+            if (!success) {
+                qCritical() << "Failed to rename file.";
+            }
+
             m_items_to_save.clear();
 
             m_hasRunningTimer = false;

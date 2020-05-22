@@ -37,6 +37,10 @@ struct ProgressItem : public QObject
 
         QString toCsv() const;
         static ProgressItem* fromCsv(const QString& line);
+        //! Checks if the given CSV line corresponds with this ProgressItem.
+        //! This method does not instantiate a new ProgressItem and should
+        //! therefore be preferred in most instances.
+        bool isCsv(const QString& line) const;
 
     Q_SIGNALS:
         void fileUrlChanged();

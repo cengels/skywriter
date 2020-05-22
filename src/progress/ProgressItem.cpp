@@ -74,7 +74,7 @@ QString ProgressItem::toCsv() const {
 
 ProgressItem* ProgressItem::fromCsv(const QString& line) {
     if (line.contains('\n')) {
-        qCritical("fromCsv() argument must be a single line.");
+        qCritical("ProgressItem: fromCsv() argument must be a single line.");
 
         return new ProgressItem();
     }
@@ -82,7 +82,7 @@ ProgressItem* ProgressItem::fromCsv(const QString& line) {
     const auto split = line.split(',');
 
     if (split.length() != 4) {
-        qCritical("Line must have exactly 4 values but had: %d", split.length());
+        qCritical("ProgressItem: Line must have exactly 4 values but had: %d", split.length());
 
         return new ProgressItem();
     }
@@ -94,4 +94,24 @@ ProgressItem* ProgressItem::fromCsv(const QString& line) {
         QDateTime::fromString(split.at(2), Qt::DateFormat::ISODate),
         split.at(3).toInt()
     };
+}
+
+bool ProgressItem::isCsv(const QString& line) const
+{
+    if (line.contains('\n')) {
+        qCritical("ProgressItem: isCsv() argument must be a single line.");
+
+        return false;
+    }
+
+    const auto split = line.split(',');
+
+    if (split.length() != 4) {
+        qCritical("ProgressItem: Line must have exactly 4 values but had: %d", split.length());
+
+        return false;
+    }
+
+    return split.at(0) == m_fileUrl.toLocalFile()
+        && split.at(1) == m_start.toString(Qt::DateFormat::ISODate);
 }

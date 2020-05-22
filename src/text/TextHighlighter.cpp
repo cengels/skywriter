@@ -1,11 +1,10 @@
 #include <QSyntaxHighlighter>
 
 #include "TextHighlighter.h"
+#include "symbols.h"
 #include "../theming/ThemeManager.h"
 
 namespace {
-    QChar OPENING_COMMENT = '[';
-    QChar CLOSING_COMMENT = ']';
     QMetaObject::Connection connection;
 }
 
@@ -28,10 +27,10 @@ void TextHighlighter::highlightBlock(const QString& text) {
 
     int startIndex = previousBlockState() == 1
                      ? 0
-                     : text.indexOf(OPENING_COMMENT);
+                     : text.indexOf(symbols::opening_comment);
 
     while (startIndex >= 0) {
-        int endIndex = text.indexOf(CLOSING_COMMENT, startIndex);
+        int endIndex = text.indexOf(symbols::closing_comment, startIndex);
         int commentLength = 0;
 
         if (endIndex == -1) {
@@ -43,7 +42,7 @@ void TextHighlighter::highlightBlock(const QString& text) {
         }
 
         setFormat(startIndex, commentLength, ThemeManager::instance()->activeTheme()->fontColor().darker(150));
-        startIndex = text.indexOf(OPENING_COMMENT, startIndex + commentLength);
+        startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
     }
 }
 

@@ -3,20 +3,14 @@
 #include <QString>
 #include <QDebug>
 
+#include "symbols.h"
 #include "TextIterator.h"
 
 namespace {
-    // 0x2013/0x2014: en/em dash
-    const std::set<QChar> WORD_SEPARATORS {
-        ' ', 0x2013, 0x2014, ',', '.', ':',
-        '(', ')', '[', ']',
-        '\n' };
-    const std::set<QChar> WORD_SEPARATORS_MULTIPLE {'-'};
-
     bool isWordSeparator(const QString::const_iterator charIterator) {
-        return std::any_of(WORD_SEPARATORS.cbegin(), WORD_SEPARATORS.cend(), [&charIterator](const QChar& separator) {
+        return std::any_of(symbols::word_separators.cbegin(), symbols::word_separators.cend(), [&charIterator](const QChar& separator) {
             return (*charIterator) == separator;
-        }) || std::any_of(WORD_SEPARATORS_MULTIPLE.cbegin(), WORD_SEPARATORS_MULTIPLE.cend(), [&charIterator](const QChar& separator) {
+        }) || std::any_of(symbols::word_separators_multiple.cbegin(), symbols::word_separators_multiple.cend(), [&charIterator](const QChar& separator) {
             QString::const_iterator iteratorCopy(charIterator);
             // if current char is separator
             // and either next or previous char is separator

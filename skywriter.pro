@@ -68,6 +68,7 @@ HEADERS += \
     src/text/TextIterator.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
+    src/text/symbols.h \
     src/theming/ThemeManager.h \
     src/theming/Theme.h \
     src/colors.h

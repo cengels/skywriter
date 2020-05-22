@@ -131,8 +131,10 @@ ApplicationWindow {
         nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
         selectedNameFilter: "All files (*)"
         selectExisting: true
-        folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
-        onAccepted: loadDocument(openDialog.fileUrl)
+        folder: document.fileName !== '' && document.fileName != null
+                ? document.directoryUrl
+                : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
+        onAccepted: loadDocument(openDialog.fileUrl);
     }
 
     FileDialog {
@@ -142,7 +144,9 @@ ApplicationWindow {
         nameFilters: openDialog.nameFilters
         selectedNameFilter: "All files (*)"
         selectExisting: false
-        folder: Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation)
+        folder: document.fileName !== '' && document.fileName != null
+                ? document.directoryUrl
+                : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
         onAccepted: {
             document.saveAs(saveDialog.fileUrl);
 

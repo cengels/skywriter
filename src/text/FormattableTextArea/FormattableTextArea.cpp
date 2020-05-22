@@ -173,6 +173,11 @@ QUrl FormattableTextArea::fileUrl() const
     return m_fileUrl;
 }
 
+QUrl FormattableTextArea::directoryUrl() const
+{
+    return m_fileUrl.adjusted(QUrl::RemoveFilename | QUrl::StripTrailingSlash);
+}
+
 void FormattableTextArea::load(const QUrl &fileUrl)
 {
     if (fileUrl == m_fileUrl)
@@ -252,9 +257,6 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
 
     if (fileUrl == m_fileUrl)
         return;
-
-    m_fileUrl = fileUrl;
-    emit fileUrlChanged();
 }
 
 void FormattableTextArea::reset()
@@ -300,6 +302,17 @@ void FormattableTextArea::setModified(bool modified)
 {
     if (m_document)
         m_document->textDocument()->setModified(modified);
+}
+
+void FormattableTextArea::setFileUrl(const QUrl& url)
+{
+    bool isSameFolder = m_fileUrl.adjusted(QUrl::RemoveFilename) == url.adjusted(QUrl::RemoveFilename);
+    m_fileUrl = url;
+    emit fileUrlChanged();
+
+    if (!isSameFolder) {
+        emit directoryUrlChanged();
+    }
 }
 
 QString FormattableTextArea::stylesheet() const

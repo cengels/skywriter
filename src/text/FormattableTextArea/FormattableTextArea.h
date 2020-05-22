@@ -26,6 +26,7 @@ class FormattableTextArea : public QObject {
     Q_PROPERTY(QString fileName READ fileName NOTIFY fileUrlChanged)
     Q_PROPERTY(QString fileType READ fileType NOTIFY fileUrlChanged)
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged)
+    Q_PROPERTY(QUrl directoryUrl READ directoryUrl NOTIFY directoryUrlChanged)
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
@@ -66,6 +67,7 @@ class FormattableTextArea : public QObject {
         QString fileName() const;
         QString fileType() const;
         QUrl fileUrl() const;
+        QUrl directoryUrl() const;
 
         TextIterator wordIterator() const;
 
@@ -85,6 +87,7 @@ class FormattableTextArea : public QObject {
 
         void textChanged();
         void fileUrlChanged();
+        void directoryUrlChanged();
 
         void loaded();
         void error(const QString &message);
@@ -116,6 +119,7 @@ class FormattableTextArea : public QObject {
         QUrl m_fileUrl;
 
         void setModified(bool modified);
+        void setFileUrl(const QUrl& url);
 
         void handleTextChange();
 

@@ -15,6 +15,7 @@
 
 #include "FormattableTextArea.h"
 #include "../format.h"
+#include "../symbols.h"
 #include "../TextHighlighter.h"
 
 namespace {
@@ -313,4 +314,12 @@ void FormattableTextArea::setStyleSheet(const QString& stylesheet)
 {
     if (m_document)
         m_document->textDocument()->setDefaultStyleSheet(stylesheet);
+}
+
+TextIterator FormattableTextArea::wordIterator() const
+{
+    TextIterator iterator = TextIterator(this->document()->textDocument()->toPlainText(), TextIterator::IterationType::ByWord);
+    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
+
+    return iterator;
 }

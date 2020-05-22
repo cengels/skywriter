@@ -8,6 +8,7 @@
 #include <QDateTime>
 
 #include "../TextHighlighter.h"
+#include "../TextIterator.h"
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -65,6 +66,8 @@ class FormattableTextArea : public QObject {
         QString fileName() const;
         QString fileType() const;
         QUrl fileUrl() const;
+
+        TextIterator wordIterator() const;
 
     public Q_SLOTS:
         void load(const QUrl &fileUrl);

@@ -36,7 +36,7 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::updateWordCount()
 {
-    TextIterator textIterator = TextIterator(this->document()->textDocument()->toPlainText(), TextIterator::IterationType::ByWord);
+    TextIterator textIterator = this->wordIterator();
     int i = 0;
 
     while (!textIterator.atEnd()) {
@@ -46,8 +46,6 @@ void FormattableTextArea::updateWordCount()
 
         textIterator++;
     };
-
-    i -= m_highlighter->comments();
 
     if (i != this->m_wordCount) {
         m_wordCount = i;

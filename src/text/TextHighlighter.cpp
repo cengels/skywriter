@@ -1,4 +1,5 @@
 #include <QSyntaxHighlighter>
+#include <QDebug>
 
 #include "TextHighlighter.h"
 #include "symbols.h"
@@ -9,7 +10,6 @@ namespace {
 }
 
 TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent),
-    m_comments(0),
     m_refreshing(true)
 {
     connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
@@ -54,8 +54,4 @@ void TextHighlighter::refresh() {
 
 bool TextHighlighter::refreshing() const {
     return this->m_refreshing;
-}
-
-int TextHighlighter::comments() const {
-    return this->m_comments;
 }

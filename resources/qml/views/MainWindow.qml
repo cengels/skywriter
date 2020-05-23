@@ -16,7 +16,7 @@ import "qrc:/js/color.js" as Color
 
 ApplicationWindow {
     id: mainWindow
-    title: document.fileName + (document.modified ? "*" : "") + "  •  Skywriter"
+    title: textArea.fileName + (textArea.modified ? "*" : "") + "  •  Skywriter"
     visible: true
 
     readonly property int windowSizeSubtraction: 250
@@ -43,20 +43,20 @@ ApplicationWindow {
     }
 
     function save() {
-        if (document.fileUrl != null
-                && document.fileUrl !== ''
-                && document.fileName !== 'untitled.txt') {
-            document.saveAs(document.fileUrl);
+        if (textArea.fileUrl != null
+                && textArea.fileUrl !== ''
+                && textArea.fileName !== 'untitled.txt') {
+            textArea.saveAs(textArea.fileUrl);
         } else {
             saveDialog.open();
         }
     }
 
     function loadDocument(url) {
-        document.progressSuspended = true;
-        document.load(url);
+        textArea.progressSuspended = true;
+        textArea.load(url);
         ProgressTracker.changeActiveFile(url);
-        document.progressSuspended = false;
+        textArea.progressSuspended = false;
     }
 
     function clamp(value, min, max) {
@@ -90,7 +90,7 @@ ApplicationWindow {
     property bool forceClose: false;
 
     onClosing: {
-        if (document.modified && !forceClose) {
+        if (textArea.modified && !forceClose) {
             close.accepted = false;
             quitDialog.show();
 
@@ -109,7 +109,7 @@ ApplicationWindow {
         // Ensures that, if the user chose to quit without saving, their
         // unsaved progress is not saved. If they *did* save their progress,
         // (progressAtLastSave - progressToday) will be 0.
-        ProgressTracker.addProgress(document.progressAtLastSave - ProgressTracker.progressToday);
+        ProgressTracker.addProgress(textArea.progressAtLastSave - ProgressTracker.progressToday);
         ProgressTracker.save();
     }
 
@@ -131,8 +131,8 @@ ApplicationWindow {
         nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
         selectedNameFilter: "All files (*)"
         selectExisting: true
-        folder: document.fileName !== '' && document.fileName != null
-                ? document.directoryUrl
+        folder: textArea.fileName !== '' && textArea.fileName != null
+                ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
         onAccepted: loadDocument(openDialog.fileUrl);
     }
@@ -144,11 +144,11 @@ ApplicationWindow {
         nameFilters: openDialog.nameFilters
         selectedNameFilter: "All files (*)"
         selectExisting: false
-        folder: document.fileName !== '' && document.fileName != null
-                ? document.directoryUrl
+        folder: textArea.fileName !== '' && textArea.fileName != null
+                ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
         onAccepted: {
-            document.saveAs(saveDialog.fileUrl);
+            textArea.saveAs(saveDialog.fileUrl);
 
             if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
                 ProgressTracker.renameActiveFile(saveDialog.fileUrl);
@@ -310,9 +310,9 @@ ApplicationWindow {
                     text: qsTr("Paste Untracked")
                     enabled: textArea.canPaste
                     onTriggered: {
-                        document.progressSuspended = true;
+                        textArea.progressSuspended = true;
                         pasteAction.trigger();
-                        document.progressSuspended = false;
+                        textArea.progressSuspended = false;
                     }
                 }
                 Action {
@@ -325,9 +325,9 @@ ApplicationWindow {
                     text: qsTr("Delete Untracked")
                     enabled: textArea.selectedText
                     onTriggered: {
-                        document.progressSuspended = true;
+                        textArea.progressSuspended = true;
                         deleteAction.trigger();
-                        document.progressSuspended = false;
+                        textArea.progressSuspended = false;
                     }
                 }
                 MenuSeparator {}
@@ -356,16 +356,16 @@ ApplicationWindow {
                 Action {
                     text: qsTr("Bold")
                     shortcut: StandardKey.Bold
-                    onTriggered: document.toggleBold()
+                    onTriggered: textArea.toggleBold()
                 }
                 Action {
                     text: qsTr("Italic")
                     shortcut: StandardKey.Italic
-                    onTriggered: document.toggleItalics()
+                    onTriggered: textArea.toggleItalics()
                 }
                 Action {
                     text: qsTr("Strikethrough")
-                    onTriggered: document.toggleStrikethrough()
+                    onTriggered: textArea.toggleStrikethrough()
                 }
                 MenuSeparator {}
                 Action {
@@ -424,59 +424,6 @@ ApplicationWindow {
         }
     }
 
-    FormattableTextArea {
-        // Binds itself to the text area below and modifies its document
-        id: document
-        document: textArea.textDocument
-        cursorPosition: textArea.cursorPosition
-        selectionStart: textArea.selectionStart
-        selectionEnd: textArea.selectionEnd
-        firstLineIndent: ThemeManager.activeTheme.firstLineIndent
-        property bool loaded: false
-
-        Component.onCompleted: {
-            if (Settings.Document.lastFile != null) {
-                loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
-                textArea.cursorPosition = Settings.Document.caretPosition;
-                verticalScrollbar.centerOnCaret();
-            }
-
-            Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
-            loaded = true;
-        }
-
-        onFileUrlChanged: {
-            Settings.Document.lastFile = document.fileUrl.toString();
-        }
-
-        property int oldWordCount;
-        property bool progressSuspended: false;
-        onWordCountChanged: {
-            if (!progressSuspended && oldWordCount !== wordCount) {
-                ProgressTracker.addProgress(wordCount - oldWordCount);
-            }
-
-            oldWordCount = wordCount;
-        }
-
-        onError: {
-            errorDialog.text = message;
-            errorDialog.show();
-        }
-
-        property int progressAtLastSave;
-        onLastModifiedChanged: {
-            // called whenever the file is saved
-            progressAtLastSave = ProgressTracker.progressToday;
-        }
-
-        onTextChanged: {
-            if (loaded) {
-                verticalScrollbar.scrollToCaret();
-            }
-        }
-    }
-
     Image {
         id: backgroundImage
         anchors.fill: container
@@ -514,7 +461,7 @@ ApplicationWindow {
             property string lastTheme: ""
             property bool fixPositionNext: false
             onPositionChanged: adjustPosition();
-            onSizeChanged: adjustPosition()
+            onSizeChanged: adjustPosition();
 
             function adjustPosition() {
                 if (mainWindow.width !== previousWidth
@@ -542,24 +489,24 @@ ApplicationWindow {
             }
 
             function scrollToCaret() {
-                const caretPosition = textArea.cursorRectangle.y;
-                // parent.y is always negative
-                const visibleStartY = -textArea.parent.y;
-                const visibleEndY = -textArea.parent.y + scrollView.height;
+//                const caretPosition = textArea.cursorRectangle.y;
+//                // parent.y is always negative
+//                const visibleStartY = -textArea.parent.y;
+//                const visibleEndY = -textArea.parent.y + scrollView.height;
 
-                if (caretPosition < visibleStartY) {
-                    verticalScrollbar.position = caretPosition / textArea.parent.height;
-                } else if (caretPosition > visibleEndY) {
-                    verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY + visibleStartY) / textArea.parent.height;
-                }
+//                if (caretPosition < visibleStartY) {
+//                    verticalScrollbar.position = caretPosition / textArea.parent.height;
+//                } else if (caretPosition > visibleEndY) {
+//                    verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY + visibleStartY) / textArea.parent.height;
+//                }
             }
 
             function centerOnCaret() {
-                const verticalCaretCenter = textArea.cursorRectangle.y + textArea.cursorRectangle.height / 2;
-                const relativeCaretPosition = verticalCaretCenter / textArea.parent.height;
-                const verticalScrollViewCenter = -textArea.parent.y + scrollView.height / 2;
-                const relativeScrollViewCenter = verticalScrollViewCenter / textArea.parent.height;
-                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
+//                const verticalCaretCenter = textArea.cursorRectangle.y + textArea.cursorRectangle.height / 2;
+//                const relativeCaretPosition = verticalCaretCenter / textArea.parent.height;
+//                const verticalScrollViewCenter = -textArea.parent.y + scrollView.height / 2;
+//                const relativeScrollViewCenter = verticalScrollViewCenter / textArea.parent.height;
+//                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
             }
 
             Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
@@ -663,29 +610,82 @@ ApplicationWindow {
                 anchors.centerIn: parent
                 clip: true
 
+
                 Flickable {
                     id: textAreaContainer
+                    anchors.verticalCenter: parent.verticalCenter
+                    focus: true
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: verticalScrollbar
                     contentWidth: textArea.width
                     contentHeight: textArea.height
 
-                    TextEdit {
+                    FormattableTextArea {
                         id: textArea
                         width: scrollView.width
                         height: contentHeight + scrollView.height * 1.9
-                        anchors.verticalCenter: parent.verticalCenter
-                        focus: true
+                        firstLineIndent: ThemeManager.activeTheme.firstLineIndent
+                        property bool loaded: false
 
-                        selectByMouse: true
-                        textFormat: TextEdit.MarkdownText
-                        verticalAlignment: TextEdit.AlignVCenter
-                        horizontalAlignment: ThemeManager.activeTheme.textAlignment
-                        wrapMode: TextEdit.Wrap
-                        persistentSelection: true
-                        color: ThemeManager.activeTheme.fontColor
-                        font: ThemeManager.activeTheme.font
+                        Component.onCompleted: {
+                            if (Settings.Document.lastFile != null) {
+                                loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
+    //                                textArea.cursorPosition = Settings.Document.caretPosition;
+                                verticalScrollbar.centerOnCaret();
+                            }
+
+    //                            Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
+                            loaded = true;
+                        }
+
+                        onFileUrlChanged: {
+                            Settings.Document.lastFile = textArea.fileUrl.toString();
+                        }
+
+                        property int oldWordCount;
+                        property bool progressSuspended: false;
+                        onWordCountChanged: {
+                            if (!progressSuspended && oldWordCount !== wordCount) {
+                                ProgressTracker.addProgress(wordCount - oldWordCount);
+                            }
+
+                            oldWordCount = wordCount;
+                        }
+
+                        onError: {
+                            errorDialog.text = message;
+                            errorDialog.show();
+                        }
+
+                        property int progressAtLastSave;
+                        onLastModifiedChanged: {
+                            // called whenever the file is saved
+                            progressAtLastSave = ProgressTracker.progressToday;
+                        }
+
+                        onTextChanged: {
+                            if (loaded) {
+                                verticalScrollbar.scrollToCaret();
+                            }
+                        }
                     }
+
+//                    TextEdit {
+//                        id: textArea
+//                        width: scrollView.width
+//                        height: contentHeight + scrollView.height * 1.9
+//                        anchors.verticalCenter: parent.verticalCenter
+//                        focus: true
+
+//                        selectByMouse: true
+//                        textFormat: TextEdit.MarkdownText
+//                        verticalAlignment: TextEdit.AlignVCenter
+//                        horizontalAlignment: ThemeManager.activeTheme.textAlignment
+//                        wrapMode: TextEdit.Wrap
+//                        persistentSelection: true
+//                        color: ThemeManager.activeTheme.fontColor
+//                        font: ThemeManager.activeTheme.font
+//                    }
                 }
             }
         }
@@ -701,7 +701,7 @@ ApplicationWindow {
         Controls.StatsBar {
             id: statsBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
-            document: document
+            document: textArea
             y: collapsed ? 0 : -height
             opacity: collapsed ? 0.0 : 1.0
 

@@ -26,7 +26,7 @@ int FormattableTextArea::pageCount() const
 
 void FormattableTextArea::updateCharacterCount()
 {
-    const int characterCount = this->textDocument()->characterCount();
+    const int characterCount = m_document->characterCount();
 
     if (characterCount != this->m_characterCount) {
         this->m_characterCount = characterCount;
@@ -55,7 +55,7 @@ void FormattableTextArea::updateWordCount()
 
 void FormattableTextArea::updateParagraphCount()
 {
-    const int blockCount = this->textDocument()->blockCount();
+    const int blockCount = m_document->blockCount();
 
     if (blockCount != this->m_paragraphCount) {
         this->m_paragraphCount = blockCount;
@@ -76,6 +76,10 @@ void FormattableTextArea::updatePageCount()
 
 void FormattableTextArea::updateCounts()
 {
+    if (m_document == nullptr) {
+        return;
+    }
+
     this->updateCharacterCount();
     this->updateWordCount();
     this->updateParagraphCount();

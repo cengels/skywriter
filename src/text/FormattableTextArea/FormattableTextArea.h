@@ -6,6 +6,9 @@
 #include <QTextCursor>
 #include <QUrl>
 #include <QDateTime>
+#include <QQuickPaintedItem>
+#include <QTextLayout>
+#include <QTextDocument>
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
@@ -15,10 +18,10 @@ class QTextDocument;
 class QQuickTextDocument;
 QT_END_NAMESPACE
 
-class FormattableTextArea : public QObject {
+class FormattableTextArea : public QQuickPaintedItem
+{
     Q_OBJECT
 
-    Q_PROPERTY(QQuickTextDocument *document READ document WRITE setDocument NOTIFY documentChanged)
     Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition NOTIFY cursorPositionChanged)
     Q_PROPERTY(int selectionStart READ selectionStart WRITE setSelectionStart NOTIFY selectionStartChanged)
     Q_PROPERTY(int selectionEnd READ selectionEnd WRITE setSelectionEnd NOTIFY selectionEndChanged)
@@ -36,13 +39,15 @@ class FormattableTextArea : public QObject {
     Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
 
+    Q_PROPERTY(double contentWidth READ contentWidth NOTIFY contentWidthChanged)
+    Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
+
     Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
 
     public:
-        explicit FormattableTextArea(QObject *parent = nullptr);
+        explicit FormattableTextArea(QQuickItem *parent = nullptr);
 
-        QQuickTextDocument *document() const;
-        void setDocument(QQuickTextDocument *document);
+        void paint(QPainter *painter) override;
 
         int cursorPosition() const;
         void setCursorPosition(int position);
@@ -60,6 +65,9 @@ class FormattableTextArea : public QObject {
         int paragraphCount() const;
         int wordCount() const;
         int pageCount() const;
+
+        double contentWidth() const;
+        double contentHeight() const;
 
         QString stylesheet() const;
         void setStyleSheet(const QString& stylesheet);
@@ -100,17 +108,21 @@ class FormattableTextArea : public QObject {
         void wordCountChanged();
         void pageCountChanged();
 
+        void contentWidthChanged();
+        void contentHeightChanged();
+
         void firstLineIndentChanged();
 
     private:
         void reset();
 
         QTextCursor textCursor() const;
-        QTextDocument *textDocument() const;
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
 
-        QQuickTextDocument *m_document;
+        void newDocument(QTextDocument* document = new QTextDocument());
+        QTextDocument *m_document;
+        QTextLayout *m_textLayout;
         TextHighlighter* m_highlighter;
 
         int m_cursorPosition;

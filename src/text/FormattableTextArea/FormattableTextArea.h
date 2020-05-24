@@ -9,6 +9,7 @@
 #include <QQuickPaintedItem>
 #include <QTextLayout>
 #include <QTextDocument>
+#include <QTextEdit>
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
@@ -21,6 +22,8 @@ QT_END_NAMESPACE
 class FormattableTextArea : public QQuickPaintedItem
 {
     Q_OBJECT
+
+    Q_PROPERTY(double position WRITE setPosition MEMBER m_position NOTIFY positionChanged)
 
     Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition NOTIFY cursorPositionChanged)
     Q_PROPERTY(int selectionStart READ selectionStart WRITE setSelectionStart NOTIFY selectionStartChanged)
@@ -46,10 +49,13 @@ class FormattableTextArea : public QQuickPaintedItem
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
+        ~FormattableTextArea();
 
         void paint(QPainter *painter) override;
         bool event(QEvent* event) override;
         bool childMouseEventFilter(QQuickItem *item, QEvent *event) override;
+
+        void setPosition(double position);
 
         int cursorPosition() const;
         void setCursorPosition(int position);
@@ -105,6 +111,8 @@ class FormattableTextArea : public QQuickPaintedItem
         void modifiedChanged();
         void lastModifiedChanged();
 
+        void positionChanged();
+
         void characterCountChanged();
         void paragraphCountChanged();
         void wordCountChanged();
@@ -127,6 +135,8 @@ class FormattableTextArea : public QQuickPaintedItem
         QTextLayout *m_textLayout;
         TextHighlighter* m_highlighter;
 
+        double m_position;
+
         int m_cursorPosition;
         int m_selectionStart;
         int m_selectionEnd;
@@ -148,6 +158,8 @@ class FormattableTextArea : public QQuickPaintedItem
         void updatePageCount();
 
         int m_firstLineIndent;
+
+        QTextEdit* m_textEdit;
 };
 
 #endif // FORMATTABLETEXTAREA_H

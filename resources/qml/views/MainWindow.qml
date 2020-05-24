@@ -618,20 +618,16 @@ ApplicationWindow {
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: verticalScrollbar
                     contentWidth: textArea.width
-                    contentHeight: textArea.height
+                    contentHeight: textArea.contentHeight + scrollView.height * 2
 
                     FormattableTextArea {
                         id: textArea
                         width: scrollView.width
-                        height: contentHeight + scrollView.height * 1.9
+                        height: scrollView.height
                         firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                         focus: true
+                        position: verticalScrollbar.position
                         property bool loaded: false
-                        Keys.onPressed: {
-                            console.log('foo2');
-                        }
-
-                        onActiveFocusChanged: console.log(activeFocus);
 
                         Component.onCompleted: {
                             if (Settings.Document.lastFile != null) {

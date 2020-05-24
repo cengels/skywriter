@@ -20,6 +20,7 @@
 #include "../format.h"
 #include "../symbols.h"
 #include "../TextHighlighter.h"
+#include "../../theming/ThemeManager.h"
 
 namespace {
     constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
@@ -30,6 +31,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_document(nullptr)
     , m_textLayout(new QTextLayout())
     , m_highlighter(nullptr)
+    , m_position(0.0)
     , m_cursorPosition(-1)
     , m_selectionStart(0)
     , m_selectionEnd(0)
@@ -38,6 +40,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_paragraphCount(0)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
+    , m_textEdit(new QTextEdit())
 {
     setFiltersChildMouseEvents(true);
     setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
@@ -57,71 +60,56 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     connect(this, &FormattableTextArea::heightChanged, this, [this]() {
         update();
     });
+
+    connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [this]() {
+        m_textEdit->setFont(ThemeManager::instance()->activeTheme()->font());
+        m_textEdit->setTextColor(ThemeManager::instance()->activeTheme()->fontColor());
+        update();
+    });
+}
+
+FormattableTextArea::~FormattableTextArea()
+{
+    delete m_textEdit;
 }
 
 void FormattableTextArea::paint(QPainter *painter)
 {
     if (m_document) {
-//        m_textLayout->setText(this.te)
-//        qreal margin = 10;
-//        qreal radius = qMin(width()/2.0, height()/2.0) - margin;
-//        QFontMetrics fm(font);
+        const QTime start = QTime::currentTime();
+//        painter->setFont(ThemeManager::instance()->activeTheme()->font());
+//        m_document->drawContents(painter, QRectF(0, 0, this->width(), this->height()));
 
-//        qreal lineHeight = fm.height();
-//        qreal y = 0;
-
-//        textLayout.beginLayout();
-
-//        while (1) {
-//            // create a new line
-//            QTextLine line = textLayout.createLine();
-//            if (!line.isValid())
-//                break;
-
-//            qreal x1 = qMax(0.0, pow(pow(radius,2)-pow(radius-y,2), 0.5));
-//            qreal x2 = qMax(0.0, pow(pow(radius,2)-pow(radius-(y+lineHeight),2), 0.5));
-//            qreal x = qMax(x1, x2) + margin;
-//            qreal lineWidth = (width() - margin) - x;
-
-//            line.setLineWidth(lineWidth);
-//            line.setPosition(QPointF(x, margin+y));
-//            y += line.height();
-//        }
-
-//        textLayout.endLayout();
-
-//        QPainter painter;
-//        painter.begin(this);
-//        painter.setRenderHint(QPainter::Antialiasing);
-//        painter.fillRect(rect(), Qt::white);
-//        painter.setBrush(QBrush(Qt::black));
-//        painter.setPen(QPen(Qt::black));
-//        textLayout.draw(&painter, QPoint(0,0));
-
-//        painter.setBrush(QBrush(QColor("#a6ce39")));
-//        painter.setPen(QPen(Qt::black));
-//        painter.drawEllipse(QRectF(-radius, margin, 2*radius, 2*radius));
-//        painter.end();
-        m_document->drawContents(painter);
+        m_textEdit->resize(this->width(), this->height());
+        m_textEdit->render(painter);
+        qDebug() << "Finished painting the text area in" << start.msecsTo(QTime::currentTime()) << "ms";
     }
 }
 
 bool FormattableTextArea::event(QEvent* event)
 {
-    qDebug() << event->type();
-
     if (event->type() == QEvent::MouseButtonPress) {
         forceActiveFocus();
+    } else if (event->type() == QEvent::Wheel) {
+        QWheelEvent* event = static_cast<QWheelEvent*>(event);
+
+        m_textEdit->scroll(0, event->pixelDelta().y());
     }
 
-    event->ignore();
-
-    return true;
+    return QCoreApplication::sendEvent(m_textEdit, event);
 }
 
 bool FormattableTextArea::childMouseEventFilter(QQuickItem *item, QEvent *event)
 {
     return this->event(event);
+}
+
+void FormattableTextArea::setPosition(double position)
+{
+    m_position = position;
+    positionChanged();
+
+    update();
 }
 
 void FormattableTextArea::newDocument(QTextDocument* document)
@@ -157,6 +145,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         textOption.setWrapMode(QTextOption::WordWrap);
         m_document->setDefaultTextOption(textOption);
         this->m_document->setTextWidth(this->width());
+        this->m_textEdit->setDocument(m_document);
     }
 
     emit documentChanged();
@@ -304,7 +293,6 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             const QString fileType = QFileInfo(file).suffix();
 
             if (fileType == "md") {
-                qDebug() << "foo";
                 doc->setMarkdown(text, MARKDOWN_FEATURES);
             } else if (fileType.contains("htm")) {
                 doc->setHtml(text);

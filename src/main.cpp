@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QRawFont>
 #include <QDebug>
@@ -43,19 +43,19 @@ namespace {
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // Necessary to avoid flickering when resizing the window.
-    QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
-    QGuiApplication::setOrganizationName("cengels");
-    QGuiApplication::setOrganizationDomain("www.cengels.com");
-    QGuiApplication::setApplicationName("Skywriter");
-    QGuiApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
+    QApplication::setAttribute(Qt::AA_UseOpenGLES);
+    QApplication::setOrganizationName("cengels");
+    QApplication::setOrganizationDomain("www.cengels.com");
+    QApplication::setApplicationName("Skywriter");
+    QApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
                                       + QString::number(VERSION_MINOR) + "."
                                       + QString::number(VERSION_BUILD));
-    QGuiApplication app(argc, argv);
-    QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
-    QGuiApplication::setPalette(Skywriter::palette());
-    QGuiApplication::styleHints()->setMousePressAndHoldInterval(300);
+    QApplication app(argc, argv);
+    QApplication::setWindowIcon(QIcon(":/images/air.png"));
+    QApplication::setPalette(Skywriter::palette());
+    QApplication::styleHints()->setMousePressAndHoldInterval(300);
 
     registerQmlTypes();
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QFont font("Baloo 2", 11);
     font.setStyleStrategy(QFont::PreferAntialias);
-    QGuiApplication::setFont(font);
+    QApplication::setFont(font);
     Mouse* mouse = new Mouse(&app);
 //    app.installEventFilter(mouse);
     qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);

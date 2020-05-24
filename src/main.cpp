@@ -7,6 +7,7 @@
 #include <QStyleHints>
 #include <QPalette>
 #include <QQmlContext>
+#include <QWindow>
 #include "text/FormattableTextArea/FormattableTextArea.h"
 #include "progress/ProgressTracker.h"
 #include "colors.h"
@@ -65,14 +66,16 @@ int main(int argc, char *argv[])
     font.setStyleStrategy(QFont::PreferAntialias);
     QGuiApplication::setFont(font);
     Mouse* mouse = new Mouse(&app);
-    app.installEventFilter(mouse);
+//    app.installEventFilter(mouse);
     qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);
     qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
+    qRegisterMetaType<QEvent*>("QEvent*");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
     engine.addImportPath(":/");
     engine.load(":/qml/views/MainWindow.qml");
+    app.topLevelWindows().first()->installEventFilter(mouse);
 
     return app.exec();
 }

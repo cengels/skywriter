@@ -527,25 +527,6 @@ ApplicationWindow {
 
             Connections {
                 target: Mouse
-                onPressed: {
-                    if (button === Qt.MiddleButton) {
-                        if (verticalScrollbar.middleMouseOriginY >= 0) {
-                            verticalScrollbar.middleMouseOriginY = -1;
-                            verticalScrollbar.movementFactor = 0;
-                            Mouse.resetCursor();
-                        } else {
-                            verticalScrollbar.middleMouseOriginY = Mouse.globalPosition.y;
-                            Mouse.setCursor(Qt.SizeAllCursor);
-                        }
-                    }
-                }
-                onReleased: {
-                    if (button === Qt.MiddleButton && longPress) {
-                        verticalScrollbar.middleMouseOriginY = -1;
-                        verticalScrollbar.movementFactor = 0;
-                        Mouse.resetCursor();
-                    }
-                }
                 onMove: {
                     if (verticalScrollbar.middleMouseOriginY >= 0) {
                         const yDelta = verticalScrollbar.middleMouseOriginY - Mouse.globalPosition.y;
@@ -555,6 +536,13 @@ ApplicationWindow {
                         } else {
                             verticalScrollbar.movementFactor = 0;
                         }
+                    }
+                }
+                onReleased: {
+                    if (button === Qt.MiddleButton && longPress) {
+                        verticalScrollbar.middleMouseOriginY = -1;
+                        verticalScrollbar.movementFactor = 0;
+                        Mouse.resetCursor();
                     }
                 }
             }
@@ -583,6 +571,8 @@ ApplicationWindow {
         MouseArea {
             anchors.fill: parent
             preventStealing: true
+            acceptedButtons: Qt.MiddleButton
+
             onWheel: {
                 wheel.accepted = true;
 
@@ -593,6 +583,16 @@ ApplicationWindow {
                     verticalScrollbar.position = wheel.angleDelta.y < 0
                             ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
                             : Math.max(verticalScrollbar.position - delta, 0.0);
+                }
+            }
+            onPressed: {
+                if (verticalScrollbar.middleMouseOriginY >= 0) {
+                    verticalScrollbar.middleMouseOriginY = -1;
+                    verticalScrollbar.movementFactor = 0;
+                    Mouse.resetCursor();
+                } else {
+                    verticalScrollbar.middleMouseOriginY = Mouse.globalPosition.y;
+                    Mouse.setCursor(Qt.SizeAllCursor);
                 }
             }
         }
@@ -625,17 +625,25 @@ ApplicationWindow {
                         width: scrollView.width
                         height: contentHeight + scrollView.height * 1.9
                         firstLineIndent: ThemeManager.activeTheme.firstLineIndent
+                        focus: true
                         property bool loaded: false
+                        Keys.onPressed: {
+                            console.log('foo2');
+                        }
+
+                        onActiveFocusChanged: console.log(activeFocus);
 
                         Component.onCompleted: {
                             if (Settings.Document.lastFile != null) {
                                 loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
-    //                                textArea.cursorPosition = Settings.Document.caretPosition;
+                                // textArea.cursorPosition = Settings.Document.caretPosition;
                                 verticalScrollbar.centerOnCaret();
                             }
 
-    //                            Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
+                            // Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
                             loaded = true;
+
+                            forceActiveFocus();
                         }
 
                         onFileUrlChanged: {
@@ -669,23 +677,6 @@ ApplicationWindow {
                             }
                         }
                     }
-
-//                    TextEdit {
-//                        id: textArea
-//                        width: scrollView.width
-//                        height: contentHeight + scrollView.height * 1.9
-//                        anchors.verticalCenter: parent.verticalCenter
-//                        focus: true
-
-//                        selectByMouse: true
-//                        textFormat: TextEdit.MarkdownText
-//                        verticalAlignment: TextEdit.AlignVCenter
-//                        horizontalAlignment: ThemeManager.activeTheme.textAlignment
-//                        wrapMode: TextEdit.Wrap
-//                        persistentSelection: true
-//                        color: ThemeManager.activeTheme.fontColor
-//                        font: ThemeManager.activeTheme.font
-//                    }
                 }
             }
         }

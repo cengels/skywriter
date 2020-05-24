@@ -11,6 +11,7 @@
 #include <QTextObject>
 #include <QTextFrame>
 #include <QTextFragment>
+#include <QCursor>
 #include <QPainter>
 #include <QDebug>
 #include <QAbstractTextDocumentLayout>
@@ -38,6 +39,14 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
 {
+    setFiltersChildMouseEvents(true);
+    setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
+    setAcceptHoverEvents(true);
+    setAcceptTouchEvents(true);
+    QCursor cursor;
+    cursor.setShape(Qt::CursorShape::IBeamCursor);
+    setCursor(cursor);
+
     newDocument();
 
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
@@ -93,9 +102,26 @@ void FormattableTextArea::paint(QPainter *painter)
 //        painter.setPen(QPen(Qt::black));
 //        painter.drawEllipse(QRectF(-radius, margin, 2*radius, 2*radius));
 //        painter.end();
-        qDebug() << m_document->textWidth();
         m_document->drawContents(painter);
     }
+}
+
+bool FormattableTextArea::event(QEvent* event)
+{
+    qDebug() << event->type();
+
+    if (event->type() == QEvent::MouseButtonPress) {
+        forceActiveFocus();
+    }
+
+    event->ignore();
+
+    return true;
+}
+
+bool FormattableTextArea::childMouseEventFilter(QQuickItem *item, QEvent *event)
+{
+    return this->event(event);
 }
 
 void FormattableTextArea::newDocument(QTextDocument* document)

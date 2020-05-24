@@ -48,6 +48,8 @@ class FormattableTextArea : public QQuickPaintedItem
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
 
         void paint(QPainter *painter) override;
+        bool event(QEvent* event) override;
+        bool childMouseEventFilter(QQuickItem *item, QEvent *event) override;
 
         int cursorPosition() const;
         void setCursorPosition(int position);

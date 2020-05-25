@@ -50,14 +50,23 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     cursor.setShape(Qt::CursorShape::IBeamCursor);
     setCursor(cursor);
 
+    m_textEdit->installEventFilter(this);
+    m_textEdit->viewport()->setAutoFillBackground(false);
+
+    // Uncomment if there are performance issues
+    // this->setRenderTarget(QQuickPaintedItem::FramebufferObject);
+    this->setAntialiasing(true);
+
     newDocument();
 
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
         this->m_document->setTextWidth(this->width());
+        this->m_textEdit->setFixedWidth(this->width());
         update();
     });
 
     connect(this, &FormattableTextArea::heightChanged, this, [this]() {
+        this->m_textEdit->setFixedHeight(this->height());
         update();
     });
 
@@ -80,10 +89,23 @@ void FormattableTextArea::paint(QPainter *painter)
 //        painter->setFont(ThemeManager::instance()->activeTheme()->font());
 //        m_document->drawContents(painter, QRectF(0, 0, this->width(), this->height()));
 
-        m_textEdit->resize(this->width(), this->height());
+//        m_textEdit->resize(this->width(), this->height());
         m_textEdit->render(painter);
         qDebug() << "Finished painting the text area in" << start.msecsTo(QTime::currentTime()) << "ms";
     }
+}
+
+bool FormattableTextArea::eventFilter(QObject* object, QEvent* event)
+{
+    switch (event->type())
+    {
+        case QEvent::Paint:
+        case QEvent::UpdateRequest:
+            this->update();
+        break;
+    }
+
+    return QQuickPaintedItem::eventFilter(object, event);
 }
 
 bool FormattableTextArea::event(QEvent* event)
@@ -96,7 +118,9 @@ bool FormattableTextArea::event(QEvent* event)
         m_textEdit->scroll(0, event->pixelDelta().y());
     }
 
-    return QCoreApplication::sendEvent(m_textEdit, event);
+    QCoreApplication::sendEvent(m_textEdit, event);
+
+    return QQuickPaintedItem::event(event);
 }
 
 bool FormattableTextArea::childMouseEventFilter(QQuickItem *item, QEvent *event)

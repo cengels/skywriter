@@ -52,6 +52,7 @@ class FormattableTextArea : public QQuickPaintedItem
         ~FormattableTextArea();
 
         void paint(QPainter *painter) override;
+        bool eventFilter(QObject* object, QEvent* event) override;
         bool event(QEvent* event) override;
         bool childMouseEventFilter(QQuickItem *item, QEvent *event) override;
 

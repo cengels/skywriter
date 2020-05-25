@@ -33,6 +33,8 @@ SOURCES += \
         src/progress/ProgressItem.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
+        src/text/FormattableTextArea/props.cpp \
+        src/text/FormattableTextArea/widget.cpp \
         src/text/TextHighlighter.cpp \
         src/text/TextIterator.cpp \
         src/text/format.cpp \

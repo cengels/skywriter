@@ -18,7 +18,6 @@
 
 #include "FormattableTextArea.h"
 #include "../format.h"
-#include "../symbols.h"
 #include "../TextHighlighter.h"
 #include "../../theming/ThemeManager.h"
 
@@ -46,6 +45,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
     setAcceptHoverEvents(true);
     setAcceptTouchEvents(true);
+
     QCursor cursor;
     cursor.setShape(Qt::CursorShape::IBeamCursor);
     setCursor(cursor);
@@ -55,77 +55,32 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     // Uncomment if there are performance issues
     // this->setRenderTarget(QQuickPaintedItem::FramebufferObject);
-    this->setAntialiasing(true);
-
-    newDocument();
+    setAntialiasing(true);
 
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
-        this->m_document->setTextWidth(this->width());
-        this->m_textEdit->setFixedWidth(this->width());
-        update();
+        if (this->width() > 0) {
+            this->m_document->setTextWidth(this->width());
+            this->m_textEdit->setFixedWidth(this->width());
+            update();
+        }
     });
 
     connect(this, &FormattableTextArea::heightChanged, this, [this]() {
-        this->m_textEdit->setFixedHeight(this->height());
-        update();
+        if (this->height() > 0) {
+            this->m_textEdit->setFixedHeight(this->height());
+            update();
+        }
     });
 
-    connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [this]() {
-        m_textEdit->setFont(ThemeManager::instance()->activeTheme()->font());
-        m_textEdit->setTextColor(ThemeManager::instance()->activeTheme()->fontColor());
-        update();
-    });
+    connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
+
+    updateStyling();
+    newDocument();
 }
 
 FormattableTextArea::~FormattableTextArea()
 {
     delete m_textEdit;
-}
-
-void FormattableTextArea::paint(QPainter *painter)
-{
-    if (m_document) {
-        const QTime start = QTime::currentTime();
-//        painter->setFont(ThemeManager::instance()->activeTheme()->font());
-//        m_document->drawContents(painter, QRectF(0, 0, this->width(), this->height()));
-
-//        m_textEdit->resize(this->width(), this->height());
-        m_textEdit->render(painter);
-        qDebug() << "Finished painting the text area in" << start.msecsTo(QTime::currentTime()) << "ms";
-    }
-}
-
-bool FormattableTextArea::eventFilter(QObject* object, QEvent* event)
-{
-    switch (event->type())
-    {
-        case QEvent::Paint:
-        case QEvent::UpdateRequest:
-            this->update();
-        break;
-    }
-
-    return QQuickPaintedItem::eventFilter(object, event);
-}
-
-bool FormattableTextArea::event(QEvent* event)
-{
-    if (event->type() == QEvent::MouseButtonPress) {
-        forceActiveFocus();
-    } else if (event->type() == QEvent::Wheel) {
-        QWheelEvent* event = static_cast<QWheelEvent*>(event);
-
-        m_textEdit->scroll(0, event->pixelDelta().y());
-    }
-
-    QCoreApplication::sendEvent(m_textEdit, event);
-
-    return QQuickPaintedItem::event(event);
-}
-
-bool FormattableTextArea::childMouseEventFilter(QQuickItem *item, QEvent *event)
-{
-    return this->event(event);
 }
 
 void FormattableTextArea::setPosition(double position)
@@ -188,49 +143,6 @@ void FormattableTextArea::handleTextChange()
     this->updateCounts();
 }
 
-int FormattableTextArea::cursorPosition() const
-{
-    return m_cursorPosition;
-}
-
-void FormattableTextArea::setCursorPosition(int position)
-{
-    if (position == m_cursorPosition)
-        return;
-
-    m_cursorPosition = position;
-    reset();
-    emit cursorPositionChanged();
-}
-
-int FormattableTextArea::selectionStart() const
-{
-    return m_selectionStart;
-}
-
-void FormattableTextArea::setSelectionStart(int position)
-{
-    if (position == m_selectionStart)
-        return;
-
-    m_selectionStart = position;
-    emit selectionStartChanged();
-}
-
-int FormattableTextArea::selectionEnd() const
-{
-    return m_selectionEnd;
-}
-
-void FormattableTextArea::setSelectionEnd(int position)
-{
-    if (position == m_selectionEnd)
-        return;
-
-    m_selectionEnd = position;
-    emit selectionEndChanged();
-}
-
 const QTextCharFormat FormattableTextArea::getSelectionFormat() const
 {
     return format::getMergedCharFormat(textCursor());
@@ -257,52 +169,12 @@ void FormattableTextArea::toggleStrikethrough()
     mergeFormat(format);
 }
 
-QString FormattableTextArea::fileName() const
-{
-    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
-    const QString fileName = QFileInfo(filePath).fileName();
-    if (fileName.isEmpty())
-        return QStringLiteral("untitled.txt");
-    return fileName;
-}
-
-QString FormattableTextArea::fileType() const
-{
-    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
-    return QFileInfo(filePath).suffix();
-}
-
-QDateTime FormattableTextArea::lastModified() const
-{
-    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
-    return QFileInfo(filePath).lastModified();
-}
-
-QUrl FormattableTextArea::fileUrl() const
-{
-    return m_fileUrl;
-}
-
-QUrl FormattableTextArea::directoryUrl() const
-{
-    return m_fileUrl.adjusted(QUrl::RemoveFilename | QUrl::StripTrailingSlash);
-}
-
 void FormattableTextArea::load(const QUrl &fileUrl)
 {
-    // TODO: Speed this up ... a lot
-    // Suggestion: Create a QTextDocument first and then use QTextEdit::setDocument() to make QTextEdit display it. It should operate much faster on the text then.
     if (fileUrl == m_fileUrl)
         return;
 
-    QQmlEngine *engine = qmlEngine(this);
-    if (!engine) {
-        qWarning() << "load() called before FormattableTextArea has QQmlEngine";
-        return;
-    }
-
-    const QUrl path = QQmlFileSelector::get(engine)->selector()->select(fileUrl);
-    const QString fileName = QQmlFile::urlToLocalFileOrQrc(path);
+    const QString fileName = QQmlFile::urlToLocalFileOrQrc(fileUrl);
 
     if (!QFile::exists(fileName)) {
         return;
@@ -328,8 +200,6 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             newDocument(doc);
             emit loaded();
         }
-
-        reset();
 
         m_fileUrl = fileUrl;
         emit fileUrlChanged();
@@ -370,10 +240,6 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         return;
 }
 
-void FormattableTextArea::reset()
-{
-}
-
 QTextCursor FormattableTextArea::textCursor() const
 {
     if (!m_document)
@@ -393,58 +259,4 @@ void FormattableTextArea::mergeFormat(const QTextCharFormat &format)
 {
     QTextCursor cursor = textCursor();
     cursor.mergeCharFormat(format);
-}
-
-bool FormattableTextArea::modified() const
-{
-    return m_document && m_document->isModified();
-}
-
-void FormattableTextArea::setModified(bool modified)
-{
-    if (m_document)
-        m_document->setModified(modified);
-}
-
-void FormattableTextArea::setFileUrl(const QUrl& url)
-{
-    bool isSameFolder = m_fileUrl.adjusted(QUrl::RemoveFilename) == url.adjusted(QUrl::RemoveFilename);
-    m_fileUrl = url;
-    emit fileUrlChanged();
-
-    if (!isSameFolder) {
-        emit directoryUrlChanged();
-    }
-}
-
-QString FormattableTextArea::stylesheet() const
-{
-    if (!m_document)
-        return nullptr;
-
-    return m_document->defaultStyleSheet();
-}
-
-void FormattableTextArea::setStyleSheet(const QString& stylesheet)
-{
-    if (m_document)
-        m_document->setDefaultStyleSheet(stylesheet);
-}
-
-TextIterator FormattableTextArea::wordIterator() const
-{
-    TextIterator iterator = TextIterator(m_document->toPlainText(), TextIterator::IterationType::ByWord);
-    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
-
-    return iterator;
-}
-
-double FormattableTextArea::contentWidth() const
-{
-    return m_document ? m_document->size().width() : -1;
-}
-
-double FormattableTextArea::contentHeight() const
-{
-    return m_document ? m_document->size().height() : -1;
 }

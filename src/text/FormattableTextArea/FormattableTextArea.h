@@ -54,7 +54,6 @@ class FormattableTextArea : public QQuickPaintedItem
         void paint(QPainter *painter) override;
         bool eventFilter(QObject* object, QEvent* event) override;
         bool event(QEvent* event) override;
-        bool childMouseEventFilter(QQuickItem *item, QEvent *event) override;
 
         void setPosition(double position);
 
@@ -125,7 +124,7 @@ class FormattableTextArea : public QQuickPaintedItem
         void firstLineIndentChanged();
 
     private:
-        void reset();
+        void updateStyling();
 
         QTextCursor textCursor() const;
         const QTextCharFormat getSelectionFormat() const;

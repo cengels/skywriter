@@ -38,7 +38,6 @@ bool FormattableTextArea::event(QEvent* event)
         forceActiveFocus();
     } else if (event->type() == QEvent::Wheel) {
         QWheelEvent* ev = static_cast<QWheelEvent*>(event);
-
         m_textEdit->scroll(0, ev->pixelDelta().y());
     }
 
@@ -49,7 +48,23 @@ bool FormattableTextArea::event(QEvent* event)
 
 void FormattableTextArea::updateStyling()
 {
-    m_textEdit->setFont(ThemeManager::instance()->activeTheme()->font());
-    m_textEdit->setTextColor(ThemeManager::instance()->activeTheme()->fontColor());
-    update();
+    if (!this->m_updatesDisabled) {
+        bool undoRedoEnabled = m_textEdit->isUndoRedoEnabled();
+        m_textEdit->setUndoRedoEnabled(false);
+
+        m_textEdit->setFont(ThemeManager::instance()->activeTheme()->font());
+        m_textEdit->setTextColor(ThemeManager::instance()->activeTheme()->fontColor());
+        updateAlignment();
+
+        m_textEdit->setUndoRedoEnabled(undoRedoEnabled);
+    }
+}
+
+void FormattableTextArea::updateAlignment()
+{
+    if (!this->m_updatesDisabled) {
+        QTextBlockFormat format;
+        format.setAlignment(static_cast<Qt::Alignment>(static_cast<int>(ThemeManager::instance()->activeTheme()->textAlignment())));
+        this->mergeEveryFormat(format);
+    }
 }

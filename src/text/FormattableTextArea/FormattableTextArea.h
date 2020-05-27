@@ -125,10 +125,12 @@ class FormattableTextArea : public QQuickPaintedItem
 
     private:
         void updateStyling();
+        void updateAlignment();
 
         QTextCursor textCursor() const;
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
+        void mergeEveryFormat(const QTextBlockFormat &format);
 
         void newDocument(QTextDocument* document = new QTextDocument());
         QTextDocument *m_document;
@@ -158,6 +160,7 @@ class FormattableTextArea : public QQuickPaintedItem
         void updatePageCount();
 
         int m_firstLineIndent;
+        bool m_updatesDisabled;
 
         QTextEdit* m_textEdit;
 };

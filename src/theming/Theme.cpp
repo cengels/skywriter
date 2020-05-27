@@ -162,6 +162,11 @@ void Theme::setFontSize(double size)
     emit fontChanged();
 }
 
+Theme::HAlignment Theme::textAlignment() const
+{
+    return m_textAlignment;
+}
+
 void Theme::read(const QJsonObject& json)
 {
     m_name = json["name"].toString();

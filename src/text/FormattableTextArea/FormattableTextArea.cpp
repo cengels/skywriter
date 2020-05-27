@@ -39,6 +39,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_paragraphCount(0)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
+    , m_updatesDisabled(false)
     , m_textEdit(new QTextEdit())
 {
     setFiltersChildMouseEvents(true);
@@ -52,6 +53,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     m_textEdit->installEventFilter(this);
     m_textEdit->viewport()->setAutoFillBackground(false);
+    m_textEdit->setStyleSheet(QStringLiteral("color: %1").arg(ThemeManager::instance()->activeTheme()->fontColor().name()));
 
     // Uncomment if there are performance issues
     // this->setRenderTarget(QQuickPaintedItem::FramebufferObject);
@@ -73,6 +75,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     });
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
+    connect(this, &FormattableTextArea::paragraphCountChanged, this, &FormattableTextArea::updateAlignment);
 
     updateStyling();
     newDocument();
@@ -123,8 +126,8 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         auto textOption = m_document->defaultTextOption();
         textOption.setWrapMode(QTextOption::WordWrap);
         m_document->setDefaultTextOption(textOption);
-        this->m_document->setTextWidth(this->width());
-        this->m_textEdit->setDocument(m_document);
+        m_document->setTextWidth(this->width());
+        m_textEdit->setDocument(m_document);
     }
 
     emit documentChanged();
@@ -180,6 +183,8 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         return;
     }
 
+    this->m_updatesDisabled = true;
+
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
         QByteArray data = file.readAll();
@@ -205,6 +210,8 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit fileUrlChanged();
         emit lastModifiedChanged();
     }
+
+    this->m_updatesDisabled = false;
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl)
@@ -259,4 +266,21 @@ void FormattableTextArea::mergeFormat(const QTextCharFormat &format)
 {
     QTextCursor cursor = textCursor();
     cursor.mergeCharFormat(format);
+}
+
+void FormattableTextArea::mergeEveryFormat(const QTextBlockFormat &format)
+{
+    if (!m_document) {
+        return;
+    }
+
+    bool undoRedoEnabled = m_textEdit->isUndoRedoEnabled();
+    m_textEdit->setUndoRedoEnabled(false);
+
+    QTextCursor cursor = QTextCursor(m_document);
+    cursor.setPosition(0);
+    cursor.setPosition(this->m_document->characterCount() - 1, QTextCursor::KeepAnchor);
+    cursor.mergeBlockFormat(format);
+
+    m_textEdit->setUndoRedoEnabled(undoRedoEnabled);
 }

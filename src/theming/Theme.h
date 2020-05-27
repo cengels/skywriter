@@ -26,7 +26,7 @@ struct Theme : public QObject
     Q_PROPERTY(double paragraphSpacing MEMBER m_paragraphSpacing NOTIFY paragraphSpacingChanged);
     Q_PROPERTY(QColor windowBackground MEMBER m_windowBackground NOTIFY windowBackgroundChanged);
     Q_PROPERTY(QColor documentBackground MEMBER m_documentBackground NOTIFY documentBackgroundChanged);
-    Q_PROPERTY(HAlignment textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
+    Q_PROPERTY(HAlignment textAlignment READ textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
     Q_PROPERTY(QColor uiBackground MEMBER m_uiBackground NOTIFY uiBackgroundChanged);
     Q_PROPERTY(QColor uiColor MEMBER m_uiColor NOTIFY uiColorChanged);
 
@@ -54,6 +54,7 @@ struct Theme : public QObject
 
         const QFont font() const;
         const QColor fontColor() const;
+        HAlignment textAlignment() const;
 
         QString fontFamily() const;
         void setFontFamily(const QString& fontFamily);

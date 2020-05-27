@@ -20,7 +20,6 @@ void FormattableTextArea::setCursorPosition(int position)
         return;
 
     m_cursorPosition = position;
-    reset();
     emit cursorPositionChanged();
 }
 

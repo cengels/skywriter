@@ -26,12 +26,11 @@ namespace {
 }
 
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+    : QQuickItem(parent)
     , m_document(nullptr)
-    , m_textLayout(new QTextLayout())
     , m_highlighter(nullptr)
+    , m_textCursor(QTextCursor())
     , m_position(0.0)
-    , m_cursorPosition(-1)
     , m_selectionStart(0)
     , m_selectionEnd(0)
     , m_characterCount(0)
@@ -39,8 +38,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_paragraphCount(0)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
-    , m_updatesDisabled(false)
-    , m_textEdit(new QTextEdit())
 {
     setFiltersChildMouseEvents(true);
     setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
@@ -50,48 +47,26 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     QCursor cursor;
     cursor.setShape(Qt::CursorShape::IBeamCursor);
     setCursor(cursor);
-
-    m_textEdit->installEventFilter(this);
-    m_textEdit->viewport()->setAutoFillBackground(false);
-    m_textEdit->setStyleSheet(QStringLiteral("color: %1").arg(ThemeManager::instance()->activeTheme()->fontColor().name()));
-
-    // Uncomment if there are performance issues
-    // this->setRenderTarget(QQuickPaintedItem::FramebufferObject);
     setAntialiasing(true);
+    setFlag(QQuickItem::ItemHasContents, true);
 
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
         if (this->width() > 0) {
             this->m_document->setTextWidth(this->width());
-            this->m_textEdit->setFixedWidth(this->width());
             update();
         }
     });
 
-    connect(this, &FormattableTextArea::heightChanged, this, [this]() {
-        if (this->height() > 0) {
-            this->m_textEdit->setFixedHeight(this->height());
-            update();
-        }
-    });
+//    connect(this, &FormattableTextArea::heightChanged, this, [this]() {
+//        if (this->height() > 0) {
+//            update();
+//        }
+//    });
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
-    connect(this, &FormattableTextArea::paragraphCountChanged, this, &FormattableTextArea::updateAlignment);
 
     updateStyling();
     newDocument();
-}
-
-FormattableTextArea::~FormattableTextArea()
-{
-    delete m_textEdit;
-}
-
-void FormattableTextArea::setPosition(double position)
-{
-    m_position = position;
-    positionChanged();
-
-    update();
 }
 
 void FormattableTextArea::newDocument(QTextDocument* document)
@@ -127,7 +102,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         textOption.setWrapMode(QTextOption::WordWrap);
         m_document->setDefaultTextOption(textOption);
         m_document->setTextWidth(this->width());
-        m_textEdit->setDocument(m_document);
+        m_textCursor = QTextCursor(m_document);
     }
 
     emit documentChanged();
@@ -148,7 +123,7 @@ void FormattableTextArea::handleTextChange()
 
 const QTextCharFormat FormattableTextArea::getSelectionFormat() const
 {
-    return format::getMergedCharFormat(textCursor());
+    return format::getMergedCharFormat(m_textCursor);
 }
 
 void FormattableTextArea::toggleBold()
@@ -183,8 +158,6 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         return;
     }
 
-    this->m_updatesDisabled = true;
-
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
         QByteArray data = file.readAll();
@@ -210,8 +183,6 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit fileUrlChanged();
         emit lastModifiedChanged();
     }
-
-    this->m_updatesDisabled = false;
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl)
@@ -247,40 +218,7 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         return;
 }
 
-QTextCursor FormattableTextArea::textCursor() const
-{
-    if (!m_document)
-        return QTextCursor();
-
-    QTextCursor cursor = QTextCursor(m_document);
-    if (m_selectionStart != m_selectionEnd) {
-        cursor.setPosition(m_selectionStart);
-        cursor.setPosition(m_selectionEnd, QTextCursor::KeepAnchor);
-    } else {
-        cursor.setPosition(m_cursorPosition);
-    }
-    return cursor;
-}
-
 void FormattableTextArea::mergeFormat(const QTextCharFormat &format)
 {
-    QTextCursor cursor = textCursor();
-    cursor.mergeCharFormat(format);
-}
-
-void FormattableTextArea::mergeEveryFormat(const QTextBlockFormat &format)
-{
-    if (!m_document) {
-        return;
-    }
-
-    bool undoRedoEnabled = m_textEdit->isUndoRedoEnabled();
-    m_textEdit->setUndoRedoEnabled(false);
-
-    QTextCursor cursor = QTextCursor(m_document);
-    cursor.setPosition(0);
-    cursor.setPosition(this->m_document->characterCount() - 1, QTextCursor::KeepAnchor);
-    cursor.mergeBlockFormat(format);
-
-    m_textEdit->setUndoRedoEnabled(undoRedoEnabled);
+    m_textCursor.mergeCharFormat(format);
 }

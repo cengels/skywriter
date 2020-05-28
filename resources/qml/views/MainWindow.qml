@@ -610,15 +610,13 @@ ApplicationWindow {
                 anchors.centerIn: parent
                 clip: true
 
-
                 Flickable {
                     id: textAreaContainer
-                    anchors.verticalCenter: parent.verticalCenter
                     focus: true
                     boundsBehavior: Flickable.StopAtBounds
                     ScrollBar.vertical: verticalScrollbar
                     contentWidth: textArea.width
-                    contentHeight: textArea.contentHeight + scrollView.height * 2
+                    contentHeight: textArea.contentHeight
 
                     FormattableTextArea {
                         id: textArea
@@ -626,7 +624,7 @@ ApplicationWindow {
                         height: scrollView.height
                         firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                         focus: true
-                        position: verticalScrollbar.position
+                        position: textAreaContainer.contentY
                         property bool loaded: false
 
                         Component.onCompleted: {

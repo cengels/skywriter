@@ -1,4 +1,4 @@
-QT += quick quickcontrols2 widgets
+QT += quick quickcontrols2 quick-private
 
 CONFIG += c++20
 
@@ -29,12 +29,13 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 SOURCES += \
 #        src/document_handler.cpp \
         src/Mouse.cpp \
+        src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
+        src/text/FormattableTextArea/painting.cpp \
         src/text/FormattableTextArea/props.cpp \
-        src/text/FormattableTextArea/widget.cpp \
         src/text/TextHighlighter.cpp \
         src/text/TextIterator.cpp \
         src/text/format.cpp \
@@ -63,6 +64,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
 #    src/document_handler.h \
     src/Mouse.h \
+    src/numbers.h \
     src/persistence.h \
     src/progress/ProgressItem.h \
     src/text/FormattableTextArea/FormattableTextArea.h \

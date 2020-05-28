@@ -6,10 +6,9 @@
 #include <QTextCursor>
 #include <QUrl>
 #include <QDateTime>
-#include <QQuickPaintedItem>
+#include <QQuickItem>
 #include <QTextLayout>
 #include <QTextDocument>
-#include <QTextEdit>
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
@@ -19,13 +18,12 @@ class QTextDocument;
 class QQuickTextDocument;
 QT_END_NAMESPACE
 
-class FormattableTextArea : public QQuickPaintedItem
+class FormattableTextArea : public QQuickItem
 {
     Q_OBJECT
 
     Q_PROPERTY(double position WRITE setPosition MEMBER m_position NOTIFY positionChanged)
 
-    Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition NOTIFY cursorPositionChanged)
     Q_PROPERTY(int selectionStart READ selectionStart WRITE setSelectionStart NOTIFY selectionStartChanged)
     Q_PROPERTY(int selectionEnd READ selectionEnd WRITE setSelectionEnd NOTIFY selectionEndChanged)
 
@@ -49,16 +47,11 @@ class FormattableTextArea : public QQuickPaintedItem
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
-        ~FormattableTextArea();
 
-        void paint(QPainter *painter) override;
-        bool eventFilter(QObject* object, QEvent* event) override;
+        QSGNode* updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
         bool event(QEvent* event) override;
 
         void setPosition(double position);
-
-        int cursorPosition() const;
-        void setCursorPosition(int position);
 
         int selectionStart() const;
         void setSelectionStart(int position);
@@ -97,7 +90,6 @@ class FormattableTextArea : public QQuickPaintedItem
 
     Q_SIGNALS:
         void documentChanged();
-        void cursorPositionChanged();
         void selectionStartChanged();
         void selectionEndChanged();
 
@@ -125,21 +117,17 @@ class FormattableTextArea : public QQuickPaintedItem
 
     private:
         void updateStyling();
-        void updateAlignment();
 
-        QTextCursor textCursor() const;
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
-        void mergeEveryFormat(const QTextBlockFormat &format);
 
         void newDocument(QTextDocument* document = new QTextDocument());
         QTextDocument *m_document;
-        QTextLayout *m_textLayout;
         TextHighlighter* m_highlighter;
 
+        QTextCursor m_textCursor;
         double m_position;
 
-        int m_cursorPosition;
         int m_selectionStart;
         int m_selectionEnd;
         QUrl m_fileUrl;
@@ -160,9 +148,6 @@ class FormattableTextArea : public QQuickPaintedItem
         void updatePageCount();
 
         int m_firstLineIndent;
-        bool m_updatesDisabled;
-
-        QTextEdit* m_textEdit;
 };
 
 #endif // FORMATTABLETEXTAREA_H

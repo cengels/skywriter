@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QRawFont>
 #include <QDebug>
@@ -43,19 +43,19 @@ namespace {
 
 int main(int argc, char *argv[])
 {
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // Necessary to avoid flickering when resizing the window.
-    QApplication::setAttribute(Qt::AA_UseOpenGLES);
-    QApplication::setOrganizationName("cengels");
-    QApplication::setOrganizationDomain("www.cengels.com");
-    QApplication::setApplicationName("Skywriter");
-    QApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
+    QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
+    QGuiApplication::setOrganizationName("cengels");
+    QGuiApplication::setOrganizationDomain("www.cengels.com");
+    QGuiApplication::setApplicationName("Skywriter");
+    QGuiApplication::setApplicationVersion(QString::number(VERSION_MAJOR) + "."
                                       + QString::number(VERSION_MINOR) + "."
                                       + QString::number(VERSION_BUILD));
-    QApplication app(argc, argv);
-    QApplication::setWindowIcon(QIcon(":/images/air.png"));
-    QApplication::setPalette(Skywriter::palette());
-    QApplication::styleHints()->setMousePressAndHoldInterval(300);
+    QGuiApplication app(argc, argv);
+    QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
+    QGuiApplication::setPalette(Skywriter::palette());
+    QGuiApplication::styleHints()->setMousePressAndHoldInterval(300);
 
     registerQmlTypes();
 
@@ -64,9 +64,8 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QFont font("Baloo 2", 11);
     font.setStyleStrategy(QFont::PreferAntialias);
-    QApplication::setFont(font);
+    QGuiApplication::setFont(font);
     Mouse* mouse = new Mouse(&app);
-//    app.installEventFilter(mouse);
     qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);
     qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
     qRegisterMetaType<QEvent*>("QEvent*");

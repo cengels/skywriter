@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 ///                                                                       ///
-///            Contains rudimentary getters and setters.                  ///
+///               Contains rudimentary getters and setters.               ///
 ///                                                                       ///
 /////////////////////////////////////////////////////////////////////////////
 
@@ -8,19 +8,14 @@
 #include <QFileInfo>
 
 #include "FormattableTextArea.h"
+#include "../../numbers.h"
 
-int FormattableTextArea::cursorPosition() const
+void FormattableTextArea::setPosition(double position)
 {
-    return m_cursorPosition;
-}
+    m_position = position;
+    positionChanged();
 
-void FormattableTextArea::setCursorPosition(int position)
-{
-    if (position == m_cursorPosition)
-        return;
-
-    m_cursorPosition = position;
-    emit cursorPositionChanged();
+    update();
 }
 
 int FormattableTextArea::selectionStart() const
@@ -33,8 +28,11 @@ void FormattableTextArea::setSelectionStart(int position)
     if (position == m_selectionStart)
         return;
 
-    m_selectionStart = position;
+    m_selectionStart = numbers::clamp(position, 0, this->m_document->characterCount() - 1);
+    m_textCursor.setPosition(m_selectionStart, QTextCursor::MoveAnchor);
     emit selectionStartChanged();
+
+    update();
 }
 
 int FormattableTextArea::selectionEnd() const
@@ -47,8 +45,11 @@ void FormattableTextArea::setSelectionEnd(int position)
     if (position == m_selectionEnd)
         return;
 
-    m_selectionEnd = position;
+    m_selectionEnd = numbers::clamp(position, 0, this->m_document->characterCount() - 1);
+    m_textCursor.setPosition(m_selectionEnd, QTextCursor::KeepAnchor);
     emit selectionEndChanged();
+
+    update();
 }
 
 QString FormattableTextArea::fileName() const

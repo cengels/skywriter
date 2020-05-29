@@ -450,6 +450,7 @@ ApplicationWindow {
             anchors.bottom: container.bottom
             size: scrollView.height / textArea.contentHeight
             visible: textArea.contentHeight > scrollView.height
+            minimumSize: 50 / scrollView.height
 
             readonly property int middleMouseThreshold: 32
 

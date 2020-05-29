@@ -63,7 +63,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
 
-    updateStyling();
     newDocument();
 }
 
@@ -96,10 +95,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
             m_highlighter = new TextHighlighter(m_document);
         }
 
-        auto textOption = m_document->defaultTextOption();
-        textOption.setWrapMode(QTextOption::WordWrap);
-        m_document->setDefaultTextOption(textOption);
-        m_document->setTextWidth(this->width());
+        this->updateStyling();
         m_textCursor = QTextCursor(m_document);
     }
 

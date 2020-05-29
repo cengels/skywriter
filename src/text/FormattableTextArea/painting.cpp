@@ -25,13 +25,23 @@ bool FormattableTextArea::event(QEvent* event)
 
 void FormattableTextArea::updateStyling()
 {
+    if (!m_document) {
+        return;
+    }
 
+    const Theme* theme = ThemeManager::instance()->activeTheme();
+    m_document->setDefaultFont(theme->font());
+    QTextOption textOption = m_document->defaultTextOption();
+    textOption.setWrapMode(QTextOption::WordWrap);
+    textOption.setAlignment(static_cast<Qt::Alignment>(theme->textAlignment()));
+    m_document->setDefaultTextOption(textOption);
+    m_document->setTextWidth(this->width());
 }
 
 QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_UNUSED(updatePaintNodeData)
-    QFontMetrics fontMetrics(ThemeManager::instance()->activeTheme()->font());
+    const QFont& font = ThemeManager::instance()->activeTheme()->font();
     const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
     const bool hasSelection = m_textCursor.hasSelection();
 //    int height = 0;
@@ -74,6 +84,11 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                 selectionEnd = block.length() - 1;
             }
         }
+
+//        block.layout()->setFont(font);
+//        QTextOption textOption = block.layout()->textOption();
+//        textOption.setAlignment(static_cast<Qt::Alignment>(ThemeManager::instance()->activeTheme()->textAlignment()));
+//        block.layout()->setTextOption(textOption);
 
         n->addTextLayout(blockPosition,
                          block.layout(),

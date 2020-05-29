@@ -15,6 +15,10 @@
 #include <QPainter>
 #include <QDebug>
 #include <QAbstractTextDocumentLayout>
+#include <QTextDocumentFragment>
+#include <QGuiApplication>
+#include <QClipboard>
+#include <QMimeData>
 
 #include "FormattableTextArea.h"
 #include "../format.h"
@@ -184,7 +188,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     }
 
     m_loading = false;
-    loadingChanged();
+    emit loadingChanged();
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl)
@@ -218,6 +222,31 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
 
     if (fileUrl == m_fileUrl)
         return;
+}
+
+void FormattableTextArea::copy()
+{
+    if (m_textCursor.hasSelection()) {
+        QClipboard* clipboard = QGuiApplication::clipboard();
+        QMimeData* mimeData = new QMimeData();
+        mimeData->setHtml(m_textCursor.selection().toHtml("utf-8"));
+        clipboard->setMimeData(mimeData);
+    }
+}
+
+void FormattableTextArea::paste()
+{
+    const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
+
+    if (mimeData->hasHtml()) {
+        // TODO: Remove font information from HTML before pasting
+        m_textCursor.insertHtml(mimeData->html());
+    } else if (mimeData->hasText()) {
+        m_textCursor.insertText(mimeData->text());
+    }
+
+    update();
+    emit caretPositionChanged();
 }
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)

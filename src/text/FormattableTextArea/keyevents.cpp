@@ -15,9 +15,19 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                                            ? QTextCursor::KeepAnchor
                                            : QTextCursor::MoveAnchor;
 
-    if (event->matches(QKeySequence::SelectAll)) {
+    if (event->matches(QKeySequence::SelectAll))
+    {
         m_textCursor.select(QTextCursor::SelectionType::Document);
-    } else {
+    }
+    else if (event->matches(QKeySequence::Copy))
+    {
+        copy();
+    }
+    else if (event->matches(QKeySequence::Paste))
+    {
+        paste();
+    }
+    else {
         switch (event->key()) {
             case Qt::Key_Right:
                 moveCursor(ctrl ? QTextCursor::NextWord : QTextCursor::Right, moveMode);

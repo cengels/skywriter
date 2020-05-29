@@ -88,6 +88,9 @@ class FormattableTextArea : public QQuickItem
         void load(const QUrl &fileUrl);
         void saveAs(const QUrl &fileUrl);
 
+        void copy();
+        void paste();
+
         void toggleBold();
         void toggleItalics();
         void toggleStrikethrough();

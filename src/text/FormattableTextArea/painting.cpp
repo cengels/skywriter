@@ -18,44 +18,6 @@ bool FormattableTextArea::event(QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
         forceActiveFocus();
-    } else if (event->type() == QEvent::KeyPress) {
-        const QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-        const QTextCursor::MoveMode moveMode = keyEvent->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)
-                                  ? QTextCursor::KeepAnchor
-                                  : QTextCursor::MoveAnchor;
-
-        switch (keyEvent->key()) {
-            case Qt::Key_Right:
-                moveCursor(QTextCursor::Right, moveMode);
-                break;
-            case Qt::Key_Left:
-                moveCursor(QTextCursor::Left, moveMode);
-                break;
-            case Qt::Key_Up:
-                moveCursor(QTextCursor::Up, moveMode);
-                break;
-            case Qt::Key_Down:
-                moveCursor(QTextCursor::Down, moveMode);
-                break;
-            case Qt::Key_Back:
-            case Qt::Key_Backspace:
-                m_textCursor.deletePreviousChar();
-                update();
-                break;
-            case Qt::Key_Delete:
-                m_textCursor.deleteChar();
-                update();
-                break;
-            default:
-                const QString text = keyEvent->text();
-
-                if (!text.isEmpty()) {
-                    m_textCursor.insertText(text);
-                    m_textCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, text.length() - 1);
-                    update();
-                }
-                break;
-        }
     }
 
     return QQuickItem::event(event);
@@ -95,19 +57,22 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
 
         int selectionStart = -1;
         int selectionEnd = -1;
-        const bool hasStartSelection = hasSelection && block.contains(m_textCursor.selectionStart());
-        const bool hasEndSelection = hasSelection && block.contains(m_textCursor.selectionEnd());
 
-        if (hasStartSelection) {
-            selectionStart = m_textCursor.selectionStart() - block.position();
-        } else if (hasEndSelection || m_textCursor.selectionStart() < block.position()) {
-            selectionStart = 0;
-        }
+        if (hasSelection) {
+            const bool hasStartSelection = block.contains(m_textCursor.selectionStart());
+            const bool hasEndSelection = block.contains(m_textCursor.selectionEnd());
 
-        if (hasEndSelection) {
-            selectionEnd = m_textCursor.selectionEnd() - block.position() - 1;
-        } else if (hasStartSelection || m_textCursor.selectionEnd() > block.position()) {
-            selectionEnd = block.length() - 1;
+            if (hasStartSelection) {
+                selectionStart = m_textCursor.selectionStart() - block.position();
+            } else if (hasEndSelection || m_textCursor.selectionStart() < block.position()) {
+                selectionStart = 0;
+            }
+
+            if (hasEndSelection) {
+                selectionEnd = m_textCursor.selectionEnd() - block.position() - 1;
+            } else if (hasStartSelection || (selectionStart >= 0 && m_textCursor.selectionEnd() > block.position())) {
+                selectionEnd = block.length() - 1;
+            }
         }
 
         n->addTextLayout(blockPosition,

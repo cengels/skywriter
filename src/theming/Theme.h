@@ -21,9 +21,9 @@ struct Theme : public QObject
     Q_PROPERTY(double documentHeight MEMBER m_documentHeight NOTIFY documentHeightChanged);
     Q_PROPERTY(int paddingVertical MEMBER m_paddingVertical NOTIFY paddingVerticalChanged);
     Q_PROPERTY(int paddingHorizontal MEMBER m_paddingHorizontal NOTIFY paddingHorizontalChanged);
-    Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged);
-    Q_PROPERTY(double lineHeight MEMBER m_lineHeight NOTIFY lineHeightChanged);
-    Q_PROPERTY(double paragraphSpacing MEMBER m_paragraphSpacing NOTIFY paragraphSpacingChanged);
+    Q_PROPERTY(double firstLineIndent READ firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged);
+    Q_PROPERTY(double lineHeight READ lineHeight MEMBER m_lineHeight NOTIFY lineHeightChanged);
+    Q_PROPERTY(double paragraphSpacing READ paragraphSpacing MEMBER m_paragraphSpacing NOTIFY paragraphSpacingChanged);
     Q_PROPERTY(QColor windowBackground MEMBER m_windowBackground NOTIFY windowBackgroundChanged);
     Q_PROPERTY(QColor documentBackground MEMBER m_documentBackground NOTIFY documentBackgroundChanged);
     Q_PROPERTY(HAlignment textAlignment READ textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
@@ -61,6 +61,10 @@ struct Theme : public QObject
 
         double fontSize() const;
         void setFontSize(double size);
+
+        double firstLineIndent() const;
+        double lineHeight() const;
+        double paragraphSpacing() const;
 
         void read(const QJsonObject& json);
         void write(QJsonArray& json) const;

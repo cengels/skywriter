@@ -48,9 +48,9 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_documentHeight(1.0),
     m_paddingVertical(20),
     m_paddingHorizontal(50),
-    m_firstLineIndent(10.0),
-    m_lineHeight(1.0),
-    m_paragraphSpacing(0.0),
+    m_firstLineIndent(32.0),
+    m_lineHeight(1.5),
+    m_paragraphSpacing(24.0),
     m_fontColor(QColor(Qt::GlobalColor::black)),
     m_windowBackground(QColor(Qt::GlobalColor::lightGray)),
     m_documentBackground(QColor(Qt::GlobalColor::white)),
@@ -165,6 +165,21 @@ void Theme::setFontSize(double size)
 Theme::HAlignment Theme::textAlignment() const
 {
     return m_textAlignment;
+}
+
+double Theme::firstLineIndent() const
+{
+    return m_firstLineIndent;
+}
+
+double Theme::lineHeight() const
+{
+    return m_lineHeight;
+}
+
+double Theme::paragraphSpacing() const
+{
+    return m_paragraphSpacing;
 }
 
 void Theme::read(const QJsonObject& json)

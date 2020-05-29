@@ -36,17 +36,29 @@ void FormattableTextArea::updateStyling()
     textOption.setAlignment(static_cast<Qt::Alignment>(theme->textAlignment()));
     m_document->setDefaultTextOption(textOption);
     m_document->setTextWidth(this->width());
+
+    QTextBlockFormat format;
+
+    // Values above 3.0 are considered absolute line heights, to be added onto
+    // the base line height.
+
+    format.setLineHeight(theme->lineHeight() <= 3.0 ? theme->lineHeight() * 100 : theme->lineHeight(),
+                         theme->lineHeight() <= 3.0 ? QTextBlockFormat::ProportionalHeight : QTextBlockFormat::LineDistanceHeight);
+    format.setTextIndent(theme->firstLineIndent());
+    format.setBottomMargin(theme->paragraphSpacing());
+
+    QTextCursor cursor(m_document);
+    cursor.select(QTextCursor::Document);
+    cursor.mergeBlockFormat(format);
+
+    update();
 }
 
 QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_UNUSED(updatePaintNodeData)
-    const QFont& font = ThemeManager::instance()->activeTheme()->font();
     const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
     const bool hasSelection = m_textCursor.hasSelection();
-//    int height = 0;
-//    int lineWidth = 40;
-//    int leading = fontMetrics.leading();
 
     QQuickTextNode* n = static_cast<QQuickTextNode*>(oldNode);
     if (!n)
@@ -84,11 +96,6 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                 selectionEnd = block.length() - 1;
             }
         }
-
-//        block.layout()->setFont(font);
-//        QTextOption textOption = block.layout()->textOption();
-//        textOption.setAlignment(static_cast<Qt::Alignment>(ThemeManager::instance()->activeTheme()->textAlignment()));
-//        block.layout()->setTextOption(textOption);
 
         n->addTextLayout(blockPosition,
                          block.layout(),

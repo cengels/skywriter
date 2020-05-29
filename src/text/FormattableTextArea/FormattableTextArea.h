@@ -92,6 +92,9 @@ class FormattableTextArea : public QQuickItem
         void toggleItalics();
         void toggleStrikethrough();
 
+        void selectWord();
+        void selectParagraph();
+
     Q_SIGNALS:
         void documentChanged();
 

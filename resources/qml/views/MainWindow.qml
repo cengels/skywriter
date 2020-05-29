@@ -331,11 +331,11 @@ ApplicationWindow {
                 MenuSeparator {}
                 Action {
                     text: qsTr("Select Word")
-                    shortcut: "Ctrl+W"
                     onTriggered: textArea.selectWord()
                 }
                 Action {
-                    text: qsTr("Select Line")
+                    text: qsTr("Select Paragraph")
+                    onTriggered: textArea.selectParagraph()
                 }
                 Action {
                     text: qsTr("Select All")

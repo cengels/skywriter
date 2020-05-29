@@ -104,3 +104,17 @@ double FormattableTextArea::contentHeight() const
 {
     return m_document ? m_document->size().height() : -1;
 }
+
+void FormattableTextArea::selectWord()
+{
+    m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
+    emit caretPositionChanged();
+    update();
+}
+
+void FormattableTextArea::selectParagraph()
+{
+    m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+    emit caretPositionChanged();
+    update();
+}

@@ -32,6 +32,7 @@ SOURCES += \
         src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
+        src/text/symbols.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
         src/text/FormattableTextArea/keyevents.cpp \

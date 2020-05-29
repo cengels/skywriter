@@ -8,16 +8,18 @@
 
 void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 {
-    const QTextCursor::MoveMode moveMode = event->modifiers().testFlag(Qt::ShiftModifier)
+    const bool shift = event->modifiers().testFlag(Qt::ShiftModifier);
+    const bool ctrl = event->modifiers().testFlag(Qt::ControlModifier);
+    const QTextCursor::MoveMode moveMode = shift
                                            ? QTextCursor::KeepAnchor
                                            : QTextCursor::MoveAnchor;
 
     switch (event->key()) {
         case Qt::Key_Right:
-            moveCursor(QTextCursor::Right, moveMode);
+            moveCursor(ctrl && !shift ? QTextCursor::NextWord : QTextCursor::Right, moveMode);
             break;
         case Qt::Key_Left:
-            moveCursor(QTextCursor::Left, moveMode);
+            moveCursor(ctrl && !shift ? QTextCursor::PreviousWord : QTextCursor::Left, moveMode);
             break;
         case Qt::Key_Up:
             moveCursor(QTextCursor::Up, moveMode);
@@ -27,12 +29,26 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             break;
         case Qt::Key_Back:
         case Qt::Key_Backspace:
-            m_textCursor.deletePreviousChar();
+            if (m_textCursor.hasSelection()) {
+                m_textCursor.removeSelectedText();
+            } else if (!ctrl) {
+                m_textCursor.deletePreviousChar();
+            } else {
+                m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+                m_textCursor.removeSelectedText();
+            }
             update();
             emit caretPositionChanged();
             break;
         case Qt::Key_Delete:
-            m_textCursor.deleteChar();
+            if (m_textCursor.hasSelection()) {
+                m_textCursor.removeSelectedText();
+            } else if (!ctrl) {
+                m_textCursor.deleteChar();
+            } else {
+                m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                m_textCursor.removeSelectedText();
+            }
             update();
             break;
         default:

@@ -34,7 +34,8 @@ SOURCES += \
         src/progress/ProgressItem.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
-        src/text/FormattableTextArea/keys.cpp \
+        src/text/FormattableTextArea/keyevents.cpp \
+        src/text/FormattableTextArea/mouseevents.cpp \
         src/text/FormattableTextArea/painting.cpp \
         src/text/FormattableTextArea/props.cpp \
         src/text/TextHighlighter.cpp \

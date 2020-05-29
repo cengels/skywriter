@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
                                       + QString::number(VERSION_BUILD));
     QGuiApplication app(argc, argv);
     QGuiApplication::setWindowIcon(QIcon(":/images/air.png"));
-    QGuiApplication::setPalette(Skywriter::palette());
+    QGuiApplication::setPalette(colors::palette());
     QGuiApplication::styleHints()->setMousePressAndHoldInterval(300);
 
     registerQmlTypes();

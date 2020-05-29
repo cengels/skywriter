@@ -116,11 +116,11 @@ Theme* Theme::defaultSky()
     if (!m_defaultSky->m_isReadOnly) {
         m_defaultSky->m_isReadOnly = true;
         m_defaultSky->m_name = "Default (Sky)";
-        m_defaultSky->m_fontColor = Skywriter::palette().text().color();
-        m_defaultSky->m_documentBackground = Skywriter::palette().dark().color();
-        m_defaultSky->m_windowBackground = Skywriter::palette().base().color();
-        m_defaultSky->m_uiBackground = Skywriter::palette().alternateBase().color();
-        m_defaultSky->m_uiColor = Skywriter::palette().text().color();
+        m_defaultSky->m_fontColor = colors::palette().text().color();
+        m_defaultSky->m_documentBackground = colors::palette().dark().color();
+        m_defaultSky->m_windowBackground = colors::palette().base().color();
+        m_defaultSky->m_uiBackground = colors::palette().alternateBase().color();
+        m_defaultSky->m_uiColor = colors::palette().text().color();
     }
 
     return m_defaultSky;

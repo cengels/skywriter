@@ -24,6 +24,10 @@ namespace symbols {
     //! of a new word only if this token appears multiple times in a row.
     //! Single occurrences are ignored.
     const QSet<QChar> word_separators_multiple { '-' };
+    //! Checks if the given character is a word separator.
+    bool isWordSeparator(const QChar& character);
+    //! Removes unprintable characters from the string.
+    QString sanitize(const QString& string);
 }
 
 #endif // SYMBOLS_H

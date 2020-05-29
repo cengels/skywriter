@@ -48,9 +48,9 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_documentHeight(1.0),
     m_paddingVertical(20),
     m_paddingHorizontal(50),
-    m_firstLineIndent(10.0),
-    m_lineHeight(1.0),
-    m_paragraphSpacing(0.0),
+    m_firstLineIndent(32.0),
+    m_lineHeight(1.5),
+    m_paragraphSpacing(24.0),
     m_fontColor(QColor(Qt::GlobalColor::black)),
     m_windowBackground(QColor(Qt::GlobalColor::lightGray)),
     m_documentBackground(QColor(Qt::GlobalColor::white)),
@@ -116,11 +116,11 @@ Theme* Theme::defaultSky()
     if (!m_defaultSky->m_isReadOnly) {
         m_defaultSky->m_isReadOnly = true;
         m_defaultSky->m_name = "Default (Sky)";
-        m_defaultSky->m_fontColor = Skywriter::palette().text().color();
-        m_defaultSky->m_documentBackground = Skywriter::palette().dark().color();
-        m_defaultSky->m_windowBackground = Skywriter::palette().base().color();
-        m_defaultSky->m_uiBackground = Skywriter::palette().alternateBase().color();
-        m_defaultSky->m_uiColor = Skywriter::palette().text().color();
+        m_defaultSky->m_fontColor = colors::palette().text().color();
+        m_defaultSky->m_documentBackground = colors::palette().dark().color();
+        m_defaultSky->m_windowBackground = colors::palette().base().color();
+        m_defaultSky->m_uiBackground = colors::palette().alternateBase().color();
+        m_defaultSky->m_uiColor = colors::palette().text().color();
     }
 
     return m_defaultSky;
@@ -160,6 +160,26 @@ void Theme::setFontSize(double size)
     m_font.setPointSizeF(size);
     emit fontSizeChanged();
     emit fontChanged();
+}
+
+Theme::HAlignment Theme::textAlignment() const
+{
+    return m_textAlignment;
+}
+
+double Theme::firstLineIndent() const
+{
+    return m_firstLineIndent;
+}
+
+double Theme::lineHeight() const
+{
+    return m_lineHeight;
+}
+
+double Theme::paragraphSpacing() const
+{
+    return m_paragraphSpacing;
 }
 
 void Theme::read(const QJsonObject& json)

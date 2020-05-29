@@ -4,6 +4,7 @@
 #include "TextHighlighter.h"
 #include "symbols.h"
 #include "../theming/ThemeManager.h"
+#include "../colors.h"
 
 namespace {
     QMetaObject::Connection connection;
@@ -29,6 +30,9 @@ void TextHighlighter::highlightBlock(const QString& text) {
                      ? 0
                      : text.indexOf(symbols::opening_comment);
 
+    const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
+    const QColor commentColor = colors::decreaseEmphasis(fontColor);
+
     while (startIndex >= 0) {
         int endIndex = text.indexOf(symbols::closing_comment, startIndex);
         int commentLength = 0;
@@ -41,7 +45,7 @@ void TextHighlighter::highlightBlock(const QString& text) {
             commentLength = endIndex - startIndex + 1;
         }
 
-        setFormat(startIndex, commentLength, ThemeManager::instance()->activeTheme()->fontColor().darker(150));
+        setFormat(startIndex, commentLength, commentColor);
         startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
     }
 }

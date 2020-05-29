@@ -6,6 +6,9 @@
 #include <QTextCursor>
 #include <QUrl>
 #include <QDateTime>
+#include <QQuickItem>
+#include <QTextLayout>
+#include <QTextDocument>
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
@@ -15,13 +18,14 @@ class QTextDocument;
 class QQuickTextDocument;
 QT_END_NAMESPACE
 
-class FormattableTextArea : public QObject {
+class FormattableTextArea : public QQuickItem
+{
     Q_OBJECT
 
-    Q_PROPERTY(QQuickTextDocument *document READ document WRITE setDocument NOTIFY documentChanged)
-    Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition NOTIFY cursorPositionChanged)
-    Q_PROPERTY(int selectionStart READ selectionStart WRITE setSelectionStart NOTIFY selectionStartChanged)
-    Q_PROPERTY(int selectionEnd READ selectionEnd WRITE setSelectionEnd NOTIFY selectionEndChanged)
+    //! The scroll position of the FormattableTextArea in absolute y pixels.
+    Q_PROPERTY(double contentY WRITE setContentY MEMBER m_contentY NOTIFY contentYChanged)
+
+    Q_PROPERTY(int caretPosition READ caretPosition NOTIFY caretPositionChanged)
 
     Q_PROPERTY(QString fileName READ fileName NOTIFY fileUrlChanged)
     Q_PROPERTY(QString fileType READ fileType NOTIFY fileUrlChanged)
@@ -30,28 +34,33 @@ class FormattableTextArea : public QObject {
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
+    Q_PROPERTY(bool loading READ loading MEMBER m_loading NOTIFY loadingChanged)
 
     Q_PROPERTY(int characterCount READ characterCount NOTIFY characterCountChanged)
     Q_PROPERTY(int paragraphCount READ paragraphCount NOTIFY paragraphCountChanged)
     Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
 
+    Q_PROPERTY(double contentWidth READ contentWidth NOTIFY contentWidthChanged)
+    Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
+
     Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
 
     public:
-        explicit FormattableTextArea(QObject *parent = nullptr);
+        explicit FormattableTextArea(QQuickItem *parent = nullptr);
 
-        QQuickTextDocument *document() const;
-        void setDocument(QQuickTextDocument *document);
+        QSGNode* updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
+        bool event(QEvent* event) override;
+        void keyPressEvent(QKeyEvent* event) override;
+        void mousePressEvent(QMouseEvent* event) override;
+        void mouseMoveEvent(QMouseEvent* event) override;
+        void mouseReleaseEvent(QMouseEvent* event) override;
 
-        int cursorPosition() const;
-        void setCursorPosition(int position);
+        void setContentY(double contentY);
 
-        int selectionStart() const;
-        void setSelectionStart(int position);
+        int caretPosition() const;
 
-        int selectionEnd() const;
-        void setSelectionEnd(int position);
+        void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, int by = 1);
 
         bool modified() const;
         QDateTime lastModified() const;
@@ -61,6 +70,9 @@ class FormattableTextArea : public QObject {
         int wordCount() const;
         int pageCount() const;
 
+        double contentWidth() const;
+        double contentHeight() const;
+
         QString stylesheet() const;
         void setStyleSheet(const QString& stylesheet);
 
@@ -68,6 +80,7 @@ class FormattableTextArea : public QObject {
         QString fileType() const;
         QUrl fileUrl() const;
         QUrl directoryUrl() const;
+        bool loading() const;
 
         TextIterator wordIterator() const;
 
@@ -75,15 +88,24 @@ class FormattableTextArea : public QObject {
         void load(const QUrl &fileUrl);
         void saveAs(const QUrl &fileUrl);
 
+        void copy();
+        void paste();
+
+        void undo();
+        void redo();
+
         void toggleBold();
         void toggleItalics();
         void toggleStrikethrough();
 
+        void selectWord();
+        void selectParagraph();
+
     Q_SIGNALS:
         void documentChanged();
-        void cursorPositionChanged();
-        void selectionStartChanged();
-        void selectionEndChanged();
+
+        void contentYChanged();
+        void caretPositionChanged();
 
         void textChanged();
         void fileUrlChanged();
@@ -94,29 +116,34 @@ class FormattableTextArea : public QObject {
 
         void modifiedChanged();
         void lastModifiedChanged();
+        void loadingChanged();
 
         void characterCountChanged();
         void paragraphCountChanged();
         void wordCountChanged();
         void pageCountChanged();
 
+        void contentWidthChanged();
+        void contentHeightChanged();
+
         void firstLineIndentChanged();
 
     private:
-        void reset();
+        void updateStyling();
 
-        QTextCursor textCursor() const;
-        QTextDocument *textDocument() const;
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
 
-        QQuickTextDocument *m_document;
+        int hitTest(const QPointF& point) const;
+        void newDocument(QTextDocument* document = new QTextDocument());
+        QTextDocument *m_document;
         TextHighlighter* m_highlighter;
 
-        int m_cursorPosition;
-        int m_selectionStart;
-        int m_selectionEnd;
+        QTextCursor m_textCursor;
+        double m_contentY;
+
         QUrl m_fileUrl;
+        bool m_loading;
 
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);

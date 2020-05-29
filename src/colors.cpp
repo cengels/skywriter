@@ -1,11 +1,13 @@
 #include <QPalette>
 #include <QColor>
+
 #include "colors.h"
+#include "numbers.h"
 
 QPalette skywriter_palette;
 bool palette_initialized = false;
 
-const QPalette& Skywriter::palette()
+const QPalette& colors::palette()
 {
     if (!palette_initialized) {
         // This is necessary because custom style palettes cannot be defined
@@ -33,4 +35,42 @@ const QPalette& Skywriter::palette()
     }
 
     return skywriter_palette;
+}
+
+QColor colors::lighten(const QColor& color, int absoluteValue)
+{
+    QColor newColor = QColor(color);
+    newColor.setHsl(color.hue(), color.saturation(), numbers::clamp(color.lightness() + absoluteValue, 0, 255));
+
+    return newColor;
+}
+
+QColor colors::darken(const QColor& color, int absoluteValue)
+{
+    return colors::lighten(color, -absoluteValue);
+}
+
+QColor colors::saturate(const QColor& color, int absoluteValue)
+{
+    QColor newColor = QColor(color);
+    newColor.setHsl(color.hue(), numbers::clamp(color.saturation() + absoluteValue, 0, 255), color.lightness());
+
+    return newColor;
+}
+
+QColor colors::desaturate(const QColor& color, int absoluteValue)
+{
+    return colors::saturate(color, -absoluteValue);
+}
+
+QColor colors::decreaseEmphasis(const QColor& color, double strength)
+{
+    const int lightnessDifference = 40 * strength;
+    const int saturationDifference = 32 * strength;
+    QColor newColor = QColor(color);
+    newColor.setHsl(color.hue(),
+                    numbers::clamp(color.saturation() - saturationDifference, 0, 255),
+                    numbers::clamp(color.lightness() <= 128 ? color.lightness() + lightnessDifference * 2 : color.lightness() - lightnessDifference, 0, 255));
+
+    return newColor;
 }

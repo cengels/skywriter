@@ -1,8 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+///                                                                       ///
+///   Contains all code responsible for counting words or other symbols   ///
+///   within the text document.                                           ///
+///                                                                       ///
+/////////////////////////////////////////////////////////////////////////////
+
 #include <QTextDocument>
 #include <QQuickTextDocument>
 #include <QTextDocument>
+
 #include "FormattableTextArea.h"
 #include "../TextIterator.h"
+#include "../symbols.h"
 
 int FormattableTextArea::characterCount() const
 {
@@ -26,7 +35,7 @@ int FormattableTextArea::pageCount() const
 
 void FormattableTextArea::updateCharacterCount()
 {
-    const int characterCount = this->textDocument()->characterCount();
+    const int characterCount = m_document->characterCount();
 
     if (characterCount != this->m_characterCount) {
         this->m_characterCount = characterCount;
@@ -55,7 +64,7 @@ void FormattableTextArea::updateWordCount()
 
 void FormattableTextArea::updateParagraphCount()
 {
-    const int blockCount = this->textDocument()->blockCount();
+    const int blockCount = m_document->blockCount();
 
     if (blockCount != this->m_paragraphCount) {
         this->m_paragraphCount = blockCount;
@@ -76,8 +85,20 @@ void FormattableTextArea::updatePageCount()
 
 void FormattableTextArea::updateCounts()
 {
+    if (m_document == nullptr) {
+        return;
+    }
+
     this->updateCharacterCount();
     this->updateWordCount();
     this->updateParagraphCount();
     this->updatePageCount();
+}
+
+TextIterator FormattableTextArea::wordIterator() const
+{
+    TextIterator iterator = TextIterator(m_document->toPlainText(), TextIterator::IterationType::ByWord);
+    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
+
+    return iterator;
 }

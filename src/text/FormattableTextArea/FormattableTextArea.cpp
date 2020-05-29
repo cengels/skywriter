@@ -31,8 +31,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_highlighter(nullptr)
     , m_textCursor(QTextCursor())
     , m_position(0.0)
-    , m_selectionStart(0)
-    , m_selectionEnd(0)
     , m_characterCount(0)
     , m_wordCount(0)
     , m_paragraphCount(0)
@@ -216,6 +214,13 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
 
     if (fileUrl == m_fileUrl)
         return;
+}
+
+void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)
+{
+    m_textCursor.movePosition(op, mode, by);
+    update();
+    emit caretPositionChanged();
 }
 
 void FormattableTextArea::mergeFormat(const QTextCharFormat &format)

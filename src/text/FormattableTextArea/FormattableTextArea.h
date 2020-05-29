@@ -22,10 +22,10 @@ class FormattableTextArea : public QQuickItem
 {
     Q_OBJECT
 
+    //! The scroll position of the FormattableTextArea in absolute y pixels.
     Q_PROPERTY(double position WRITE setPosition MEMBER m_position NOTIFY positionChanged)
 
-    Q_PROPERTY(int selectionStart READ selectionStart WRITE setSelectionStart NOTIFY selectionStartChanged)
-    Q_PROPERTY(int selectionEnd READ selectionEnd WRITE setSelectionEnd NOTIFY selectionEndChanged)
+    Q_PROPERTY(int caretPosition READ caretPosition NOTIFY caretPositionChanged)
 
     Q_PROPERTY(QString fileName READ fileName NOTIFY fileUrlChanged)
     Q_PROPERTY(QString fileType READ fileType NOTIFY fileUrlChanged)
@@ -53,11 +53,9 @@ class FormattableTextArea : public QQuickItem
 
         void setPosition(double position);
 
-        int selectionStart() const;
-        void setSelectionStart(int position);
+        int caretPosition() const;
 
-        int selectionEnd() const;
-        void setSelectionEnd(int position);
+        void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, int by = 1);
 
         bool modified() const;
         QDateTime lastModified() const;
@@ -90,8 +88,9 @@ class FormattableTextArea : public QQuickItem
 
     Q_SIGNALS:
         void documentChanged();
-        void selectionStartChanged();
-        void selectionEndChanged();
+
+        void positionChanged();
+        void caretPositionChanged();
 
         void textChanged();
         void fileUrlChanged();
@@ -102,8 +101,6 @@ class FormattableTextArea : public QQuickItem
 
         void modifiedChanged();
         void lastModifiedChanged();
-
-        void positionChanged();
 
         void characterCountChanged();
         void paragraphCountChanged();
@@ -128,8 +125,6 @@ class FormattableTextArea : public QQuickItem
         QTextCursor m_textCursor;
         double m_position;
 
-        int m_selectionStart;
-        int m_selectionEnd;
         QUrl m_fileUrl;
 
         void setModified(bool modified);

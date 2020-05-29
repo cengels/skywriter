@@ -18,38 +18,9 @@ void FormattableTextArea::setPosition(double position)
     update();
 }
 
-int FormattableTextArea::selectionStart() const
+int FormattableTextArea::caretPosition() const
 {
-    return m_selectionStart;
-}
-
-void FormattableTextArea::setSelectionStart(int position)
-{
-    if (position == m_selectionStart)
-        return;
-
-    m_selectionStart = numbers::clamp(position, 0, this->m_document->characterCount() - 1);
-    m_textCursor.setPosition(m_selectionStart, QTextCursor::MoveAnchor);
-    emit selectionStartChanged();
-
-    update();
-}
-
-int FormattableTextArea::selectionEnd() const
-{
-    return m_selectionEnd;
-}
-
-void FormattableTextArea::setSelectionEnd(int position)
-{
-    if (position == m_selectionEnd)
-        return;
-
-    m_selectionEnd = numbers::clamp(position, 0, this->m_document->characterCount() - 1);
-    m_textCursor.setPosition(m_selectionEnd, QTextCursor::KeepAnchor);
-    emit selectionEndChanged();
-
-    update();
+    return m_textCursor.position();
 }
 
 QString FormattableTextArea::fileName() const

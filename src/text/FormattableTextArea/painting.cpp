@@ -5,6 +5,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QFontMetrics>
+#include <QRegularExpression>
+#include <QAbstractTextDocumentLayout>
+#include <QTextDocumentFragment>
 #include <QSGSimpleRectNode>
 #include <private/qquicktextnode_p.h>
 
@@ -17,21 +20,38 @@ bool FormattableTextArea::event(QEvent* event)
         forceActiveFocus();
     } else if (event->type() == QEvent::KeyPress) {
         const QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        const QTextCursor::MoveMode moveMode = keyEvent->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)
+                                  ? QTextCursor::KeepAnchor
+                                  : QTextCursor::MoveAnchor;
 
         switch (keyEvent->key()) {
-                qDebug() << "yes";
-                this->setSelectionStart(m_selectionStart + 1);
-                this->setSelectionEnd(m_selectionStart);
+            case Qt::Key_Right:
+                moveCursor(QTextCursor::Right, moveMode);
                 break;
             case Qt::Key_Left:
-                this->setSelectionStart(m_selectionStart - 1);
-                this->setSelectionEnd(m_selectionStart);
+                moveCursor(QTextCursor::Left, moveMode);
+                break;
+            case Qt::Key_Up:
+                moveCursor(QTextCursor::Up, moveMode);
+                break;
+            case Qt::Key_Down:
+                moveCursor(QTextCursor::Down, moveMode);
+                break;
+            case Qt::Key_Back:
+            case Qt::Key_Backspace:
+                m_textCursor.deletePreviousChar();
+                update();
+                break;
+            case Qt::Key_Delete:
+                m_textCursor.deleteChar();
+                update();
                 break;
             default:
                 const QString text = keyEvent->text();
 
                 if (!text.isEmpty()) {
                     m_textCursor.insertText(text);
+                    m_textCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, text.length() - 1);
                     update();
                 }
                 break;
@@ -50,6 +70,8 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
 {
     Q_UNUSED(updatePaintNodeData)
     QFontMetrics fontMetrics(ThemeManager::instance()->activeTheme()->font());
+    const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
+    const bool hasSelection = m_textCursor.hasSelection();
 //    int height = 0;
 //    int lineWidth = 40;
 //    int leading = fontMetrics.leading();
@@ -59,9 +81,9 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
         n = new QQuickTextNode(this);
     n->removeAllChildNodes();
 
-    const auto end = this->m_document->end();
-    for (QTextBlock block = this->m_document->begin(); block != end; block = block.next()) {
-
+    const QTextBlock& end = this->m_document->end();
+    for (QTextBlock block = this->m_document->begin(); block != end; block = block.next())
+    {
         const QPointF& blockPosition = block.layout()->position();
         const double blockHeight = block.layout()->boundingRect().height();
 
@@ -71,31 +93,40 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             break;
         }
 
+        int selectionStart = -1;
+        int selectionEnd = -1;
+        const bool hasStartSelection = hasSelection && block.contains(m_textCursor.selectionStart());
+        const bool hasEndSelection = hasSelection && block.contains(m_textCursor.selectionEnd());
+
+        if (hasStartSelection) {
+            selectionStart = m_textCursor.selectionStart() - block.position();
+        } else if (hasEndSelection || m_textCursor.selectionStart() < block.position()) {
+            selectionStart = 0;
+        }
+
+        if (hasEndSelection) {
+            selectionEnd = m_textCursor.selectionEnd() - block.position() - 1;
+        } else if (hasStartSelection || m_textCursor.selectionEnd() > block.position()) {
+            selectionEnd = block.length() - 1;
+        }
+
         n->addTextLayout(blockPosition,
                          block.layout(),
-                         ThemeManager::instance()->activeTheme()->fontColor(),
+                         fontColor,
                          QQuickText::TextStyle::Normal,
                          QColor(),
                          QColor(),
-                         QColor(),
-                         QColor(),
-                         -1,
-                         -1);
+                         QColor(fontColor),
+                         QColor(fontColor.lightnessF() > 0.5 ? fontColor.darker(200) : fontColor.lighter(200)),
+                         selectionStart,
+                         selectionEnd);
+
+        if (block == m_textCursor.block()) {
+            const QTextLine& line = block.layout()->lineForTextPosition(m_textCursor.positionInBlock());
+            const qreal x = line.cursorToX(m_textCursor.positionInBlock());
+            n->setCursor(QRectF(x + 3, line.y() + blockPosition.y(), 1, line.height()), fontColor);
+        }
     }
 
-//    m_layout->beginLayout();
-//    int counter = 1;
-//    while (1) {
-//        QTextLine line = m_layout->createLine();
-//        if (!line.isValid())
-//            break;
-//        line.setLineWidth(counter*lineWidth);
-//        height += leading;
-//        line.setPosition(QPointF(0, height));
-//        height += line.height();
-//        counter++;
-//    }
-//    m_layout->endLayout();
-//    n->setCursor(QRectF(0, 0, 20, 1), QColor("red"));
     return n;
 }

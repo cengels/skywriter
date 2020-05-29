@@ -53,10 +53,8 @@ ApplicationWindow {
     }
 
     function loadDocument(url) {
-        textArea.progressSuspended = true;
         textArea.load(url);
         ProgressTracker.changeActiveFile(url);
-        textArea.progressSuspended = false;
     }
 
     function clamp(value, min, max) {
@@ -625,7 +623,6 @@ ApplicationWindow {
                         firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                         focus: true
                         position: textAreaContainer.contentY
-                        property bool loaded: false
 
                         Component.onCompleted: {
                             if (Settings.Document.lastFile != null) {
@@ -635,7 +632,6 @@ ApplicationWindow {
                             }
 
                             // Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
-                            loaded = true;
 
                             forceActiveFocus();
                         }
@@ -647,7 +643,7 @@ ApplicationWindow {
                         property int oldWordCount;
                         property bool progressSuspended: false;
                         onWordCountChanged: {
-                            if (!progressSuspended && oldWordCount !== wordCount) {
+                            if (!progressSuspended && !loading && oldWordCount !== wordCount) {
                                 ProgressTracker.addProgress(wordCount - oldWordCount);
                             }
 
@@ -666,7 +662,7 @@ ApplicationWindow {
                         }
 
                         onTextChanged: {
-                            if (loaded) {
+                            if (!loading) {
                                 verticalScrollbar.scrollToCaret();
                             }
                         }

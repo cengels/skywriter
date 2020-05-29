@@ -65,6 +65,11 @@ void FormattableTextArea::setModified(bool modified)
         m_document->setModified(modified);
 }
 
+bool FormattableTextArea::loading() const
+{
+    return m_loading;
+}
+
 void FormattableTextArea::setFileUrl(const QUrl& url)
 {
     bool isSameFolder = m_fileUrl.adjusted(QUrl::RemoveFilename) == url.adjusted(QUrl::RemoveFilename);

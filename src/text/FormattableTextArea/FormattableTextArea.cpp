@@ -31,6 +31,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_highlighter(nullptr)
     , m_textCursor(QTextCursor())
     , m_position(0.0)
+    , m_fileUrl()
+    , m_loading(false)
     , m_characterCount(0)
     , m_wordCount(0)
     , m_paragraphCount(0)
@@ -152,6 +154,9 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         return;
     }
 
+    m_loading = true;
+    loadingChanged();
+
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
         QByteArray data = file.readAll();
@@ -177,6 +182,9 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit fileUrlChanged();
         emit lastModifiedChanged();
     }
+
+    m_loading = false;
+    loadingChanged();
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl)

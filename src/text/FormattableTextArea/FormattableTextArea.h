@@ -34,6 +34,7 @@ class FormattableTextArea : public QQuickItem
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
+    Q_PROPERTY(bool loading READ loading MEMBER m_loading NOTIFY loadingChanged)
 
     Q_PROPERTY(int characterCount READ characterCount NOTIFY characterCountChanged)
     Q_PROPERTY(int paragraphCount READ paragraphCount NOTIFY paragraphCountChanged)
@@ -76,6 +77,7 @@ class FormattableTextArea : public QQuickItem
         QString fileType() const;
         QUrl fileUrl() const;
         QUrl directoryUrl() const;
+        bool loading() const;
 
         TextIterator wordIterator() const;
 
@@ -102,6 +104,7 @@ class FormattableTextArea : public QQuickItem
 
         void modifiedChanged();
         void lastModifiedChanged();
+        void loadingChanged();
 
         void characterCountChanged();
         void paragraphCountChanged();
@@ -127,6 +130,7 @@ class FormattableTextArea : public QQuickItem
         double m_position;
 
         QUrl m_fileUrl;
+        bool m_loading;
 
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);

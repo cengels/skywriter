@@ -29,6 +29,8 @@ void FormattableTextArea::updateStyling()
         return;
     }
 
+    bool wasModified = this->modified();
+
     const Theme* theme = ThemeManager::instance()->activeTheme();
     m_document->setDefaultFont(theme->font());
     QTextOption textOption = m_document->defaultTextOption();
@@ -50,6 +52,10 @@ void FormattableTextArea::updateStyling()
     QTextCursor cursor(m_document);
     cursor.select(QTextCursor::Document);
     cursor.mergeBlockFormat(format);
+
+    if (!wasModified) {
+        this->setModified(false);
+    }
 
     update();
 }

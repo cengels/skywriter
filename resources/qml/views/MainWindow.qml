@@ -448,8 +448,8 @@ ApplicationWindow {
             anchors.top: container.top
             anchors.right: container.right
             anchors.bottom: container.bottom
-            size: scrollView.height / textAreaContainer.contentHeight
-            visible: textAreaContainer.contentHeight > scrollView.height
+            size: scrollView.height / textArea.contentHeight
+            visible: textArea.contentHeight > scrollView.height
 
             readonly property int middleMouseThreshold: 32
 
@@ -576,7 +576,7 @@ ApplicationWindow {
 
                 if (wheel.modifiers === Qt.NoModifier) {
                     // Scrolls about 72 pixels per wheel "click"
-                    const delta = (wheel.angleDelta.y * 0.6) / textAreaContainer.contentHeight;
+                    const delta = (wheel.angleDelta.y * 0.6) / textArea.contentHeight;
 
                     verticalScrollbar.position = wheel.angleDelta.y < 0
                             ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
@@ -608,63 +608,55 @@ ApplicationWindow {
                 anchors.centerIn: parent
                 clip: true
 
-                Flickable {
-                    id: textAreaContainer
+                FormattableTextArea {
+                    id: textArea
+                    width: scrollView.width
+                    height: scrollView.height
+                    firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     focus: true
-                    boundsBehavior: Flickable.StopAtBounds
-                    ScrollBar.vertical: verticalScrollbar
-                    contentWidth: textArea.width
-                    contentHeight: textArea.contentHeight
+                    contentY: verticalScrollbar.position * contentHeight
+                    clip: true
 
-                    FormattableTextArea {
-                        id: textArea
-                        width: scrollView.width
-                        height: scrollView.height
-                        firstLineIndent: ThemeManager.activeTheme.firstLineIndent
-                        focus: true
-                        position: textAreaContainer.contentY
-
-                        Component.onCompleted: {
-                            if (Settings.Document.lastFile != null) {
-                                loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
-                                // textArea.cursorPosition = Settings.Document.caretPosition;
-                                verticalScrollbar.centerOnCaret();
-                            }
-
-                            // Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
-
-                            forceActiveFocus();
+                    Component.onCompleted: {
+                        if (Settings.Document.lastFile != null) {
+                            loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
+                            // textArea.cursorPosition = Settings.Document.caretPosition;
+                            verticalScrollbar.centerOnCaret();
                         }
 
-                        onFileUrlChanged: {
-                            Settings.Document.lastFile = textArea.fileUrl.toString();
+                        // Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
+
+                        forceActiveFocus();
+                    }
+
+                    onFileUrlChanged: {
+                        Settings.Document.lastFile = textArea.fileUrl.toString();
+                    }
+
+                    property int oldWordCount;
+                    property bool progressSuspended: false;
+                    onWordCountChanged: {
+                        if (!progressSuspended && !loading && oldWordCount !== wordCount) {
+                            ProgressTracker.addProgress(wordCount - oldWordCount);
                         }
 
-                        property int oldWordCount;
-                        property bool progressSuspended: false;
-                        onWordCountChanged: {
-                            if (!progressSuspended && !loading && oldWordCount !== wordCount) {
-                                ProgressTracker.addProgress(wordCount - oldWordCount);
-                            }
+                        oldWordCount = wordCount;
+                    }
 
-                            oldWordCount = wordCount;
-                        }
+                    onError: {
+                        errorDialog.text = message;
+                        errorDialog.show();
+                    }
 
-                        onError: {
-                            errorDialog.text = message;
-                            errorDialog.show();
-                        }
+                    property int progressAtLastSave;
+                    onLastModifiedChanged: {
+                        // called whenever the file is saved
+                        progressAtLastSave = ProgressTracker.progressToday;
+                    }
 
-                        property int progressAtLastSave;
-                        onLastModifiedChanged: {
-                            // called whenever the file is saved
-                            progressAtLastSave = ProgressTracker.progressToday;
-                        }
-
-                        onTextChanged: {
-                            if (!loading) {
-                                verticalScrollbar.scrollToCaret();
-                            }
+                    onTextChanged: {
+                        if (!loading) {
+                            verticalScrollbar.scrollToCaret();
                         }
                     }
                 }

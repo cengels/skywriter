@@ -10,10 +10,10 @@
 #include "FormattableTextArea.h"
 #include "../../numbers.h"
 
-void FormattableTextArea::setPosition(double position)
+void FormattableTextArea::setContentY(double contentY)
 {
-    m_position = position;
-    positionChanged();
+    m_contentY = contentY;
+    emit contentYChanged();
 
     update();
 }

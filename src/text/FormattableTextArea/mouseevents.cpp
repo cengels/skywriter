@@ -16,7 +16,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         case Qt::LeftButton:
         case Qt::RightButton:
         {
-            const int position = m_document->documentLayout()->hitTest(event->localPos(), Qt::FuzzyHit);
+            const int position = hitTest(event->localPos());
             if (position != m_textCursor.position() || m_textCursor.hasSelection()) {
                 m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
                 update();
@@ -33,7 +33,7 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
     // TODO: text dragging
 
     if (event->buttons() & Qt::LeftButton) {
-        const int position = m_document->documentLayout()->hitTest(event->localPos(), Qt::FuzzyHit);
+        const int position = hitTest(event->localPos());
         if (position != m_textCursor.position()) {
             m_textCursor.setPosition(position, QTextCursor::KeepAnchor);
             update();
@@ -45,4 +45,11 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
 void FormattableTextArea::mouseReleaseEvent(QMouseEvent* event)
 {
 
+}
+
+int FormattableTextArea::hitTest(const QPointF& point) const
+{
+    QPointF actualPoint(point.x(), point.y() + m_contentY);
+
+    return m_document->documentLayout()->hitTest(actualPoint, Qt::FuzzyHit);
 }

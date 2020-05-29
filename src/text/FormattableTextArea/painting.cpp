@@ -71,9 +71,9 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
         const QPointF& blockPosition = block.layout()->position();
         const double blockHeight = block.layout()->boundingRect().height();
 
-        if (blockPosition.y() + blockHeight < this->m_position) {
+        if (blockPosition.y() + blockHeight < m_contentY) {
             continue;
-        } else if (blockPosition.y() > this->m_position + this->height()) {
+        } else if (blockPosition.y() > m_contentY + this->height()) {
             break;
         }
 
@@ -97,7 +97,7 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             }
         }
 
-        n->addTextLayout(blockPosition,
+        n->addTextLayout(QPointF(blockPosition.x(), blockPosition.y() - m_contentY),
                          block.layout(),
                          fontColor,
                          QQuickText::TextStyle::Normal,
@@ -111,7 +111,7 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
         if (block == m_textCursor.block()) {
             const QTextLine& line = block.layout()->lineForTextPosition(m_textCursor.positionInBlock());
             const qreal x = line.cursorToX(m_textCursor.positionInBlock());
-            n->setCursor(QRectF(x + 3, line.y() + blockPosition.y(), 1, line.height()), fontColor);
+            n->setCursor(QRectF(x + 3, line.y() + blockPosition.y() - m_contentY, 1, line.height()), fontColor);
         }
     }
 

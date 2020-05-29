@@ -23,7 +23,7 @@ class FormattableTextArea : public QQuickItem
     Q_OBJECT
 
     //! The scroll position of the FormattableTextArea in absolute y pixels.
-    Q_PROPERTY(double position WRITE setPosition MEMBER m_position NOTIFY positionChanged)
+    Q_PROPERTY(double contentY WRITE setContentY MEMBER m_contentY NOTIFY contentYChanged)
 
     Q_PROPERTY(int caretPosition READ caretPosition NOTIFY caretPositionChanged)
 
@@ -56,7 +56,7 @@ class FormattableTextArea : public QQuickItem
         void mouseMoveEvent(QMouseEvent* event) override;
         void mouseReleaseEvent(QMouseEvent* event) override;
 
-        void setPosition(double position);
+        void setContentY(double contentY);
 
         int caretPosition() const;
 
@@ -98,7 +98,7 @@ class FormattableTextArea : public QQuickItem
     Q_SIGNALS:
         void documentChanged();
 
-        void positionChanged();
+        void contentYChanged();
         void caretPositionChanged();
 
         void textChanged();
@@ -128,12 +128,13 @@ class FormattableTextArea : public QQuickItem
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
 
+        int hitTest(const QPointF& point) const;
         void newDocument(QTextDocument* document = new QTextDocument());
         QTextDocument *m_document;
         TextHighlighter* m_highlighter;
 
         QTextCursor m_textCursor;
-        double m_position;
+        double m_contentY;
 
         QUrl m_fileUrl;
         bool m_loading;

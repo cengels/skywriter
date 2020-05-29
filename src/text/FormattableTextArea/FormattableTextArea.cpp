@@ -249,6 +249,22 @@ void FormattableTextArea::paste()
     emit caretPositionChanged();
 }
 
+void FormattableTextArea::undo()
+{
+    m_document->undo(&m_textCursor);
+    update();
+    emit textChanged();
+    emit caretPositionChanged();
+}
+
+void FormattableTextArea::redo()
+{
+    m_document->redo(&m_textCursor);
+    update();
+    emit textChanged();
+    emit caretPositionChanged();
+}
+
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)
 {
     m_textCursor.movePosition(op, mode, by);

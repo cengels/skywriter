@@ -91,6 +91,9 @@ class FormattableTextArea : public QQuickItem
         void copy();
         void paste();
 
+        void undo();
+        void redo();
+
         void toggleBold();
         void toggleItalics();
         void toggleStrikethrough();

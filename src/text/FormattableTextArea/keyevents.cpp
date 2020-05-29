@@ -27,6 +27,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
     {
         paste();
     }
+    else if (event->matches(QKeySequence::Undo))
+    {
+        undo();
+    }
+    else if (event->matches(QKeySequence::Redo))
+    {
+        redo();
+    }
     else {
         switch (event->key()) {
             case Qt::Key_Right:

@@ -102,6 +102,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         }
 
         this->updateStyling();
+        this->updateWordCount();
         m_textCursor = QTextCursor(m_document);
     }
 
@@ -247,6 +248,8 @@ void FormattableTextArea::paste()
 
     update();
     emit caretPositionChanged();
+
+    this->updateWordCount();
 }
 
 void FormattableTextArea::undo()
@@ -255,6 +258,8 @@ void FormattableTextArea::undo()
     update();
     emit textChanged();
     emit caretPositionChanged();
+
+    this->updateWordCount();
 }
 
 void FormattableTextArea::redo()
@@ -263,6 +268,8 @@ void FormattableTextArea::redo()
     update();
     emit textChanged();
     emit caretPositionChanged();
+
+    this->updateWordCount();
 }
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)

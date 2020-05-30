@@ -16,7 +16,7 @@ class TextIterator
 //            ByLine
         };
 
-        TextIterator(const QString& text, const IterationType iterationType);
+        TextIterator(const QString text, const IterationType iterationType);
         TextIterator(const TextIterator& textIterator);
         TextIterator& operator++();
         TextIterator operator++(int);
@@ -37,7 +37,7 @@ class TextIterator
             IgnoreBlock = 1
         };
 
-        const QString& m_text;
+        const QString m_text;
         const IterationType m_iterationType;
         QString::const_iterator m_charIterator;
         QString::const_iterator m_charIteratorEnd;

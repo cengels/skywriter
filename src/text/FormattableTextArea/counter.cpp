@@ -8,6 +8,7 @@
 #include <QTextDocument>
 #include <QQuickTextDocument>
 #include <QTextDocument>
+#include <QtConcurrent/QtConcurrent>
 
 #include "FormattableTextArea.h"
 #include "../TextIterator.h"
@@ -35,6 +36,10 @@ int FormattableTextArea::pageCount() const
 
 void FormattableTextArea::updateCharacterCount()
 {
+    if (!m_document) {
+        return;
+    }
+
     const int characterCount = m_document->characterCount();
 
     if (characterCount != this->m_characterCount) {
@@ -45,25 +50,37 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::updateWordCount()
 {
-    TextIterator textIterator = this->wordIterator();
-    int i = 0;
-
-    while (!textIterator.atEnd()) {
-        if (!textIterator.current().isEmpty()) {
-            i++;
+    QtConcurrent::run([=] {
+        if (!m_document) {
+            return;
         }
 
-        textIterator++;
-    };
+        TextIterator textIterator = this->wordIterator();
+        int i = 0;
 
-    if (i != this->m_wordCount) {
-        m_wordCount = i;
-        emit wordCountChanged();
-    }
+        while (!textIterator.atEnd()) {
+            if (!textIterator.current().isEmpty()) {
+                i++;
+            }
+
+            textIterator++;
+        };
+
+        if (i != this->m_wordCount) {
+            m_wordCount = i;
+            emit wordCountChanged();
+        }
+
+        this->updatePageCount();
+    });
 }
 
 void FormattableTextArea::updateParagraphCount()
 {
+    if (!m_document) {
+        return;
+    }
+
     const int blockCount = m_document->blockCount();
 
     if (blockCount != this->m_paragraphCount) {
@@ -74,6 +91,10 @@ void FormattableTextArea::updateParagraphCount()
 
 void FormattableTextArea::updatePageCount()
 {
+    if (!m_document) {
+        return;
+    }
+
     const int wordCount = this->wordCount();
     const int pageCount = wordCount / 250 + (wordCount % 250 != 0 ? 1 : 0);
 
@@ -90,9 +111,8 @@ void FormattableTextArea::updateCounts()
     }
 
     this->updateCharacterCount();
-    this->updateWordCount();
+    // no update word count here since it's an expensive operation.
     this->updateParagraphCount();
-    this->updatePageCount();
 }
 
 TextIterator FormattableTextArea::wordIterator() const

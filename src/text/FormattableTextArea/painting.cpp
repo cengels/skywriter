@@ -113,13 +113,11 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                          QColor(fontColor.lightnessF() > 0.5 ? fontColor.darker(200) : fontColor.lighter(200)),
                          selectionStart,
                          selectionEnd);
-
-        if (block == m_textCursor.block()) {
-            const QTextLine& line = block.layout()->lineForTextPosition(m_textCursor.positionInBlock());
-            const qreal x = line.cursorToX(m_textCursor.positionInBlock());
-            n->setCursor(QRectF(x + 3, line.y() + blockPosition.y() - m_contentY, 1, line.height()), fontColor);
-        }
     }
+
+    const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
+    const qreal x = line.cursorToX(m_textCursor.positionInBlock());
+    n->setCursor(QRectF(x + 3, line.y() + m_textCursor.block().layout()->position().y() - m_contentY, 1, line.height()), fontColor);
 
     return n;
 }

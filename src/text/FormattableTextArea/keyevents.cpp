@@ -59,6 +59,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
                     m_textCursor.removeSelectedText();
                 }
+                updateWordCount();
                 update();
                 emit caretPositionChanged();
                 break;
@@ -71,6 +72,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
                     m_textCursor.removeSelectedText();
                 }
+                updateWordCount();
                 update();
                 break;
             case Qt::Key_W:
@@ -92,8 +94,13 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 const QString text = symbols::sanitize(event->text());
 
                 if (!text.isEmpty()) {
+                    const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
                     m_textCursor.insertText(text);
                     moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, text.length() - 1);
+
+                    if (symbols::isWordSeparator(previousCharacter)) {
+                        updateWordCount();
+                    }
                 }
                 break;
         }

@@ -31,7 +31,8 @@ namespace {
     }
 }
 
-TextIterator::TextIterator(const QString& text, const IterationType iterationType) :
+// Must copy text rather than reference it to ensure thread safety.
+TextIterator::TextIterator(const QString text, const IterationType iterationType) :
     m_text(text),
     m_iterationType(iterationType),
     m_charIterator(text.constBegin()),

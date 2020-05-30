@@ -1,4 +1,4 @@
-QT += quick quickcontrols2 quick-private
+QT += quick quickcontrols2 quick-private concurrent
 
 CONFIG += c++20
 

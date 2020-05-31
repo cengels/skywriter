@@ -37,6 +37,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_highlighter(nullptr)
     , m_textCursor(QTextCursor())
     , m_contentY(0.0)
+    , m_overflowArea(0.0)
     , m_fileUrl()
     , m_loading(false)
     , m_characterCount(0)
@@ -71,6 +72,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 //    });
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
+    connect(this, &FormattableTextArea::overflowAreaChanged, this, &FormattableTextArea::update);
 
     newDocument();
 }

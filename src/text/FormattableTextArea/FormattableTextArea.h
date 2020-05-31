@@ -44,6 +44,7 @@ class FormattableTextArea : public QQuickItem
 
     Q_PROPERTY(double contentWidth READ contentWidth NOTIFY contentWidthChanged)
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
+    Q_PROPERTY(double overflowArea MEMBER m_overflowArea NOTIFY overflowAreaChanged)
 
     Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
 
@@ -129,6 +130,7 @@ class FormattableTextArea : public QQuickItem
 
         void contentWidthChanged();
         void contentHeightChanged();
+        void overflowAreaChanged();
 
         void firstLineIndentChanged();
         void underlineChanged();
@@ -146,6 +148,7 @@ class FormattableTextArea : public QQuickItem
 
         QTextCursor m_textCursor;
         double m_contentY;
+        double m_overflowArea;
 
         QUrl m_fileUrl;
         bool m_loading;

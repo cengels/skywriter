@@ -102,7 +102,7 @@ double FormattableTextArea::contentWidth() const
 
 double FormattableTextArea::contentHeight() const
 {
-    return m_document ? m_document->size().height() : -1;
+    return m_document ? m_document->size().height() + m_overflowArea * 2 : -1;
 }
 
 void FormattableTextArea::selectWord()

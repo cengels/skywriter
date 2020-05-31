@@ -634,6 +634,7 @@ ApplicationWindow {
                     firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     focus: true
                     contentY: verticalScrollbar.position * contentHeight
+                    overflowArea: height * 0.8
                     clip: true
 
                     Component.onCompleted: {

@@ -49,7 +49,7 @@ void FormattableTextArea::mouseReleaseEvent(QMouseEvent* event)
 
 int FormattableTextArea::hitTest(const QPointF& point) const
 {
-    QPointF actualPoint(point.x(), point.y() + m_contentY);
+    QPointF actualPoint(point.x(), point.y() + m_contentY - m_overflowArea);
 
     return m_document->documentLayout()->hitTest(actualPoint, Qt::FuzzyHit);
 }

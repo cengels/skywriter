@@ -5,6 +5,7 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QStack>
+#include <QTextStream>
 #include <md4c/src/md4c.h>
 
 #include "../theming/ThemeManager.h"
@@ -27,6 +28,8 @@ class MarkdownParser
         //! Turns the document into markdown, starting from the cursor's
         //! position.
         QString stringify() const;
+        //! Writes the contents of the document into the passed QTextStream.
+        void write(QTextStream& stream) const;
 
     private:
         enum ParserFlags {

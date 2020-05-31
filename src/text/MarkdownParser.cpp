@@ -81,6 +81,11 @@ QString MarkdownParser::stringify() const
     return "";
 }
 
+void MarkdownParser::write(QTextStream& stream) const
+{
+    Q_UNUSED(stream);
+}
+
 int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata)
 {
     MarkdownParser *parser = static_cast<MarkdownParser *>(userdata);

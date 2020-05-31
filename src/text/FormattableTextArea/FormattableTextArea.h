@@ -117,7 +117,6 @@ class FormattableTextArea : public QQuickItem
         void directoryUrlChanged();
 
         void loaded();
-        void error(const QString &message);
 
         void modifiedChanged();
         void lastModifiedChanged();

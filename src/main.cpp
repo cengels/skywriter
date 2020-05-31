@@ -14,6 +14,7 @@
 #include "theming/Theme.h"
 #include "theming/ThemeManager.h"
 #include "Mouse.h"
+#include "ErrorManager.h"
 
 namespace {
     template <typename T>
@@ -66,8 +67,11 @@ int main(int argc, char *argv[])
     font.setStyleStrategy(QFont::PreferAntialias);
     QGuiApplication::setFont(font);
     Mouse* mouse = new Mouse(&app);
+    ThemeManager::instance()->setParent(&app);
+    ErrorManager::instance()->setParent(&app);
     qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);
     qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
+    qmlRegisterSingletonInstance("Skywriter.Errors", 1, 0, "ErrorManager", ErrorManager::instance());
     qRegisterMetaType<QEvent*>("QEvent*");
 
     QQmlApplicationEngine engine;

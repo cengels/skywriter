@@ -24,6 +24,7 @@
 #include "../format.h"
 #include "../TextHighlighter.h"
 #include "../../theming/ThemeManager.h"
+#include "../../ErrorManager.h"
 
 namespace {
     constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
@@ -198,12 +199,13 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
     const bool isHtml = fileType.contains(QLatin1String("htm"));
     QFile file(filePath);
     if (!file.open(QFile::WriteOnly | QFile::Truncate | (isHtml ? QFile::NotOpen : QFile::Text))) {
-        emit error(tr("Cannot save: ") + file.errorString());
+        emit ErrorManager::instance()->error(tr("Cannot save: ") + file.errorString());
         return;
     }
 
     if (fileType == "md") {
-        file.write(m_document->toMarkdown(MARKDOWN_FEATURES).toUtf8());
+        QTextStream stream(&file);
+        MarkdownParser(m_document).write(stream);
     } else if (fileType.contains("htm")) {
         file.write(m_document->toHtml().toUtf8());
     } else {

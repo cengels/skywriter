@@ -9,6 +9,7 @@ import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Events 1.0
+import Skywriter.Errors 1.0
 import "../controls" as Controls
 import "../types" as Sky
 import "." as View
@@ -39,6 +40,22 @@ ApplicationWindow {
                                    Screen.height / 2 - defaultHeight / 2,
                                    defaultWidth,
                                    defaultHeight);
+        }
+    }
+
+    Connections {
+        target: ErrorManager
+        onError: {
+            errorDialog.text = message;
+            errorDialog.show();
+        }
+        onWarning: {
+            errorDialog.text = message;
+            errorDialog.show();
+        }
+        onInfo: {
+            errorDialog.text = message;
+            errorDialog.show();
         }
     }
 
@@ -642,11 +659,6 @@ ApplicationWindow {
                         }
 
                         oldWordCount = wordCount;
-                    }
-
-                    onError: {
-                        errorDialog.text = message;
-                        errorDialog.show();
                     }
 
                     property int progressAtLastSave;

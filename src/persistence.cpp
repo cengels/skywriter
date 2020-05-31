@@ -44,3 +44,37 @@ QString persistence::documentsPath()
 
     return m_documentsPath;
 }
+
+
+bool persistence::commit(QFile& from, QFile& to) {
+    from.close();
+    to.close();
+
+    const QString originalPath = to.fileName();
+    const QString backupPath = originalPath + ".bak";
+
+    if (!to.rename(backupPath)) {
+        // Couldn't rename target file. Might be read-only or backupPath already
+        // exists.
+        if (QFile::exists(backupPath)) {
+            if (!QFile::remove(backupPath) || !to.rename(backupPath)) {
+                // Remove previous backup, rerun the rename.
+                // If it still fails, no failsafe is possible. Return.
+                return false;
+            }
+        } else {
+            // If backupPath doesn't exist, the problem isn't possible to
+            // determine. Return.
+            return false;
+        }
+    }
+
+    if (!from.rename(originalPath)) {
+        // Couldn't rename to the originalPath. Source file might be read-only.
+        // No failsafe is possible. Roll-back the target file and return.
+        to.rename(originalPath);
+        return false;
+    }
+
+    return true;
+}

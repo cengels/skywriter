@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QList>
 #include <QTime>
+#include <QTextStream>
 
 #include "ProgressItem.h"
 
@@ -76,6 +77,8 @@ class ProgressTracker : public QObject {
         void activeFileChanged();
 
     private:
+        bool write(QTextStream& out);
+
         int m_progressToday;
         QList<ProgressItem*> m_items;
         QList<ProgressItem*> m_items_to_save;

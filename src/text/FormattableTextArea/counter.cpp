@@ -55,6 +55,8 @@ void FormattableTextArea::updateWordCount()
             return;
         }
 
+        m_counting = true;
+
         TextIterator textIterator = this->wordIterator();
         int i = 0;
 
@@ -72,6 +74,13 @@ void FormattableTextArea::updateWordCount()
         }
 
         this->updatePageCount();
+
+        m_counting = false;
+
+        if (m_loading) {
+            m_loading = false;
+            emit loadingChanged();
+        }
     });
 }
 

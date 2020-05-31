@@ -152,6 +152,7 @@ class FormattableTextArea : public QQuickItem
 
         QUrl m_fileUrl;
         bool m_loading;
+        bool m_counting;
 
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);

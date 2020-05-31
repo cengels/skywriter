@@ -40,6 +40,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_overflowArea(0.0)
     , m_fileUrl()
     , m_loading(false)
+    , m_counting(false)
     , m_characterCount(0)
     , m_wordCount(0)
     , m_paragraphCount(0)
@@ -165,7 +166,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     }
 
     m_loading = true;
-    loadingChanged();
+    emit loadingChanged();
 
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
@@ -191,8 +192,10 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit lastModifiedChanged();
     }
 
-    m_loading = false;
-    emit loadingChanged();
+    m_loading = m_counting;
+
+    if (!m_loading)
+        emit loadingChanged();
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl)

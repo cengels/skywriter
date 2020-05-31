@@ -16,7 +16,7 @@ const QTextCharFormat MarkdownParser::CHAR_FORMAT_EMPHASIS = []{
 
 const QTextCharFormat MarkdownParser::CHAR_FORMAT_DOUBLE_EMPHASIS = []{
     QTextCharFormat format;
-    format.setFontWeight(700);
+    format.setFontWeight(QFont::Weight::Bold);
 
     return format;
 }();

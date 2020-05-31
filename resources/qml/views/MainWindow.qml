@@ -467,6 +467,7 @@ ApplicationWindow {
             anchors.bottom: container.bottom
             size: scrollView.height / textArea.contentHeight
             visible: textArea.contentHeight > scrollView.height
+            enabled: visible
             minimumSize: 50 / scrollView.height
 
             readonly property int middleMouseThreshold: 32
@@ -592,7 +593,7 @@ ApplicationWindow {
             onWheel: {
                 wheel.accepted = true;
 
-                if (wheel.modifiers === Qt.NoModifier) {
+                if (wheel.modifiers === Qt.NoModifier && verticalScrollbar.enabled) {
                     // Scrolls about 72 pixels per wheel "click"
                     const delta = (wheel.angleDelta.y * 0.6) / textArea.contentHeight;
 

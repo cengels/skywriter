@@ -4,15 +4,18 @@
 #include <QJsonArray>
 #include <QVariant>
 #include <QMetaEnum>
+#include <QDebug>
 #include "Theme.h"
 #include "../colors.h"
+#include "defaults.h"
 
 namespace {
     Theme* m_defaultLight = new Theme();
     Theme* m_defaultDark = new Theme();
     Theme* m_defaultSky = new Theme();
 
-    QString duplicateName(const QString& name) {
+    QString duplicateName(const QString& name)
+    {
         if (name[name.length() - 1].isDigit()) {
             QString suffix;
 
@@ -41,7 +44,7 @@ namespace {
 Theme::Theme(QObject *parent) : QObject(parent),
     m_name(""),
     m_isReadOnly(false),
-    m_font("Times New Roman", 18),
+    m_font("Times New Roman", defaults::fontSize),
     m_backgroundImage(""),
     m_fillMode(FillMode::PreserveAspectCrop),
     m_documentWidth(0.9),
@@ -56,7 +59,13 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_documentBackground(QColor(Qt::GlobalColor::white)),
     m_textAlignment(HAlignment::AlignLeft),
     m_uiBackground(QColor("#d9d9d9")),
-    m_uiColor(QColor("#1a1a1a"))
+    m_uiColor(QColor("#1a1a1a")),
+    m_formatH1(1),
+    m_formatH2(2),
+    m_formatH3(3),
+    m_formatH4(4),
+    m_formatH5(5),
+    m_formatH6(6)
 {
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
@@ -80,7 +89,13 @@ Theme::Theme(const Theme& copy, QObject *parent) : QObject(parent),
     m_documentBackground(copy.m_documentBackground),
     m_textAlignment(copy.m_textAlignment),
     m_uiBackground(copy.m_uiBackground),
-    m_uiColor(copy.m_uiColor)
+    m_uiColor(copy.m_uiColor),
+    m_formatH1(copy.m_formatH1),
+    m_formatH2(copy.m_formatH2),
+    m_formatH3(copy.m_formatH3),
+    m_formatH4(copy.m_formatH4),
+    m_formatH5(copy.m_formatH5),
+    m_formatH6(copy.m_formatH6)
 {
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
@@ -182,6 +197,20 @@ double Theme::paragraphSpacing() const
     return m_paragraphSpacing;
 }
 
+const HeadingFormat& Theme::headingFormat(int headingLevel) const
+{
+    Q_ASSERT(headingLevel > 0 && headingLevel < 7);
+
+    switch (headingLevel) {
+        case 1: return m_formatH1;
+        case 2: return m_formatH2;
+        case 3: return m_formatH3;
+        case 4: return m_formatH4;
+        case 5: return m_formatH5;
+        case 6: return m_formatH6;
+    }
+}
+
 void Theme::read(const QJsonObject& json)
 {
     m_name = json["name"].toString();
@@ -221,6 +250,31 @@ void Theme::read(const QJsonObject& json)
     if (json.contains("uiColor")) {
         m_uiColor = QColor(json["uiColor"].toString());
     }
+
+    if (json.contains("headings")) {
+        QJsonArray headings = json["headings"].toArray();
+
+        for (const QJsonValue value : headings) {
+            const QJsonObject object = value.toObject();
+            int level = object["level"].toInt();
+            Q_ASSERT(level != 0);
+
+            HeadingFormat& format = const_cast<HeadingFormat&>(headingFormat(level));
+
+            format.read(object);
+
+            if (!object.contains("fontSize")) {
+                format.setBaseFontSize(m_font.pointSizeF());
+            }
+        }
+    } else if (json.contains("fontSize")) {
+        m_formatH1.setBaseFontSize(m_font.pointSizeF());
+        m_formatH2.setBaseFontSize(m_font.pointSizeF());
+        m_formatH3.setBaseFontSize(m_font.pointSizeF());
+        m_formatH4.setBaseFontSize(m_font.pointSizeF());
+        m_formatH5.setBaseFontSize(m_font.pointSizeF());
+        m_formatH6.setBaseFontSize(m_font.pointSizeF());
+    }
 }
 
 void Theme::write(QJsonArray& json) const
@@ -258,6 +312,19 @@ void Theme::write(QJsonArray& json) const
         object["textAlignment"] = QMetaEnum::fromType<HAlignment>().valueToKey(m_textAlignment);
         object["uiBackground"] = QJsonValue::fromVariant(QVariant(m_uiBackground));
         object["uiColor"] = QJsonValue::fromVariant(QVariant(m_uiColor));
+
+        QJsonArray headings;
+
+        m_formatH1.write(headings);
+        m_formatH2.write(headings);
+        m_formatH3.write(headings);
+        m_formatH4.write(headings);
+        m_formatH5.write(headings);
+        m_formatH6.write(headings);
+
+        if (!headings.isEmpty()) {
+            object["headings"] = headings;
+        }
 
         json.append(object);
     }

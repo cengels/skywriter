@@ -6,6 +6,8 @@
 #include <QColor>
 #include <QFont>
 
+#include "HeadingFormat.h"
+
 struct Theme : public QObject
 {
     Q_OBJECT
@@ -29,6 +31,12 @@ struct Theme : public QObject
     Q_PROPERTY(HAlignment textAlignment READ textAlignment MEMBER m_textAlignment NOTIFY textAlignmentChanged);
     Q_PROPERTY(QColor uiBackground MEMBER m_uiBackground NOTIFY uiBackgroundChanged);
     Q_PROPERTY(QColor uiColor MEMBER m_uiColor NOTIFY uiColorChanged);
+    Q_PROPERTY(HeadingFormat formatH1 MEMBER m_formatH1 NOTIFY formatH1Changed);
+    Q_PROPERTY(HeadingFormat formatH2 MEMBER m_formatH2 NOTIFY formatH2Changed);
+    Q_PROPERTY(HeadingFormat formatH3 MEMBER m_formatH3 NOTIFY formatH3Changed);
+    Q_PROPERTY(HeadingFormat formatH4 MEMBER m_formatH4 NOTIFY formatH4Changed);
+    Q_PROPERTY(HeadingFormat formatH5 MEMBER m_formatH5 NOTIFY formatH5Changed);
+    Q_PROPERTY(HeadingFormat formatH6 MEMBER m_formatH6 NOTIFY formatH6Changed);
 
     public:
         explicit Theme(QObject *parent = nullptr);
@@ -66,6 +74,8 @@ struct Theme : public QObject
         double lineHeight() const;
         double paragraphSpacing() const;
 
+        const HeadingFormat& headingFormat(int headingLevel) const;
+
         void read(const QJsonObject& json);
         void write(QJsonArray& json) const;
 
@@ -90,6 +100,12 @@ struct Theme : public QObject
         void textAlignmentChanged();
         void uiBackgroundChanged();
         void uiColorChanged();
+        void formatH1Changed();
+        void formatH2Changed();
+        void formatH3Changed();
+        void formatH4Changed();
+        void formatH5Changed();
+        void formatH6Changed();
 
     private:
         QString m_name;
@@ -110,7 +126,12 @@ struct Theme : public QObject
         HAlignment m_textAlignment;
         QColor m_uiBackground;
         QColor m_uiColor;
-
+        HeadingFormat m_formatH1;
+        HeadingFormat m_formatH2;
+        HeadingFormat m_formatH3;
+        HeadingFormat m_formatH4;
+        HeadingFormat m_formatH5;
+        HeadingFormat m_formatH6;
 };
 
 #endif // THEME_H

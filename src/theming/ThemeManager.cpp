@@ -69,7 +69,7 @@ void ThemeManager::load() {
 
     QJsonArray array = document.array();
 
-    foreach (const QJsonValue value, array) {
+    for (const QJsonValue value : array) {
         Theme* theme = new Theme(this);
         theme->read(value.toObject());
 
@@ -92,7 +92,7 @@ void ThemeManager::save() const {
 
     QJsonArray array;
 
-    foreach (const Theme* theme, m_themes) {
+    for (const Theme* theme : m_themes) {
         theme->write(array);
     }
 

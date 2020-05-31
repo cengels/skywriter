@@ -6,6 +6,7 @@
 #include "Theme.h"
 #include "ThemeManager.h"
 #include "../persistence.h"
+#include "../ErrorManager.h"
 
 namespace {
     QString m_progressPath = QString();
@@ -53,7 +54,7 @@ void ThemeManager::load() {
     QFile saveFile(progressPath());
 
     if (!saveFile.open(QIODevice::ReadWrite)) {
-        qWarning("Couldn't open save file.");
+        emit ErrorManager::instance()->error(tr("Couldn't open save file."));
         return;
     }
 
@@ -85,21 +86,24 @@ void ThemeManager::load() {
 void ThemeManager::save() const {
     QFile saveFile(progressPath());
 
-    if (!saveFile.open(QIODevice::WriteOnly)) {
-        qWarning("Couldn't open save file.");
-        return;
-    }
+    persistence::overwrite(saveFile, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& out) {
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            emit ErrorManager::instance()->error(tr("Couldn't open save file."));
+            return false;
+        }
 
-    QJsonArray array;
+        QJsonArray array;
 
-    for (const Theme* theme : m_themes) {
-        theme->write(array);
-    }
+        for (const Theme* theme : m_themes) {
+            theme->write(array);
+        }
 
-    QJsonDocument document(array);
+        QJsonDocument document(array);
 
-    saveFile.write(document.toJson());
-    saveFile.close();
+        out << document.toJson();
+
+        return true;
+    }));
 }
 
 ThemeManager* ThemeManager::instance() {

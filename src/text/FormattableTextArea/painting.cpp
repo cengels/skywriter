@@ -116,8 +116,8 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
     }
 
     const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
-    const qreal x = line.cursorToX(m_textCursor.positionInBlock());
-    n->setCursor(QRectF(x + 3, line.y() + m_textCursor.block().layout()->position().y() +  + m_overflowArea - m_contentY, 1, line.height()), fontColor);
+    const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
+    n->setCursor(QRectF(x, line.y() + m_textCursor.block().layout()->position().y() +  + m_overflowArea - m_contentY, 1, line.height()), fontColor);
 
     return n;
 }

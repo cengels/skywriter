@@ -25,6 +25,7 @@
 #include "../TextHighlighter.h"
 #include "../../theming/ThemeManager.h"
 #include "../../ErrorManager.h"
+#include "../../persistence.h"
 
 namespace {
     constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
@@ -172,7 +173,11 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             const auto text = codec->toUnicode(data);
             const QString fileType = QFileInfo(file).suffix();
 
-            MarkdownParser(doc).parse(text);
+            if (fileType == "md") {
+                MarkdownParser(doc).parse(text);
+            } else {
+                doc->setPlainText(text);
+            }
 
             doc->setModified(false);
             newDocument(doc);
@@ -196,30 +201,32 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
     const QString filePath = fileUrl.toLocalFile();
     const QFileInfo fileInfo = QFileInfo(filePath);
     const QString fileType = fileInfo.suffix();
-    const bool isHtml = fileType.contains(QLatin1String("htm"));
+
     QFile file(filePath);
-    if (!file.open(QFile::WriteOnly | QFile::Truncate | (isHtml ? QFile::NotOpen : QFile::Text))) {
+
+    bool success = persistence::overwrite(file, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
+    {
+        if (fileType == "md") {
+            MarkdownParser(m_document).write(stream);
+        } else if (fileType.contains("htm")) {
+            file.write(m_document->toHtml().toUtf8());
+        } else {
+            file.write(m_document->toPlainText().toUtf8());
+        }
+
+        return true;
+    }));
+
+    if (!success) {
         emit ErrorManager::instance()->error(tr("Cannot save: ") + file.errorString());
-        return;
-    }
-
-    if (fileType == "md") {
-        QTextStream stream(&file);
-        MarkdownParser(m_document).write(stream);
-    } else if (fileType.contains("htm")) {
-        file.write(m_document->toHtml().toUtf8());
     } else {
-        file.write(m_document->toPlainText().toUtf8());
+        this->setModified(false);
+
+        emit lastModifiedChanged();
+
+        if (fileUrl != m_fileUrl)
+            setFileUrl(fileUrl);
     }
-
-    file.close();
-
-    this->setModified(false);
-
-    emit lastModifiedChanged();
-
-    if (fileUrl == m_fileUrl)
-        return;
 }
 
 void FormattableTextArea::copy()

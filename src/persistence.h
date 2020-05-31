@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <QTextStream>
 #include <QGuiApplication>
+#include <QDebug>
 
 #include "ErrorManager.h"
 
@@ -31,13 +32,17 @@ namespace persistence {
 
         QFile outputFile(tempName);
 
-        if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
             emit ErrorManager::instance()->error(QGuiApplication::tr("Could not open file") + tempName);
 
             return false;
         }
 
         Stream out(&outputFile);
+
+        if (std::is_same<QTextStream, Stream>()) {
+            out.setCodec("UTF-8");
+        }
 
         if (!callback(out)) {
             return false;

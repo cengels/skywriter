@@ -25,18 +25,17 @@ class MarkdownParser
         //! Parses the specified string as markdown and inserts it into the
         //! document at the cursor's position.
         void parse(const QString& string);
-        //! Turns the document into markdown, starting from the cursor's
-        //! position.
+        //! Turns the document into markdown.
         QString stringify() const;
         //! Writes the contents of the document into the passed QTextStream.
         void write(QTextStream& stream) const;
 
-    private:
         enum ParserFlags {
             None = 0,
             NoNewBlockNeeded = 1
         };
 
+    private:
         static int onEnterBlock(MD_BLOCKTYPE type, void *detail, void *context);
         static int onLeaveBlock(MD_BLOCKTYPE type, void *detail, void *context);
         static int onEnterSpan(MD_SPANTYPE type, void *detail, void *context);

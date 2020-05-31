@@ -5,6 +5,78 @@
 #include "MarkdownParser.h"
 #include "symbols.h"
 
+namespace {
+    void writeFragment(QTextStream& stream, const QTextFragment fragment, QStack<QString>& marks)
+    {
+        const QTextCharFormat& format = fragment.charFormat();
+
+        bool bold = format.fontWeight() > QFont::Bold;
+        bool italic = format.fontItalic();
+        bool strikethrough = format.fontStrikeOut();
+        bool done = false;
+
+        while (!done && !marks.isEmpty()) {
+            const QString& top = marks.top();
+
+            // Close all finished marks in the right order.
+
+            if ((top == symbols::bold_mark && !bold)
+             || (top == symbols::italic_mark && !italic)
+             || (top == symbols::strikethrough_mark && !strikethrough)) {
+                stream << marks.pop();
+            } else {
+                done = true;
+            }
+        }
+
+        if (bold && !marks.contains(symbols::bold_mark)) {
+            stream << symbols::bold_mark;
+            marks.push(symbols::bold_mark);
+        }
+
+        if (italic && !marks.contains(symbols::italic_mark)) {
+            stream << symbols::italic_mark;
+            marks.push(symbols::italic_mark);
+        }
+
+        if (strikethrough && !marks.contains(symbols::strikethrough_mark)) {
+            stream << symbols::strikethrough_mark;
+            marks.push(symbols::strikethrough_mark);
+        }
+
+        stream << fragment.text();
+    }
+
+    void writeBlock(QTextStream& stream, const QTextBlock& block)
+    {
+        const QTextBlockFormat& format = block.blockFormat();
+
+        if (block.text() == "<br />" || block.text() == "<br/>") {
+            stream << symbols::newline;
+            stream << symbols::newline;
+
+            return;
+        }
+
+        if (format.headingLevel() > 0) {
+            stream << QString("#").repeated(format.headingLevel()) << " ";
+        }
+
+        QStack<QString> marks;
+
+        for (QTextBlock::Iterator iterator = block.begin(); !iterator.atEnd(); iterator++) {
+            writeFragment(stream, iterator.fragment(), marks);
+        }
+
+        while (!marks.isEmpty()) {
+            stream << marks.pop();
+        }
+
+        stream << symbols::newline;
+        stream << symbols::newline;
+    }
+}
+
 const QTextCharFormat MarkdownParser::CHAR_FORMAT_REGULAR = QTextCharFormat();
 
 const QTextCharFormat MarkdownParser::CHAR_FORMAT_EMPHASIS = []{
@@ -78,12 +150,21 @@ void MarkdownParser::parse(const QString& string)
 
 QString MarkdownParser::stringify() const
 {
-    return "";
+    QTextStream stream;
+
+    write(stream);
+
+    return stream.readAll();
 }
 
 void MarkdownParser::write(QTextStream& stream) const
 {
-    Q_UNUSED(stream);
+    QTextBlock block = m_document->begin();
+
+    while (block.isValid()) {
+        writeBlock(stream, block);
+        block = block.next();
+    }
 }
 
 int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata)
@@ -222,7 +303,7 @@ int MarkdownParser::onText(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size)
     }
 
     if (!string.isEmpty()) {
-        if (!string.startsWith("<br") || !string.endsWith(">")) {
+        if (string != "<br />" && string != "<br/>") {
             // If the line contains a <br/> tag or a variation thereof,
             // do nothing (i.e. leave the line empty).
 

@@ -27,11 +27,11 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-#        src/document_handler.cpp \
         src/Mouse.cpp \
         src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
+        src/text/MarkdownParser.cpp \
         src/text/symbols.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
@@ -43,10 +43,14 @@ SOURCES += \
         src/text/TextIterator.cpp \
         src/text/format.cpp \
         src/progress/ProgressTracker.cpp \
+        src/theming/HeadingFormat.cpp \
         src/theming/ThemeManager.cpp \
         src/theming/Theme.cpp \
         src/colors.cpp \
-        src/main.cpp
+        src/main.cpp \
+        libs/md4c/src/md4c.c
+
+INCLUDEPATH += libs
 
 RESOURCES += qml.qrc
 
@@ -65,17 +69,20 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-#    src/document_handler.h \
     src/Mouse.h \
     src/numbers.h \
     src/persistence.h \
     src/progress/ProgressItem.h \
     src/text/FormattableTextArea/FormattableTextArea.h \
+    src/text/MarkdownParser.h \
     src/text/TextHighlighter.h \
     src/text/TextIterator.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
     src/text/symbols.h \
+    src/theming/HeadingFormat.h \
     src/theming/ThemeManager.h \
     src/theming/Theme.h \
-    src/colors.h
+    src/colors.h \
+    libs/md4c/src/md4c.h \
+    src/theming/defaults.h

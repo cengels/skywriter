@@ -301,7 +301,7 @@ void ProgressTracker::save()
                 // Try to match items to existing lines and overwrite them
                 // if found
 
-                foreach (ProgressItem* item, m_items_to_save) {
+                for (ProgressItem* item : m_items_to_save) {
                     if (item->isCsv(line)) {
                         matchingItem = item;
                         m_items_to_save.removeOne(item);
@@ -320,7 +320,7 @@ void ProgressTracker::save()
 
             // Append the items that could not be matched
 
-            foreach (ProgressItem* item, m_items_to_save) {
+            for (ProgressItem* item : m_items_to_save) {
                 if (item->words() != 0) {
                     output << item->toCsv() << '\n';
                 }

@@ -12,6 +12,7 @@
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
+#include "../MarkdownParser.h"
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -45,6 +46,10 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
 
     Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
+
+    //! If true, emphasized text segments (enclosed in asterisks or underscores)
+    //! will be underlined rather than italicized.
+    Q_PROPERTY(bool underline MEMBER m_underline NOTIFY underlineChanged);
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
@@ -127,6 +132,7 @@ class FormattableTextArea : public QQuickItem
         void contentHeightChanged();
 
         void firstLineIndentChanged();
+        void underlineChanged();
 
     private:
         void updateStyling();
@@ -161,6 +167,7 @@ class FormattableTextArea : public QQuickItem
         void updatePageCount();
 
         int m_firstLineIndent;
+        bool m_underline;
 };
 
 #endif // FORMATTABLETEXTAREA_H

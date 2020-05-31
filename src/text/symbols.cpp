@@ -9,7 +9,7 @@ QString symbols::sanitize(const QString& string)
 {
     QString newString;
 
-    foreach (const QChar& character, string) {
+    for (const QChar& character : string) {
         if (character.isPrint() || character.isSpace()) {
             newString += character;
         }

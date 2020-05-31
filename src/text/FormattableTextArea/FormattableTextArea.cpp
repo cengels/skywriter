@@ -42,6 +42,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_paragraphCount(0)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
+    , m_underline(false)
 {
     setFiltersChildMouseEvents(true);
     setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
@@ -170,13 +171,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             const auto text = codec->toUnicode(data);
             const QString fileType = QFileInfo(file).suffix();
 
-            if (fileType == "md") {
-                doc->setMarkdown(text, MARKDOWN_FEATURES);
-            } else if (fileType.contains("htm")) {
-                doc->setHtml(text);
-            } else {
-                doc->setPlainText(text);
-            }
+            MarkdownParser(doc).parse(text);
 
             doc->setModified(false);
             newDocument(doc);

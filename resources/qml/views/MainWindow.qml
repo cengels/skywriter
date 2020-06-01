@@ -497,10 +497,6 @@ ApplicationWindow {
                     lastTheme = ThemeManager.activeTheme.name;
                     fixPositionNext = lastSize === size || lastPosition === position;
 
-                    // TODO: Fix a bug where changing theme still changes position
-                    // despite this call. For some reason, there is another call
-                    // that changes position to an arbitrary value, but the
-                    // stack trace QML supplies is completely useless.
                     if (lastPosition !== 0 && !fixPositionNext) {
                         position = lastPosition - (size - lastSize) / 2;
                     }

@@ -76,7 +76,11 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     });
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
-    connect(this, &FormattableTextArea::overflowAreaChanged, this, &FormattableTextArea::update);
+    connect(this, &FormattableTextArea::overflowAreaChanged, this, [&] {
+        FormattableTextArea::update();
+
+        emit contentHeightChanged();
+    });
 
     newDocument();
 }

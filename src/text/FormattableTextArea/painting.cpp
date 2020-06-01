@@ -19,6 +19,11 @@ bool FormattableTextArea::event(QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
         forceActiveFocus();
+    } else if (event->type() == QEvent::FocusIn) {
+        m_caretTimer.start();
+    } else if (event->type() == QEvent::FocusOut) {
+        m_blinking = false;
+        m_caretTimer.stop();
     }
 
     return QQuickItem::event(event);
@@ -107,9 +112,11 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                          selectionEnd);
     }
 
-    const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
-    const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
-    n->setCursor(QRectF(x, line.y() + m_textCursor.block().layout()->position().y() +  + m_overflowArea - m_contentY, 1, line.height()), fontColor);
+    if (this->hasFocus() && !m_blinking && !hasSelection) {
+        const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
+        const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
+        n->setCursor(QRectF(x, line.y() + m_textCursor.block().layout()->position().y() +  + m_overflowArea - m_contentY, 1, line.height()), fontColor);
+    }
 
     return n;
 }

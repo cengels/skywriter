@@ -60,7 +60,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.removeSelectedText();
                 }
                 updateWordCount();
-                update();
+                updateActive();
                 emit caretPositionChanged();
                 break;
             case Qt::Key_Delete:
@@ -73,7 +73,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.removeSelectedText();
                 }
                 updateWordCount();
-                update();
+                updateActive();
                 break;
             case Qt::Key_W:
                 if (ctrl) {

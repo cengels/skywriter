@@ -27,10 +27,6 @@
 #include "../../ErrorManager.h"
 #include "../../persistence.h"
 
-namespace {
-    constexpr QTextDocument::MarkdownFeatures MARKDOWN_FEATURES = QTextDocument::MarkdownNoHTML;
-}
-
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
     , m_document(nullptr)
@@ -47,7 +43,15 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
     , m_underline(false)
+    , m_caretTimer(this)
+    , m_blinking(false)
 {
+    m_caretTimer.setInterval(530);
+    m_caretTimer.callOnTimeout(this, [&]() {
+        m_blinking = !m_blinking;
+        update();
+    });
+
     setFiltersChildMouseEvents(true);
     setAcceptedMouseButtons(Qt::MouseButton::AllButtons);
     setAcceptHoverEvents(true);
@@ -65,12 +69,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
             update();
         }
     });
-
-//    connect(this, &FormattableTextArea::heightChanged, this, [this]() {
-//        if (this->height() > 0) {
-//            update();
-//        }
-//    });
 
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
     connect(this, &FormattableTextArea::overflowAreaChanged, this, &FormattableTextArea::update);
@@ -128,6 +126,14 @@ void FormattableTextArea::handleTextChange()
     emit contentHeightChanged();
 
     this->updateCounts();
+}
+
+void FormattableTextArea::updateActive()
+{
+    m_blinking = false;
+    m_caretTimer.start();
+
+    update();
 }
 
 const QTextCharFormat FormattableTextArea::getSelectionFormat() const
@@ -263,7 +269,7 @@ void FormattableTextArea::paste()
         m_textCursor.insertText(mimeData->text());
     }
 
-    update();
+    updateActive();
     emit caretPositionChanged();
 
     this->updateWordCount();
@@ -272,7 +278,7 @@ void FormattableTextArea::paste()
 void FormattableTextArea::undo()
 {
     m_document->undo(&m_textCursor);
-    update();
+    updateActive();
     emit textChanged();
     emit caretPositionChanged();
 
@@ -282,7 +288,7 @@ void FormattableTextArea::undo()
 void FormattableTextArea::redo()
 {
     m_document->redo(&m_textCursor);
-    update();
+    updateActive();
     emit textChanged();
     emit caretPositionChanged();
 
@@ -292,7 +298,7 @@ void FormattableTextArea::redo()
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)
 {
     m_textCursor.movePosition(op, mode, by);
-    update();
+    updateActive();
     emit caretPositionChanged();
 }
 

@@ -9,6 +9,7 @@
 #include <QQuickItem>
 #include <QTextLayout>
 #include <QTextDocument>
+#include <QTimer>
 
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
@@ -159,6 +160,10 @@ class FormattableTextArea : public QQuickItem
         void setFileUrl(const QUrl& url);
 
         void handleTextChange();
+        //! Calls update() and sets appropriate variables that indicate the
+        //! user is actively editing the document instead of just being idle.
+        //! This includes ensuring the caret blinking timer is reset.
+        void updateActive();
 
         int m_characterCount;
         int m_wordCount;
@@ -172,6 +177,8 @@ class FormattableTextArea : public QQuickItem
 
         int m_firstLineIndent;
         bool m_underline;
+        QTimer m_caretTimer;
+        bool m_blinking;
 };
 
 #endif // FORMATTABLETEXTAREA_H

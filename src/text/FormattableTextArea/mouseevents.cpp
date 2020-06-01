@@ -19,7 +19,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
             const int position = hitTest(event->localPos());
             if (position != m_textCursor.position() || m_textCursor.hasSelection()) {
                 m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
-                update();
+                updateActive();
                 emit caretPositionChanged();
             }
             break;

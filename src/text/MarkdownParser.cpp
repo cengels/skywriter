@@ -245,9 +245,8 @@ int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail)
         if (m_flags & ParserFlags::NoNewBlockNeeded) {
             m_flags &= ~ParserFlags::NoNewBlockNeeded;
             m_textCursor->setBlockFormat(headingFormat.blockFormat());
-            m_textCursor->setBlockCharFormat(headingFormat.charFormat());
         } else {
-            m_textCursor->insertBlock(headingFormat.blockFormat(), headingFormat.charFormat());
+            m_textCursor->insertBlock(headingFormat.blockFormat());
         }
 
         return 0;

@@ -22,6 +22,17 @@ class TextHighlighter : public QSyntaxHighlighter
         void highlightBlock(const QString &text) override;
 
     private:
+        enum BlockState {
+            None = 0,
+            EndsWithUnclosedComment = 1
+        };
+
+        void setCurrentBlockStateFlag(BlockState state);
+        bool checkPreviousBlockStateFlag(BlockState state) const;
+
+        void highlightComments(const QString &text);
+        void highlightHeadings();
+
         bool m_refreshing;
 };
 

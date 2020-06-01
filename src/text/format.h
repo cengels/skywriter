@@ -16,6 +16,9 @@ namespace format {
     //! Normalizes the format in the QTextCursor's selected range by making
     //! sure it conforms to the standards of the passed Theme.
     void normalize(QTextCursor& textCursor, const Theme* theme);
+    //! Merges the given char format into all currently selected blocks.
+    //! Like QTextCursor::mergeBlockCharFormat, but actually works.
+    void mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format);
 }
 
 #endif // FORMAT_H

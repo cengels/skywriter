@@ -177,12 +177,14 @@ void FormattableTextArea::applyHeading(int level)
     if (level == 0) {
         const Theme* theme = ThemeManager::instance()->activeTheme();
         m_textCursor.setBlockFormat(theme->blockFormat());
-        m_textCursor.mergeBlockCharFormat(theme->charFormat());
+        format::mergeBlockCharFormat(m_textCursor, theme->charFormat());
     } else {
         const HeadingFormat& format = ThemeManager::instance()->activeTheme()->headingFormat(level);
         m_textCursor.setBlockFormat(format.blockFormat());
-        m_textCursor.mergeBlockCharFormat(format.charFormat());
+        m_highlighter->refresh();
     }
+
+    updateActive();
 }
 
 void FormattableTextArea::load(const QUrl &fileUrl)

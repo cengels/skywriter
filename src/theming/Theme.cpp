@@ -216,7 +216,7 @@ const QTextCharFormat Theme::charFormat() const
     QTextCharFormat format;
 
     format.setFontFamily(fontFamily());
-    format.font().setPointSizeF(fontSize());
+    format.setFontPointSize(fontSize());
     format.setForeground(fontColor());
     format.setFontUnderline(false);
     format.setAnchor(false);

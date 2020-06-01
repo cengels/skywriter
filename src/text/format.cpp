@@ -90,7 +90,7 @@ void format::normalize(QTextCursor& textCursor, const Theme* theme)
             const HeadingFormat& headingFormat = theme->headingFormat(iterationCursor.block().blockFormat().headingLevel());
             iterationCursor.setBlockFormat(headingFormat.blockFormat());
             iterationCursor.select(QTextCursor::BlockUnderCursor);
-            iterationCursor.mergeCharFormat(headingFormat.charFormat());
+            iterationCursor.mergeCharFormat(theme->charFormat());
         } else {
             iterationCursor.setBlockFormat(theme->blockFormat());
             iterationCursor.select(QTextCursor::BlockUnderCursor);
@@ -105,4 +105,19 @@ void format::normalize(QTextCursor& textCursor, const Theme* theme)
     }
 
     iterationCursor.endEditBlock();
+}
+
+void format::mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format)
+{
+    // For some reason, QTextCursor::mergeBlockCharFormat() is currently
+    // broken (doesn't do anything), so this function aims to reimplement it.
+
+    QTextDocument* document = textCursor.document();
+    const QTextBlock& startBlock = document->findBlock(textCursor.selectionStart());
+    const QTextBlock& endBlock = document->findBlock(textCursor.selectionEnd());
+
+    QTextCursor tempCursor(document);
+    tempCursor.setPosition(startBlock.position());
+    tempCursor.setPosition(endBlock.position() + endBlock.length() - 1, QTextCursor::KeepAnchor);
+    tempCursor.mergeCharFormat(format);
 }

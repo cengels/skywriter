@@ -72,9 +72,17 @@ HeadingFormat::TextDecorations HeadingFormat::textDecorations() const
 
 void HeadingFormat::setTextDecorations(HeadingFormat::TextDecorations decorations)
 {
-    m_charFormat.setFontWeight(decorations & Bold ? QFont::Bold : QFont::Normal);
-    m_charFormat.setFontItalic(decorations & Italic);
-    m_charFormat.setUnderlineStyle(decorations & Underline ? QTextCharFormat::SingleUnderline : QTextCharFormat::NoUnderline);
+    if (decorations & Bold) {
+        m_charFormat.setFontWeight(QFont::Bold);
+    }
+
+    if (decorations & Italic) {
+        m_charFormat.setFontItalic(true);
+    }
+
+    if (decorations & Underline) {
+        m_charFormat.setFontUnderline(true);
+    }
 }
 
 double HeadingFormat::indent() const

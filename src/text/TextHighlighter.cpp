@@ -22,11 +22,31 @@ TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(par
     });
 }
 
-void TextHighlighter::highlightBlock(const QString& text) {
-    // 0 = block does not end with an unclosed comment
-    setCurrentBlockState(0);
+void TextHighlighter::highlightBlock(const QString& text)
+{
+    highlightHeadings();
+    highlightComments(text);
+}
 
-    int startIndex = previousBlockState() == 1
+void TextHighlighter::setCurrentBlockStateFlag(TextHighlighter::BlockState state)
+{
+    setCurrentBlockState(currentBlockState() | state);
+}
+
+bool TextHighlighter::checkPreviousBlockStateFlag(TextHighlighter::BlockState state) const
+{
+    if (previousBlockState() == -1) {
+        return false;
+    }
+
+    return previousBlockState() & state;
+}
+
+void TextHighlighter::highlightComments(const QString& text)
+{
+    setCurrentBlockState(BlockState::None);
+
+    int startIndex = checkPreviousBlockStateFlag(BlockState::EndsWithUnclosedComment)
                      ? 0
                      : text.indexOf(symbols::opening_comment);
 
@@ -38,8 +58,7 @@ void TextHighlighter::highlightBlock(const QString& text) {
         int commentLength = 0;
 
         if (endIndex == -1) {
-            // 1 = block ends with unclosed comment
-            setCurrentBlockState(1);
+            setCurrentBlockStateFlag(BlockState::EndsWithUnclosedComment);
             commentLength = text.length() - startIndex;
         } else {
             commentLength = endIndex - startIndex + 1;
@@ -50,7 +69,18 @@ void TextHighlighter::highlightBlock(const QString& text) {
     }
 }
 
-void TextHighlighter::refresh() {
+void TextHighlighter::highlightHeadings()
+{
+    int headingLevel = currentBlock().blockFormat().headingLevel();
+    if (headingLevel > 0) {
+        setFormat(0,
+                  currentBlock().length() - 1,
+                  ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
+    }
+}
+
+void TextHighlighter::refresh()
+{
     this->m_refreshing = true;
     this->rehighlight();
     this->m_refreshing = false;

@@ -656,7 +656,7 @@ ApplicationWindow {
                     property int oldWordCount;
                     property bool progressSuspended: false;
                     onWordCountChanged: {
-                        if (!progressSuspended && !loading && oldWordCount !== wordCount) {
+                        if (!progressSuspended && isProgress && oldWordCount !== wordCount) {
                             ProgressTracker.addProgress(wordCount - oldWordCount);
                         }
 

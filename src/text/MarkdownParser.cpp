@@ -51,7 +51,7 @@ namespace {
     {
         const QTextBlockFormat& format = block.blockFormat();
 
-        if (block.text() == "<br />" || block.text() == "<br/>") {
+        if (block.text().isEmpty()) {
             stream << symbols::newline;
             stream << symbols::newline;
 

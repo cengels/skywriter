@@ -50,12 +50,12 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::updateWordCount()
 {
+    m_counting = true;
+
     QtConcurrent::run([=] {
         if (!m_document) {
             return;
         }
-
-        m_counting = true;
 
         TextIterator textIterator = this->wordIterator();
         int i = 0;
@@ -70,7 +70,7 @@ void FormattableTextArea::updateWordCount()
 
         if (i != this->m_wordCount) {
             m_wordCount = i;
-            emit wordCountChanged();
+            emit wordCountChanged(!m_loading);
         }
 
         this->updatePageCount();

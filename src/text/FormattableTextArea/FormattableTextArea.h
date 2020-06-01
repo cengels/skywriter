@@ -125,7 +125,7 @@ class FormattableTextArea : public QQuickItem
 
         void characterCountChanged();
         void paragraphCountChanged();
-        void wordCountChanged();
+        void wordCountChanged(bool isProgress);
         void pageCountChanged();
 
         void contentWidthChanged();

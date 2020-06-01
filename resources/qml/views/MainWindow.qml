@@ -430,6 +430,12 @@ ApplicationWindow {
                     shortcut: "Ctrl+6"
                     onTriggered: textArea.applyHeading(6)
                 }
+                MenuSeparator {}
+                Action {
+                    text: qsTr("Scene break")
+                    shortcut: "Ctrl+#"
+                    onTriggered: textArea.insertSceneBreak()
+                }
             }
             Controls.Menu {
                 title: qsTr("Tools")
@@ -645,11 +651,14 @@ ApplicationWindow {
                     id: textArea
                     width: scrollView.width
                     height: scrollView.height
-                    firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     focus: true
                     contentY: verticalScrollbar.position * contentHeight
                     overflowArea: height * 0.8
                     clip: true
+
+                    // User-configurable properties
+                    firstLineIndent: ThemeManager.activeTheme.firstLineIndent
+                    sceneBreak: "# # #"
 
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {

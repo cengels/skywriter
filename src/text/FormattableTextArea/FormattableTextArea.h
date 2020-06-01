@@ -52,6 +52,7 @@ class FormattableTextArea : public QQuickItem
     //! If true, emphasized text segments (enclosed in asterisks or underscores)
     //! will be underlined rather than italicized.
     Q_PROPERTY(bool underline MEMBER m_underline NOTIFY underlineChanged);
+    Q_PROPERTY(QString sceneBreak MEMBER m_sceneBreak NOTIFY sceneBreakChanged);
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
@@ -113,6 +114,9 @@ class FormattableTextArea : public QQuickItem
         void toggleItalics();
         void toggleStrikethrough();
         void applyHeading(int level);
+        //! Inserts a scene break on the current line if the line is empty,
+        //! or the next line otherwise.
+        void insertSceneBreak();
 
         void selectWord();
         void selectParagraph();
@@ -146,6 +150,7 @@ class FormattableTextArea : public QQuickItem
 
         void firstLineIndentChanged();
         void underlineChanged();
+        void sceneBreakChanged(const QString& sceneBreak);
 
     private:
         void updateStyling();
@@ -188,6 +193,8 @@ class FormattableTextArea : public QQuickItem
 
         int m_firstLineIndent;
         bool m_underline;
+        QString m_sceneBreak;
+
         QTimer m_caretTimer;
         bool m_blinking;
 

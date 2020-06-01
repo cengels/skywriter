@@ -16,11 +16,11 @@ class MarkdownParser
         //! Constructs a new MarkdownParser with the specified document
         //! and creates a new cursor that will iterate through the document
         //! from beginning to end.
-        MarkdownParser(QTextDocument* document);
+        MarkdownParser(QTextDocument* document, const QString& sceneBreakString);
         //! Constructs a new MarkdownParser from the specified QTextCursor
         //! and iterates through the document from the cursor's current
         //! position.
-        MarkdownParser(QTextCursor* cursor);
+        MarkdownParser(QTextCursor* cursor, const QString& sceneBreakString);
 
         //! Parses the specified string as markdown and inserts it into the
         //! document at the cursor's position.
@@ -51,15 +51,21 @@ class MarkdownParser
         static const QTextCharFormat CHAR_FORMAT_EMPHASIS;
         static const QTextCharFormat CHAR_FORMAT_DOUBLE_EMPHASIS;
         static const QTextCharFormat CHAR_FORMAT_STRIKETHROUGH;
+        static const QTextCharFormat CHAR_FORMAT_EMPHASIS_INV;
+        static const QTextCharFormat CHAR_FORMAT_DOUBLE_EMPHASIS_INV;
+        static const QTextCharFormat CHAR_FORMAT_STRIKETHROUGH_INV;
 
-        void startFormat(const QTextCharFormat& format);
-        void endFormat();
+        void toggleFormat(const QTextCharFormat& format);
+
+        static const QTextCharFormat& getCharFormat(MD_SPANTYPE type);
+        static const QTextCharFormat& inverted(const QTextCharFormat& format);
 
         MD_PARSER m_parse_info;
         QTextDocument* m_document;
         QTextCursor* m_textCursor;
         QStack<QTextCharFormat> m_formatStack;
         int m_flags;
+        const QString m_sceneBreakString;
 };
 
 #endif // MARKDOWNPARSER_H

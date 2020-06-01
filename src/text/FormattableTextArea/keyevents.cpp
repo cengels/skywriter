@@ -102,6 +102,10 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                         updateWordCount();
                     }
                 }
+
+                if (m_textCursor.block().text().isEmpty()) {
+                    m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+                }
                 break;
         }
     }

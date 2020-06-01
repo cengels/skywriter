@@ -49,7 +49,7 @@ void FormattableTextArea::updateStyling()
 
     QTextCursor cursor(m_document);
     cursor.select(QTextCursor::Document);
-    format::normalize(cursor, theme);
+    format::normalize(cursor, theme, m_sceneBreak);
 
     if (!wasModified) {
         this->setModified(false);

@@ -5,13 +5,15 @@
 #include "symbols.h"
 #include "../theming/ThemeManager.h"
 #include "../colors.h"
+#include "format.h"
 
 namespace {
     QMetaObject::Connection connection;
 }
 
 TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent),
-    m_refreshing(true)
+    m_refreshing(true),
+    m_sceneBreakString()
 {
     connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [&]() {
@@ -26,14 +28,28 @@ void TextHighlighter::highlightBlock(const QString& text)
 {
     highlightHeadings();
     highlightComments(text);
+    highlightSceneBreaks(text);
 }
 
-void TextHighlighter::setCurrentBlockStateFlag(TextHighlighter::BlockState state)
+void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
 {
-    setCurrentBlockState(currentBlockState() | state);
+    if (currentBlockState() == -1) {
+        setCurrentBlockState(state);
+    } else {
+        setCurrentBlockState(currentBlockState() | state);
+    }
 }
 
-bool TextHighlighter::checkPreviousBlockStateFlag(TextHighlighter::BlockState state) const
+void TextHighlighter::unsetCurrentBlockStateFlag(format::BlockState state)
+{
+    if (currentBlockState() == -1) {
+        setCurrentBlockState(format::BlockState::None);
+    } else {
+        setCurrentBlockState(currentBlockState() & ~state);
+    }
+}
+
+bool TextHighlighter::checkPreviousBlockStateFlag(format::BlockState state) const
 {
     if (previousBlockState() == -1) {
         return false;
@@ -42,11 +58,18 @@ bool TextHighlighter::checkPreviousBlockStateFlag(TextHighlighter::BlockState st
     return previousBlockState() & state;
 }
 
+bool TextHighlighter::checkCurrentBlockStateFlag(format::BlockState state) const
+{
+    if (currentBlockState() == -1) {
+        return false;
+    }
+
+    return currentBlockState() & state;
+}
+
 void TextHighlighter::highlightComments(const QString& text)
 {
-    setCurrentBlockState(BlockState::None);
-
-    int startIndex = checkPreviousBlockStateFlag(BlockState::EndsWithUnclosedComment)
+    int startIndex = checkPreviousBlockStateFlag(format::EndsWithUnclosedComment)
                      ? 0
                      : text.indexOf(symbols::opening_comment);
 
@@ -58,9 +81,10 @@ void TextHighlighter::highlightComments(const QString& text)
         int commentLength = 0;
 
         if (endIndex == -1) {
-            setCurrentBlockStateFlag(BlockState::EndsWithUnclosedComment);
+            setCurrentBlockStateFlag(format::EndsWithUnclosedComment);
             commentLength = text.length() - startIndex;
         } else {
+            unsetCurrentBlockStateFlag(format::EndsWithUnclosedComment);
             commentLength = endIndex - startIndex + 1;
         }
 
@@ -73,10 +97,23 @@ void TextHighlighter::highlightHeadings()
 {
     int headingLevel = currentBlock().blockFormat().headingLevel();
     if (headingLevel > 0) {
-        setFormat(0,
-                  currentBlock().length() - 1,
-                  ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
+        setCurrentBlockStateFlag(format::Heading);
+        setBlockFormat(ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
     }
+}
+
+void TextHighlighter::highlightSceneBreaks(const QString &text)
+{
+    if (text == m_sceneBreakString) {
+        QTextCharFormat charFormat;
+        charFormat.setFontPointSize(ThemeManager::instance()->activeTheme()->fontSize() * 1.25);
+        setBlockFormat(charFormat);
+    }
+}
+
+void TextHighlighter::setBlockFormat(const QTextCharFormat& format)
+{
+    setFormat(0, currentBlock().length() - 1, format);
 }
 
 void TextHighlighter::refresh()
@@ -84,6 +121,16 @@ void TextHighlighter::refresh()
     this->m_refreshing = true;
     this->rehighlight();
     this->m_refreshing = false;
+}
+
+const QString& TextHighlighter::sceneBreak() const
+{
+    return m_sceneBreakString;
+}
+
+void TextHighlighter::setSceneBreak(const QString sceneBreakString)
+{
+    m_sceneBreakString = sceneBreakString;
 }
 
 bool TextHighlighter::refreshing() const {

@@ -18,8 +18,8 @@ HeadingFormat::HeadingFormat(int headingLevel) :
     // h4: Subtitle of level 3 title (space below)
     // ...
 
-    setSpaceBefore(headingLevel % 2 == 1 && headingLevel != 1 ? defaults::headingSpacing : 0);
-    setSpaceAfter(headingLevel % 2 == 0 ? defaults::headingSpacing : 0);
+    setSpaceBefore(headingLevel % 2 == 1 && headingLevel != 1 ? defaults::headingSpacing : defaults::headingSpacing * 0.2);
+    setSpaceAfter(headingLevel % 2 == 0 ? defaults::headingSpacing : defaults::headingSpacing * 0.2);
     setBaseFontSize(defaults::fontSize);
 
     if (headingLevel < 5) {

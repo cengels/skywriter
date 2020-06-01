@@ -3,7 +3,9 @@
 #include <QTextDocumentFragment>
 #include <QTextDocument>
 #include <QDebug>
+
 #include "format.h"
+#include "../theming/ThemeManager.h"
 
 namespace {
     bool isInRange(const QTextLayout::FormatRange& range, const int position)
@@ -27,6 +29,14 @@ namespace {
             merger.setFontStrikeOut(false);
         }
     }
+
+    const QTextBlockFormat sceneBreakFormat = [] {
+        QTextBlockFormat format;
+        format.setAlignment(Qt::AlignHCenter);
+        format.setTopMargin(80);
+        format.setBottomMargin(80);
+        return format;
+    }();
 }
 
 const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
@@ -72,7 +82,7 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
     return mergedFormat;
 }
 
-void format::normalize(QTextCursor& textCursor, const Theme* theme)
+void format::normalize(QTextCursor& textCursor, const Theme* theme, const QString& sceneBreakString)
 {
     if (!textCursor.hasSelection())
         return;
@@ -92,7 +102,16 @@ void format::normalize(QTextCursor& textCursor, const Theme* theme)
             iterationCursor.select(QTextCursor::BlockUnderCursor);
             iterationCursor.mergeCharFormat(theme->charFormat());
         } else {
-            iterationCursor.setBlockFormat(theme->blockFormat());
+            if (iterationCursor.block().userState() != -1 && iterationCursor.block().userState() & BlockState::SceneBreak) {
+                if (iterationCursor.block().text() != sceneBreakString) {
+                    insertSceneBreak(iterationCursor, sceneBreakString);
+                }
+            } else if (iterationCursor.block().text() == sceneBreakString) {
+                insertSceneBreak(iterationCursor, sceneBreakString);
+            } else {
+                iterationCursor.setBlockFormat(theme->blockFormat());
+            }
+
             iterationCursor.select(QTextCursor::BlockUnderCursor);
             iterationCursor.mergeCharFormat(theme->charFormat());
         }
@@ -120,4 +139,25 @@ void format::mergeBlockCharFormat(const QTextCursor& textCursor, const QTextChar
     tempCursor.setPosition(startBlock.position());
     tempCursor.setPosition(endBlock.position() + endBlock.length() - 1, QTextCursor::KeepAnchor);
     tempCursor.mergeCharFormat(format);
+}
+
+void format::insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakText)
+{
+    if (sceneBreakText.isEmpty()) {
+        return;
+    }
+
+    if (!textCursor.block().text().isEmpty() && textCursor.block().text() != sceneBreakText) {
+        textCursor.insertBlock();
+        textCursor.insertText(sceneBreakText);
+    }
+
+    if (textCursor.block().userState() != -1 && textCursor.block().userState() & format::SceneBreak) {
+        // Remove scene break if already exists.
+        textCursor.block().setUserState(textCursor.block().userState() & ~format::SceneBreak);
+        textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+    } else {
+        textCursor.block().setUserState(textCursor.block().userState() | format::SceneBreak);
+        textCursor.setBlockFormat(sceneBreakFormat);
+    }
 }

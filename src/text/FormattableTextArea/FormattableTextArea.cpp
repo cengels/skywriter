@@ -43,6 +43,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_pageCount(0)
     , m_firstLineIndent(0.0)
     , m_underline(false)
+    , m_sceneBreak()
     , m_caretTimer(this)
     , m_blinking(false)
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
@@ -112,6 +113,8 @@ void FormattableTextArea::newDocument(QTextDocument* document)
             m_highlighter->setDocument(m_document);
         } else {
             m_highlighter = new TextHighlighter(m_document);
+            m_highlighter->setSceneBreak(m_sceneBreak);
+            connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextHighlighter::setSceneBreak);
         }
 
         this->updateStyling();
@@ -191,6 +194,19 @@ void FormattableTextArea::applyHeading(int level)
     updateActive();
 }
 
+void FormattableTextArea::insertSceneBreak()
+{
+    if (m_sceneBreak.isEmpty()) {
+        return;
+    }
+
+    m_textCursor.beginEditBlock();
+
+    format::insertSceneBreak(m_textCursor, m_sceneBreak);
+
+    m_textCursor.endEditBlock();
+}
+
 void FormattableTextArea::load(const QUrl &fileUrl)
 {
     if (fileUrl == m_fileUrl)
@@ -214,7 +230,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             const QString fileType = QFileInfo(file).suffix();
 
             if (fileType == "md") {
-                MarkdownParser(doc).parse(text);
+                MarkdownParser(doc, m_sceneBreak).parse(text);
             } else {
                 doc->setPlainText(text);
             }
@@ -249,7 +265,7 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
     bool success = persistence::overwrite(file, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
     {
         if (fileType == "md") {
-            MarkdownParser(m_document).write(stream);
+            MarkdownParser(m_document, m_sceneBreak).write(stream);
         } else if (fileType.contains("htm")) {
             file.write(m_document->toHtml().toUtf8());
         } else {
@@ -292,7 +308,7 @@ void FormattableTextArea::paste()
         int newPosition = m_textCursor.position();
         m_textCursor.setPosition(previousPosition);
         m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
-        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme());
+        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme(), m_sceneBreak);
         m_textCursor.clearSelection();
     } else if (mimeData->hasText()) {
         m_textCursor.insertText(mimeData->text());

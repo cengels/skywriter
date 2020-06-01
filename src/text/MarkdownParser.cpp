@@ -1,9 +1,11 @@
 #include <QTextBlock>
 #include <QDebug>
 #include <QTextDocumentFragment>
+#include <QException>
 
 #include "MarkdownParser.h"
 #include "symbols.h"
+#include "format.h"
 
 namespace {
     QString escape(const QString& string)
@@ -27,8 +29,6 @@ namespace {
 
     void writeBlankLine(QTextStream& stream)
     {
-        stream << symbols::newline;
-        stream << symbols::newline;
         stream << "<br/>";
         stream << symbols::newline;
         stream << symbols::newline;
@@ -133,11 +133,33 @@ const QTextCharFormat MarkdownParser::CHAR_FORMAT_STRIKETHROUGH = []{
     return format;
 }();
 
-MarkdownParser::MarkdownParser(QTextDocument* document) :
+const QTextCharFormat MarkdownParser::CHAR_FORMAT_EMPHASIS_INV = []{
+    QTextCharFormat format;
+    format.setFontItalic(false);
+
+    return format;
+}();
+
+const QTextCharFormat MarkdownParser::CHAR_FORMAT_DOUBLE_EMPHASIS_INV = []{
+    QTextCharFormat format;
+    format.setFontWeight(QFont::Weight::Normal);
+
+    return format;
+}();
+
+const QTextCharFormat MarkdownParser::CHAR_FORMAT_STRIKETHROUGH_INV = []{
+    QTextCharFormat format;
+    format.setFontStrikeOut(false);
+
+    return format;
+}();
+
+MarkdownParser::MarkdownParser(QTextDocument* document, const QString& sceneBreakString) :
     m_document(document),
     m_textCursor(new QTextCursor(document)),
     m_formatStack(),
-    m_flags(None)
+    m_flags(None),
+    m_sceneBreakString(sceneBreakString)
 {
     m_parse_info = {
         0, // abi_version
@@ -152,11 +174,12 @@ MarkdownParser::MarkdownParser(QTextDocument* document) :
     };
 }
 
-MarkdownParser::MarkdownParser(QTextCursor* cursor) :
+MarkdownParser::MarkdownParser(QTextCursor* cursor, const QString& sceneBreakString) :
     m_document(cursor->document()),
     m_textCursor(cursor),
     m_formatStack(),
-    m_flags(None)
+    m_flags(None),
+    m_sceneBreakString(sceneBreakString)
 {
     m_parse_info = {
         0, // abi_version
@@ -252,13 +275,13 @@ int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail)
         return 0;
     }
 
-    // TODO: Assemble format from activeTheme
     if (m_flags & ParserFlags::NoNewBlockNeeded) {
         m_flags &= ~ParserFlags::NoNewBlockNeeded;
-        m_textCursor->setBlockFormat(QTextBlockFormat());
-        m_textCursor->setBlockCharFormat(QTextCharFormat());
+        m_textCursor->setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+        m_textCursor->setBlockCharFormat(ThemeManager::instance()->activeTheme()->charFormat());
     } else {
-        m_textCursor->insertBlock(QTextBlockFormat(), QTextCharFormat());
+        m_textCursor->insertBlock(ThemeManager::instance()->activeTheme()->blockFormat(),
+                                  ThemeManager::instance()->activeTheme()->charFormat());
     }
 
     return 0;
@@ -269,6 +292,10 @@ int MarkdownParser::onLeaveBlock(MD_BLOCKTYPE type, void* detail)
     Q_UNUSED(type);
     Q_UNUSED(detail);
 
+    if (type == MD_BLOCK_P && m_textCursor->block().text() == m_sceneBreakString) {
+        format::insertSceneBreak(*m_textCursor, m_sceneBreakString);
+    }
+
     return 0;
 }
 
@@ -276,18 +303,7 @@ int MarkdownParser::onEnterSpan(MD_SPANTYPE type, void* detail)
 {
     Q_UNUSED(detail);
 
-    switch (type) {
-        case MD_SPAN_EM:
-            startFormat(CHAR_FORMAT_EMPHASIS);
-            break;
-        case MD_SPAN_STRONG:
-            startFormat(CHAR_FORMAT_DOUBLE_EMPHASIS);
-            break;
-        case MD_SPAN_DEL:
-            startFormat(CHAR_FORMAT_STRIKETHROUGH);
-            break;
-        default: break;
-    }
+    toggleFormat(getCharFormat(type));
 
     return 0;
 }
@@ -303,13 +319,7 @@ int MarkdownParser::onLeaveSpan(MD_SPANTYPE type, void* detail)
         case MD_SPAN_EM:
         case MD_SPAN_STRONG:
         case MD_SPAN_DEL:
-            if (m_formatStack.isEmpty()) {
-                // This is not allowed to happen. The stack must at least
-                // contain the current format.
-                return -1;
-            }
-
-            endFormat();
+            toggleFormat(getCharFormat(type));
             break;
         default: break;
     }
@@ -346,15 +356,46 @@ int MarkdownParser::onText(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size)
     return 0;
 }
 
-void MarkdownParser::startFormat(const QTextCharFormat& format)
+void MarkdownParser::toggleFormat(const QTextCharFormat& format)
 {
-    m_formatStack.push(m_textCursor->charFormat());
-    m_textCursor->mergeCharFormat(format);
+    const QTextCharFormat& invertedFormat = inverted(format);
+
+    if (m_formatStack.contains(invertedFormat)) {
+        // Nested format of the same type or just regular ending.
+        // Remove it from the stack and return to regular format.
+        m_formatStack.removeOne(invertedFormat);
+        m_textCursor->mergeCharFormat(invertedFormat);
+    } else {
+        m_formatStack.push(inverted(format));
+        m_textCursor->mergeCharFormat(format);
+    }
 }
 
-void MarkdownParser::endFormat()
+const QTextCharFormat& MarkdownParser::getCharFormat(MD_SPANTYPE type)
 {
-    Q_ASSERT(!m_formatStack.isEmpty());
+    switch (type) {
+        case MD_SPAN_EM:
+            return CHAR_FORMAT_EMPHASIS;
+            break;
+        case MD_SPAN_STRONG:
+            return CHAR_FORMAT_DOUBLE_EMPHASIS;
+            break;
+        case MD_SPAN_DEL:
+            return CHAR_FORMAT_STRIKETHROUGH;
+            break;
+        default: break;
+    }
+}
 
-    m_textCursor->setCharFormat(m_formatStack.pop());
+const QTextCharFormat& MarkdownParser::inverted(const QTextCharFormat& format)
+{
+    Q_ASSERT(format != CHAR_FORMAT_EMPHASIS_INV
+          && format != CHAR_FORMAT_DOUBLE_EMPHASIS_INV
+          && format != CHAR_FORMAT_STRIKETHROUGH_INV);
+
+    if (format == CHAR_FORMAT_EMPHASIS) return CHAR_FORMAT_EMPHASIS_INV;
+    if (format == CHAR_FORMAT_DOUBLE_EMPHASIS) return CHAR_FORMAT_DOUBLE_EMPHASIS_INV;
+    if (format == CHAR_FORMAT_STRIKETHROUGH) return CHAR_FORMAT_STRIKETHROUGH_INV;
+
+    throw QException();
 }

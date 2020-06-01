@@ -12,6 +12,7 @@ namespace symbols {
     constexpr QChar en_dash = 0x2013;
     constexpr QChar em_dash = 0x2014;
     constexpr QChar newline = '\n';
+    constexpr QChar carriage_return = '\r';
     constexpr QChar space = ' ';
     const QString bold_mark = "**";
     const QString bold_mark_alt = "__";

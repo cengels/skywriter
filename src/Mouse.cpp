@@ -7,20 +7,34 @@
 
 #include "Mouse.h"
 
-namespace {
-    bool isLongPress(QMouseEvent& event1, QMouseEvent& event2) {
-        return event1.timestamp() - event2.timestamp()
-                > static_cast<unsigned long>(QGuiApplication::styleHints()->mousePressAndHoldInterval())
-                || event1.x() != event2.x()
-                || event1.y() != event2.y();
-    }
-}
-
 Mouse::Mouse(QObject *parent) : QObject(parent),
     m_globalPosition(),
     m_windowPosition(),
-    m_lastPressMouseEvent(QMouseEvent(QEvent::None, QPointF(), Qt::MouseButton::NoButton, 0, 0))
+    m_lastPressMouseEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
 {
+}
+
+bool Mouse::isLongPress(QMouseEvent* mouseUpEvent, QMouseEvent* lastMouseDownEvent)
+{
+    return lastMouseDownEvent && mouseUpEvent && (qAbs(lastMouseDownEvent->timestamp() - mouseUpEvent->timestamp())
+            > static_cast<unsigned long>(QGuiApplication::styleHints()->mousePressAndHoldInterval())
+            || lastMouseDownEvent->x() != mouseUpEvent->x()
+            || lastMouseDownEvent->y() != mouseUpEvent->y());
+}
+
+bool Mouse::isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent)
+{
+    return lastMouseUpEvent && mouseDownEvent
+            && mouseDownEvent->button() == lastMouseUpEvent->button()
+            && (qAbs(lastMouseUpEvent->timestamp() - mouseDownEvent->timestamp()) <= static_cast<unsigned long>(QGuiApplication::styleHints()->mouseDoubleClickInterval())
+            && qAbs(lastMouseUpEvent->x() - mouseDownEvent->x()) < QGuiApplication::styleHints()->mouseDoubleClickDistance()
+            && qAbs(lastMouseUpEvent->y() - mouseDownEvent->y()) < QGuiApplication::styleHints()->mouseDoubleClickDistance());
+}
+
+bool Mouse::isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent, QMouseEvent* lastMouseDownEvent)
+{
+    return isDoubleClick(lastMouseUpEvent, mouseDownEvent)
+        && isDoubleClick(lastMouseDownEvent, lastMouseUpEvent);
 }
 
 bool Mouse::eventFilter(QObject *obj, QEvent *event)
@@ -36,14 +50,14 @@ bool Mouse::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         m_buttons = mouseEvent->buttons();
-        m_lastPressMouseEvent = *mouseEvent;
+        m_lastPressMouseEvent = QMouseEvent(*mouseEvent);
         emit pressed(static_cast<int>(mouseEvent->button()));
         emit buttonsChanged();
     } else if (event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
         m_buttons = mouseEvent->buttons();
-        bool longPress = isLongPress(*mouseEvent, m_lastPressMouseEvent);
+        bool longPress = isLongPress(mouseEvent, &m_lastPressMouseEvent);
         emit released(static_cast<int>(mouseEvent->button()), longPress);
         emit buttonsChanged();
     }

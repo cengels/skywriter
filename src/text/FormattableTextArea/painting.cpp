@@ -24,6 +24,7 @@ bool FormattableTextArea::event(QEvent* event)
     } else if (event->type() == QEvent::FocusOut) {
         m_blinking = false;
         m_caretTimer.stop();
+        update();
     }
 
     return QQuickItem::event(event);
@@ -111,6 +112,8 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                          selectionStart,
                          selectionEnd);
     }
+
+//    qDebug() << QTime::currentTime().toString(Qt::ISODateWithMs) << "done painting";
 
     if (this->hasFocus() && !m_blinking && !hasSelection) {
         n->setCursor(caretRectangle(), fontColor);

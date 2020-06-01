@@ -237,6 +237,7 @@ const QTextBlockFormat Theme::blockFormat() const
     format.setLineHeight(lineHeight() <= 3.0 ? lineHeight() * 100 : lineHeight(),
                          lineHeight() <= 3.0 ? QTextBlockFormat::ProportionalHeight : QTextBlockFormat::LineDistanceHeight);
     format.setTextIndent(firstLineIndent());
+    format.setHeadingLevel(0);
 
     return format;
 }

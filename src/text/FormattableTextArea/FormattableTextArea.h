@@ -56,6 +56,12 @@ class FormattableTextArea : public QQuickItem
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
 
+        enum class SelectionMode {
+            NoSelection,
+            WordSelection,
+            BlockSelection
+        };
+
         QSGNode* updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
         bool event(QEvent* event) override;
         void keyPressEvent(QKeyEvent* event) override;
@@ -106,6 +112,7 @@ class FormattableTextArea : public QQuickItem
         void toggleBold();
         void toggleItalics();
         void toggleStrikethrough();
+        void applyHeading(int level);
 
         void selectWord();
         void selectParagraph();
@@ -167,6 +174,7 @@ class FormattableTextArea : public QQuickItem
         //! user is actively editing the document instead of just being idle.
         //! This includes ensuring the caret blinking timer is reset.
         void updateActive();
+        void expandSelection();
 
         int m_characterCount;
         int m_wordCount;
@@ -182,6 +190,10 @@ class FormattableTextArea : public QQuickItem
         bool m_underline;
         QTimer m_caretTimer;
         bool m_blinking;
+
+        QMouseEvent m_lastMouseUpEvent;
+        QMouseEvent m_lastMouseDownEvent;
+        SelectionMode m_selectionMode;
 };
 
 #endif // FORMATTABLETEXTAREA_H

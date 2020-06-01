@@ -17,6 +17,10 @@ class Mouse : public QObject
     public:
         explicit Mouse(QObject *parent = nullptr);
 
+        static bool isLongPress(QMouseEvent* mouseUpEvent, QMouseEvent* lastMouseDownEvent);
+        static bool isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent);
+        static bool isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent, QMouseEvent* lastMouseDownEvent);
+
     public Q_SLOTS:
         bool isInside(const QQuickItem* item) const;
         void setCursor(Qt::CursorShape cursorShape);
@@ -37,6 +41,9 @@ class Mouse : public QObject
         QPointF m_globalPosition;
         QPointF m_windowPosition;
         Qt::MouseButtons m_buttons;
+        // This must not be a pointer, because Qt simply reuses the same
+        // QMouseEvent instance for all of its events. As a result,
+        // this would effectively be overwritten by the next event if not copied.
         QMouseEvent m_lastPressMouseEvent;
 
 };

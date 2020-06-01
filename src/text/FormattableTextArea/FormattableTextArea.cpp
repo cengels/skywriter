@@ -45,6 +45,9 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_underline(false)
     , m_caretTimer(this)
     , m_blinking(false)
+    , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
+    , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
+    , m_selectionMode(SelectionMode::NoSelection)
 {
     // Ideally, we would retrieve the system-wide caret blink rate here.
     // But I'm not sure how to do that/if that's even possible out of Qt.
@@ -162,6 +165,24 @@ void FormattableTextArea::toggleStrikethrough()
     QTextCharFormat format;
     format.setFontStrikeOut(!getSelectionFormat().fontStrikeOut());
     mergeFormat(format);
+}
+
+void FormattableTextArea::applyHeading(int level)
+{
+    if (level < 0 || level > 6) {
+        emit ErrorManager::instance()->warning(tr("Only headings between 0 and 6 are permitted."));
+        return;
+    }
+
+    if (level == 0) {
+        const Theme* theme = ThemeManager::instance()->activeTheme();
+        m_textCursor.setBlockFormat(theme->blockFormat());
+        m_textCursor.mergeBlockCharFormat(theme->charFormat());
+    } else {
+        const HeadingFormat& format = ThemeManager::instance()->activeTheme()->headingFormat(level);
+        m_textCursor.setBlockFormat(format.blockFormat());
+        m_textCursor.mergeBlockCharFormat(format.charFormat());
+    }
 }
 
 void FormattableTextArea::load(const QUrl &fileUrl)

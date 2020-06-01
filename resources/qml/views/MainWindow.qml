@@ -386,30 +386,37 @@ ApplicationWindow {
                 Action {
                     text: qsTr("No heading")
                     shortcut: "Ctrl+0"
+                    onTriggered: textArea.applyHeading(0)
                 }
                 Action {
                     text: qsTr("Heading 1")
                     shortcut: "Ctrl+1"
+                    onTriggered: textArea.applyHeading(1)
                 }
                 Action {
                     text: qsTr("Heading 2")
                     shortcut: "Ctrl+2"
+                    onTriggered: textArea.applyHeading(2)
                 }
                 Action {
                     text: qsTr("Heading 3")
                     shortcut: "Ctrl+3"
+                    onTriggered: textArea.applyHeading(3)
                 }
                 Action {
                     text: qsTr("Heading 4")
                     shortcut: "Ctrl+4"
+                    onTriggered: textArea.applyHeading(4)
                 }
                 Action {
                     text: qsTr("Heading 5")
                     shortcut: "Ctrl+5"
+                    onTriggered: textArea.applyHeading(5)
                 }
                 Action {
                     text: qsTr("Heading 6")
                     shortcut: "Ctrl+6"
+                    onTriggered: textArea.applyHeading(6)
                 }
             }
             Controls.Menu {

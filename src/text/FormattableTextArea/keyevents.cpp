@@ -95,8 +95,9 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 
                 if (!text.isEmpty()) {
                     const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
-                    m_textCursor.insertText(text);
-                    moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, text.length() - 1);
+                    const QString replacedText = m_replacer.replace(text, previousCharacter);
+                    m_textCursor.insertText(replacedText);
+                    moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
 
                     if (symbols::isWordSeparator(previousCharacter)) {
                         updateWordCount();

@@ -138,3 +138,23 @@ QRectF FormattableTextArea::caretRectangle() const
 
     return QRectF(x, line.y() + m_textCursor.block().layout()->position().y() + m_overflowArea - m_contentY, 1, line.height());
 }
+
+void FormattableTextArea::setReplacement(const QString& target, const QString& replaceWith)
+{
+    m_replacer.setReplacement(target, replaceWith);
+}
+
+void FormattableTextArea::setReplacement(const QChar& target, const QChar& replaceWith)
+{
+    m_replacer.setReplacement(target, replaceWith);
+}
+
+void FormattableTextArea::setSmartReplacement(const QString& target, const QString& replaceWithStart, const QString& replaceWithEnd)
+{
+    m_replacer.setSmartReplacement(target, replaceWithStart, replaceWithEnd);
+}
+
+void FormattableTextArea::setSmartReplacement(const QChar& target, const QChar& replaceWithStart, const QChar& replaceWithEnd)
+{
+    m_replacer.setSmartReplacement(target, replaceWithStart, replaceWithEnd);
+}

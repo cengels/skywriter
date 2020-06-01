@@ -31,6 +31,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
     , m_document(nullptr)
     , m_highlighter(nullptr)
+    , m_replacer(StringReplacer())
     , m_textCursor(QTextCursor())
     , m_contentY(0.0)
     , m_overflowArea(0.0)
@@ -205,6 +206,11 @@ void FormattableTextArea::insertSceneBreak()
     format::insertSceneBreak(m_textCursor, m_sceneBreak);
 
     m_textCursor.endEditBlock();
+}
+
+void FormattableTextArea::clearReplacements()
+{
+    m_replacer.clear();
 }
 
 void FormattableTextArea::load(const QUrl &fileUrl)

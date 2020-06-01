@@ -658,7 +658,7 @@ ApplicationWindow {
 
                     // User-configurable properties
                     firstLineIndent: ThemeManager.activeTheme.firstLineIndent
-                    sceneBreak: "# # #"
+                    sceneBreak: Settings.Document.sceneBreak
 
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
@@ -667,7 +667,15 @@ ApplicationWindow {
                             verticalScrollbar.centerOnCaret();
                         }
 
-                         Settings.Document.caretPosition = Qt.binding(() => textArea.caretPosition);
+                        Settings.Document.caretPosition = Qt.binding(() => textArea.caretPosition);
+
+                        for (const replacement of Settings.Document.autoReplacements) {
+                            if (replacement.length === 2) {
+                                setReplacement(replacement[0], replacement[1]);
+                            } else {
+                                setSmartReplacement(replacement[0], replacement[1], replacement[2]);
+                            }
+                        }
 
                         forceActiveFocus();
                     }

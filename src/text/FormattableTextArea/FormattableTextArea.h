@@ -14,6 +14,7 @@
 #include "../TextHighlighter.h"
 #include "../TextIterator.h"
 #include "../MarkdownParser.h"
+#include "../StringReplacer.h"
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -118,6 +119,12 @@ class FormattableTextArea : public QQuickItem
         //! or the next line otherwise.
         void insertSceneBreak();
 
+        void clearReplacements();
+        void setReplacement(const QString& target, const QString& replaceWith);
+        void setReplacement(const QChar& target, const QChar& replaceWith);
+        void setSmartReplacement(const QString& target, const QString& replaceWithStart, const QString& replaceWithEnd);
+        void setSmartReplacement(const QChar& target, const QChar& replaceWithStart, const QChar& replaceWithEnd);
+
         void selectWord();
         void selectParagraph();
 
@@ -151,6 +158,7 @@ class FormattableTextArea : public QQuickItem
         void firstLineIndentChanged();
         void underlineChanged();
         void sceneBreakChanged(const QString& sceneBreak);
+        void smartQuotesChanged();
 
     private:
         void updateStyling();
@@ -162,6 +170,7 @@ class FormattableTextArea : public QQuickItem
         void newDocument(QTextDocument* document = new QTextDocument());
         QTextDocument *m_document;
         TextHighlighter* m_highlighter;
+        StringReplacer m_replacer;
 
         QTextCursor m_textCursor;
         double m_contentY;

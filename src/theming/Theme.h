@@ -75,6 +75,8 @@ struct Theme : public QObject
         double paragraphSpacing() const;
 
         const HeadingFormat& headingFormat(int headingLevel) const;
+        const QTextCharFormat charFormat() const;
+        const QTextBlockFormat blockFormat() const;
 
         void read(const QJsonObject& json);
         void write(QJsonArray& json) const;

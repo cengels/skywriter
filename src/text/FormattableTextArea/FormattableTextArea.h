@@ -67,6 +67,7 @@ class FormattableTextArea : public QQuickItem
         int caretPosition() const;
 
         void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, int by = 1);
+        void clearUndoStack();
 
         bool modified() const;
         QDateTime lastModified() const;

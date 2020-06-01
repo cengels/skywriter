@@ -6,6 +6,14 @@
 #include "symbols.h"
 
 namespace {
+    void writeBlankLine(QTextStream& stream) {
+        stream << symbols::newline;
+        stream << symbols::newline;
+        stream << "<br/>";
+        stream << symbols::newline;
+        stream << symbols::newline;
+    }
+
     void writeFragment(QTextStream& stream, const QTextFragment fragment, QStack<QString>& marks)
     {
         const QTextCharFormat& format = fragment.charFormat();
@@ -52,8 +60,7 @@ namespace {
         const QTextBlockFormat& format = block.blockFormat();
 
         if (block.text().isEmpty()) {
-            stream << symbols::newline;
-            stream << symbols::newline;
+            writeBlankLine(stream);
 
             return;
         }

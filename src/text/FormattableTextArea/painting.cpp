@@ -13,6 +13,7 @@
 
 #include "FormattableTextArea.h"
 #include "../../theming/ThemeManager.h"
+#include "../format.h"
 
 bool FormattableTextArea::event(QEvent* event)
 {
@@ -32,6 +33,7 @@ void FormattableTextArea::updateStyling()
     bool wasModified = this->modified();
 
     const Theme* theme = ThemeManager::instance()->activeTheme();
+
     m_document->setDefaultFont(theme->font());
     QTextOption textOption = m_document->defaultTextOption();
     textOption.setWrapMode(QTextOption::WordWrap);
@@ -39,19 +41,9 @@ void FormattableTextArea::updateStyling()
     m_document->setDefaultTextOption(textOption);
     m_document->setTextWidth(this->width());
 
-    QTextBlockFormat format;
-
-    // Values above 3.0 are considered absolute line heights, to be added onto
-    // the base line height.
-
-    format.setLineHeight(theme->lineHeight() <= 3.0 ? theme->lineHeight() * 100 : theme->lineHeight(),
-                         theme->lineHeight() <= 3.0 ? QTextBlockFormat::ProportionalHeight : QTextBlockFormat::LineDistanceHeight);
-    format.setTextIndent(theme->firstLineIndent());
-    format.setBottomMargin(theme->paragraphSpacing());
-
     QTextCursor cursor(m_document);
     cursor.select(QTextCursor::Document);
-    cursor.mergeBlockFormat(format);
+    format::normalize(cursor, theme);
 
     if (!wasModified) {
         this->setModified(false);

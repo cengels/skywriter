@@ -71,3 +71,38 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
 
     return mergedFormat;
 }
+
+void format::normalize(QTextCursor& textCursor, const Theme* theme)
+{
+    if (!textCursor.hasSelection())
+        return;
+
+    int endingBlock = textCursor.document()->findBlock(textCursor.selectionEnd()).blockNumber();
+
+    QTextCursor iterationCursor(textCursor.document());
+    iterationCursor.setPosition(textCursor.selectionStart());
+
+    iterationCursor.joinPreviousEditBlock();
+
+    while (iterationCursor.blockNumber() <= endingBlock) {
+        int blockNumber = iterationCursor.blockNumber();
+        if (iterationCursor.block().blockFormat().headingLevel()) {
+            const HeadingFormat& headingFormat = theme->headingFormat(iterationCursor.block().blockFormat().headingLevel());
+            iterationCursor.setBlockFormat(headingFormat.blockFormat());
+            iterationCursor.select(QTextCursor::BlockUnderCursor);
+            iterationCursor.mergeCharFormat(headingFormat.charFormat());
+        } else {
+            iterationCursor.setBlockFormat(theme->blockFormat());
+            iterationCursor.select(QTextCursor::BlockUnderCursor);
+            iterationCursor.mergeCharFormat(theme->charFormat());
+        }
+        iterationCursor.movePosition(QTextCursor::NextBlock);
+
+        if (blockNumber == iterationCursor.blockNumber()) {
+            // Reached the end, abort
+            break;
+        }
+    }
+
+    iterationCursor.endEditBlock();
+}

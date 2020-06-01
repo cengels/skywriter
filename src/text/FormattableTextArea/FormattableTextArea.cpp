@@ -112,6 +112,8 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         m_textCursor = QTextCursor(m_document);
     }
 
+    clearUndoStack();
+
     emit documentChanged();
     update();
 }
@@ -239,6 +241,7 @@ void FormattableTextArea::copy()
     if (m_textCursor.hasSelection()) {
         QClipboard* clipboard = QGuiApplication::clipboard();
         QMimeData* mimeData = new QMimeData();
+        mimeData->setText(m_textCursor.selection().toPlainText());
         mimeData->setHtml(m_textCursor.selection().toHtml("utf-8"));
         clipboard->setMimeData(mimeData);
     }
@@ -249,8 +252,13 @@ void FormattableTextArea::paste()
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasHtml()) {
-        // TODO: Remove font information from HTML before pasting
+        int previousPosition = m_textCursor.hasSelection() ? m_textCursor.selectionStart() : m_textCursor.position();
         m_textCursor.insertHtml(mimeData->html());
+        int newPosition = m_textCursor.position();
+        m_textCursor.setPosition(previousPosition);
+        m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
+        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme());
+        m_textCursor.clearSelection();
     } else if (mimeData->hasText()) {
         m_textCursor.insertText(mimeData->text());
     }
@@ -286,6 +294,12 @@ void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor:
     m_textCursor.movePosition(op, mode, by);
     update();
     emit caretPositionChanged();
+}
+
+void FormattableTextArea::clearUndoStack()
+{
+    m_document->setUndoRedoEnabled(false);
+    m_document->setUndoRedoEnabled(true);
 }
 
 void FormattableTextArea::mergeFormat(const QTextCharFormat &format)

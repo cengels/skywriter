@@ -211,6 +211,36 @@ const HeadingFormat& Theme::headingFormat(int headingLevel) const
     }
 }
 
+const QTextCharFormat Theme::charFormat() const
+{
+    QTextCharFormat format;
+
+    format.setFontFamily(fontFamily());
+    format.font().setPointSizeF(fontSize());
+    format.setForeground(fontColor());
+    format.setFontUnderline(false);
+    format.setAnchor(false);
+
+    return format;
+}
+
+const QTextBlockFormat Theme::blockFormat() const
+{
+    QTextBlockFormat format;
+
+    format.setAlignment(static_cast<Qt::Alignment>(textAlignment()));
+    format.setBottomMargin(paragraphSpacing());
+
+    // Values above 3.0 are considered absolute line heights, to be added onto
+    // the base line height.
+
+    format.setLineHeight(lineHeight() <= 3.0 ? lineHeight() * 100 : lineHeight(),
+                         lineHeight() <= 3.0 ? QTextBlockFormat::ProportionalHeight : QTextBlockFormat::LineDistanceHeight);
+    format.setTextIndent(firstLineIndent());
+
+    return format;
+}
+
 void Theme::read(const QJsonObject& json)
 {
     m_name = json["name"].toString();

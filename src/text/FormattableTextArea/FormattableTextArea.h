@@ -27,7 +27,7 @@ class FormattableTextArea : public QQuickItem
     //! The scroll position of the FormattableTextArea in absolute y pixels.
     Q_PROPERTY(double contentY WRITE setContentY MEMBER m_contentY NOTIFY contentYChanged)
 
-    Q_PROPERTY(int caretPosition READ caretPosition NOTIFY caretPositionChanged)
+    Q_PROPERTY(int caretPosition READ caretPosition WRITE setCaretPosition NOTIFY caretPositionChanged)
 
     Q_PROPERTY(QString fileName READ fileName NOTIFY fileUrlChanged)
     Q_PROPERTY(QString fileType READ fileType NOTIFY fileUrlChanged)
@@ -66,6 +66,7 @@ class FormattableTextArea : public QQuickItem
         void setContentY(double contentY);
 
         int caretPosition() const;
+        void setCaretPosition(int caretPosition);
 
         void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, int by = 1);
         void clearUndoStack();
@@ -108,6 +109,8 @@ class FormattableTextArea : public QQuickItem
 
         void selectWord();
         void selectParagraph();
+
+        QRectF caretRectangle() const;
 
     Q_SIGNALS:
         void documentChanged();

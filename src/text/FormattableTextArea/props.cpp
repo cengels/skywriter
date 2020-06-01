@@ -6,6 +6,7 @@
 
 #include <QQmlFile>
 #include <QFileInfo>
+#include <QAbstractTextDocumentLayout>
 
 #include "FormattableTextArea.h"
 #include "../../numbers.h"
@@ -21,6 +22,17 @@ void FormattableTextArea::setContentY(double contentY)
 int FormattableTextArea::caretPosition() const
 {
     return m_textCursor.position();
+}
+
+void FormattableTextArea::setCaretPosition(int caretPosition)
+{
+    int previousPosition = this->caretPosition();
+
+    m_textCursor.setPosition(caretPosition);
+
+    if (this->caretPosition() != previousPosition) {
+        updateActive();
+    }
 }
 
 QString FormattableTextArea::fileName() const
@@ -117,4 +129,12 @@ void FormattableTextArea::selectParagraph()
     m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
     emit caretPositionChanged();
     update();
+}
+
+QRectF FormattableTextArea::caretRectangle() const
+{
+    const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
+    const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
+
+    return QRectF(x, line.y() + m_textCursor.block().layout()->position().y() + m_overflowArea - m_contentY, 1, line.height());
 }

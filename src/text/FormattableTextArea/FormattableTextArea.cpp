@@ -46,6 +46,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_caretTimer(this)
     , m_blinking(false)
 {
+    // Ideally, we would retrieve the system-wide caret blink rate here.
+    // But I'm not sure how to do that/if that's even possible out of Qt.
     m_caretTimer.setInterval(530);
     m_caretTimer.callOnTimeout(this, [&]() {
         m_blinking = !m_blinking;

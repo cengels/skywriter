@@ -506,24 +506,23 @@ ApplicationWindow {
             }
 
             function scrollToCaret() {
-//                const caretPosition = textArea.cursorRectangle.y;
-//                // parent.y is always negative
-//                const visibleStartY = -textArea.parent.y;
-//                const visibleEndY = -textArea.parent.y + scrollView.height;
+                const caretPosition = textArea.caretRectangle().y + textArea.contentY;
+                const visibleStartY = textArea.contentY;
+                const visibleEndY = textArea.contentY + scrollView.height;
 
-//                if (caretPosition < visibleStartY) {
-//                    verticalScrollbar.position = caretPosition / textArea.parent.height;
-//                } else if (caretPosition > visibleEndY) {
-//                    verticalScrollbar.position = (caretPosition + textArea.cursorRectangle.height - visibleEndY + visibleStartY) / textArea.parent.height;
-//                }
+                if (caretPosition < visibleStartY) {
+                    verticalScrollbar.position = caretPosition / textArea.contentHeight;
+                } else if (caretPosition > visibleEndY) {
+                    verticalScrollbar.position = (caretPosition + textArea.caretRectangle().height - visibleEndY + visibleStartY) / textArea.contentHeight;
+                }
             }
 
             function centerOnCaret() {
-//                const verticalCaretCenter = textArea.cursorRectangle.y + textArea.cursorRectangle.height / 2;
-//                const relativeCaretPosition = verticalCaretCenter / textArea.parent.height;
-//                const verticalScrollViewCenter = -textArea.parent.y + scrollView.height / 2;
-//                const relativeScrollViewCenter = verticalScrollViewCenter / textArea.parent.height;
-//                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
+                const verticalCaretCenter = textArea.caretRectangle().y + textArea.contentY + textArea.caretRectangle().height / 2;
+                const relativeCaretPosition = verticalCaretCenter / textArea.contentHeight;
+                const verticalScrollViewCenter = textArea.contentY + scrollView.height / 2;
+                const relativeScrollViewCenter = verticalScrollViewCenter / textArea.contentHeight;
+                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
             }
 
             Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
@@ -640,11 +639,11 @@ ApplicationWindow {
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
                             loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
-                            // textArea.cursorPosition = Settings.Document.caretPosition;
+                            textArea.caretPosition = Settings.Document.caretPosition;
                             verticalScrollbar.centerOnCaret();
                         }
 
-                        // Settings.Document.caretPosition = Qt.binding(() => textArea.cursorPosition);
+                         Settings.Document.caretPosition = Qt.binding(() => textArea.caretPosition);
 
                         forceActiveFocus();
                     }

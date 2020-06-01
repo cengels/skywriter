@@ -6,7 +6,27 @@
 #include "symbols.h"
 
 namespace {
-    void writeBlankLine(QTextStream& stream) {
+    QString escape(const QString& string)
+    {
+        QString newString;
+
+        for (const QChar& character : string) {
+            if (character == symbols::italic_mark
+             || character == symbols::italic_mark_alt
+             || character == symbols::strikethrough_mark
+             || character == symbols::escape_mark)
+            {
+                newString += symbols::escape_mark;
+            }
+
+            newString += character;
+        }
+
+        return newString;
+    }
+
+    void writeBlankLine(QTextStream& stream)
+    {
         stream << symbols::newline;
         stream << symbols::newline;
         stream << "<br/>";
@@ -14,7 +34,7 @@ namespace {
         stream << symbols::newline;
     }
 
-    void writeFragment(QTextStream& stream, const QTextFragment fragment, QStack<QString>& marks)
+    void writeFragment(QTextStream& stream, const QTextFragment fragment, QStack<QString>& marks, bool firstFragment)
     {
         const QTextCharFormat& format = fragment.charFormat();
 
@@ -52,7 +72,11 @@ namespace {
             marks.push(symbols::strikethrough_mark);
         }
 
-        stream << fragment.text();
+        if (firstFragment && fragment.text().startsWith('#')) {
+            stream << '\\';
+        }
+
+        stream << escape(fragment.text());
     }
 
     void writeBlock(QTextStream& stream, const QTextBlock& block)
@@ -71,8 +95,10 @@ namespace {
 
         QStack<QString> marks;
 
+        bool firstFragment = true;
         for (QTextBlock::Iterator iterator = block.begin(); !iterator.atEnd(); iterator++) {
-            writeFragment(stream, iterator.fragment(), marks);
+            writeFragment(stream, iterator.fragment(), marks, firstFragment);
+            firstFragment = false;
         }
 
         while (!marks.isEmpty()) {

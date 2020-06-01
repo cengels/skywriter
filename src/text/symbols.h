@@ -14,8 +14,11 @@ namespace symbols {
     constexpr QChar newline = '\n';
     constexpr QChar space = ' ';
     const QString bold_mark = "**";
+    const QString bold_mark_alt = "__";
     constexpr QChar italic_mark = '*';
+    constexpr QChar italic_mark_alt = '_';
     constexpr QChar strikethrough_mark = '~';
+    constexpr QChar escape_mark = '\\';
     //! Identifies all possible tokens that force the parser to consider
     //! the next token part of a new word.
     //!

@@ -367,6 +367,18 @@ ApplicationWindow {
             }
 
             Controls.Menu {
+                id: formattingMenu
+                function getHeadingName(level) {
+                    const base = qsTr("Heading") + " " + level;
+                    const name = ThemeManager.activeTheme.headingName(level);
+
+                    if (name === '') {
+                        return base;
+                    }
+
+                    return base + ": " + name;
+                }
+
                 title: qsTr("Formatting")
                 Action {
                     text: qsTr("Bold")
@@ -389,32 +401,32 @@ ApplicationWindow {
                     onTriggered: textArea.applyHeading(0)
                 }
                 Action {
-                    text: qsTr("Heading 1")
+                    text: formattingMenu.getHeadingName(1)
                     shortcut: "Ctrl+1"
                     onTriggered: textArea.applyHeading(1)
                 }
                 Action {
-                    text: qsTr("Heading 2")
+                    text: formattingMenu.getHeadingName(2)
                     shortcut: "Ctrl+2"
                     onTriggered: textArea.applyHeading(2)
                 }
                 Action {
-                    text: qsTr("Heading 3")
+                    text: formattingMenu.getHeadingName(3)
                     shortcut: "Ctrl+3"
                     onTriggered: textArea.applyHeading(3)
                 }
                 Action {
-                    text: qsTr("Heading 4")
+                    text: formattingMenu.getHeadingName(4)
                     shortcut: "Ctrl+4"
                     onTriggered: textArea.applyHeading(4)
                 }
                 Action {
-                    text: qsTr("Heading 5")
+                    text: formattingMenu.getHeadingName(5)
                     shortcut: "Ctrl+5"
                     onTriggered: textArea.applyHeading(5)
                 }
                 Action {
-                    text: qsTr("Heading 6")
+                    text: formattingMenu.getHeadingName(6)
                     shortcut: "Ctrl+6"
                     onTriggered: textArea.applyHeading(6)
                 }

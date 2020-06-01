@@ -5,7 +5,8 @@
 
 HeadingFormat::HeadingFormat(int headingLevel) :
     m_blockFormat(),
-    m_charFormat()
+    m_charFormat(),
+    m_name("")
 {
     m_blockFormat.setHeadingLevel(headingLevel);
     setAlignment(defaults::headingAlignment);
@@ -39,6 +40,16 @@ const QTextCharFormat& HeadingFormat::charFormat() const
 int HeadingFormat::headingLevel() const
 {
     return m_blockFormat.headingLevel();
+}
+
+QString HeadingFormat::name() const
+{
+    return m_name;
+}
+
+void HeadingFormat::setName(const QString& name)
+{
+    m_name = name;
 }
 
 Qt::Alignment HeadingFormat::alignment() const
@@ -154,6 +165,10 @@ void HeadingFormat::read(const QJsonObject& json)
 {
     Q_ASSERT(json["level"].toInt() == headingLevel());
 
+    if (json.contains("name")) {
+        setName(json["name"].toString());
+    }
+
     if (json.contains("alignment")) {
         setAlignment(Qt::Alignment(QMetaEnum::fromType<Qt::Alignment>().keyToValue(json["alignment"].toString().toUtf8())));
     }
@@ -203,6 +218,10 @@ void HeadingFormat::write(QJsonArray& json) const
 {
     QJsonObject object;
 
+    if (!name().isEmpty()) {
+        object["name"] = name();
+    }
+
     if (alignment() != defaults::headingAlignment) {
         object["alignment"] = QMetaEnum::fromType<Qt::Alignment>().valueToKey(alignment());
     }
@@ -246,13 +265,15 @@ void HeadingFormat::write(QJsonArray& json) const
 bool HeadingFormat::operator==(const HeadingFormat& other) const
 {
     return headingLevel() == other.headingLevel()
+        && name() == other.name()
         && alignment() == other.alignment()
         && indent() == other.indent()
         && spaceBefore() == other.spaceBefore()
         && spaceAfter() == other.spaceAfter()
         && fontSize() == other.fontSize()
         && capitalization() == other.capitalization()
-        && letterSpacing() == other.letterSpacing();
+        && letterSpacing() == other.letterSpacing()
+        && textDecorations() == other.textDecorations();
 
 }
 

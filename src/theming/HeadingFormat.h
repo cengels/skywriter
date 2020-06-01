@@ -24,6 +24,9 @@ class HeadingFormat
 
         int headingLevel() const;
 
+        QString name() const;
+        void setName(const QString& name);
+
         Qt::Alignment alignment() const;
         void setAlignment(Qt::Alignment alignment);
 
@@ -63,6 +66,7 @@ class HeadingFormat
     private:
         QTextBlockFormat m_blockFormat;
         QTextCharFormat m_charFormat;
+        QString m_name;
 };
 
 #endif // HEADINGFORMAT_H

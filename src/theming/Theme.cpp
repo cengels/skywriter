@@ -361,3 +361,8 @@ void Theme::write(QJsonArray& json) const
     }
 }
 
+const QString Theme::headingName(int headingLevel) const
+{
+    return headingFormat(headingLevel).name();
+}
+

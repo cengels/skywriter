@@ -74,12 +74,15 @@ struct Theme : public QObject
         double lineHeight() const;
         double paragraphSpacing() const;
 
-        const HeadingFormat& headingFormat(int headingLevel) const;
         const QTextCharFormat charFormat() const;
         const QTextBlockFormat blockFormat() const;
+        const HeadingFormat& headingFormat(int headingLevel) const;
 
         void read(const QJsonObject& json);
         void write(QJsonArray& json) const;
+
+    public Q_SLOTS:
+        const QString headingName(int headingLevel) const;
 
     Q_SIGNALS:
         void nameChanged();

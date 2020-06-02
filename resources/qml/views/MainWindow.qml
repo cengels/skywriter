@@ -63,10 +63,15 @@ ApplicationWindow {
         if (textArea.fileUrl != null
                 && textArea.fileUrl !== ''
                 && textArea.fileName !== 'untitled') {
-            textArea.saveAs(textArea.fileUrl);
+            saveDocument(textArea.fileUrl);
         } else {
             saveDialog.open();
         }
+    }
+
+    function saveDocument(url) {
+        textArea.saveAs(url);
+        ProgressTracker.save();
     }
 
     function loadDocument(url) {
@@ -120,12 +125,6 @@ ApplicationWindow {
 
         // safety call in case the active theme was renamed
         Settings.Application.theme = ThemeManager.activeTheme.name;
-
-        // Ensures that, if the user chose to quit without saving, their
-        // unsaved progress is not saved. If they *did* save their progress,
-        // (progressAtLastSave - progressToday) will be 0.
-        ProgressTracker.addProgress(textArea.progressAtLastSave - ProgressTracker.progressToday);
-        ProgressTracker.save();
     }
 
     Component.onCompleted: {
@@ -135,7 +134,6 @@ ApplicationWindow {
         }
 
         ProgressTracker.maximumIdleMinutes = Qt.binding(() => Settings.Application.maximumProgressIdleMinutes);
-        ProgressTracker.autosaveMinutes = Qt.binding(() => Settings.Application.progressAutosaveMinutes);
         ProgressTracker.dailyReset = Qt.binding(() => Settings.Application.dailyReset);
         ProgressTracker.load();
     }
@@ -179,7 +177,7 @@ ApplicationWindow {
                 return;
             }
 
-            textArea.saveAs(saveDialog.fileUrl);
+            saveDocument(saveDialog.fileUrl);
 
             if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
                 ProgressTracker.changeActiveFile(saveDialog.fileUrl);
@@ -237,7 +235,6 @@ ApplicationWindow {
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             }
         ]
-
 
         onAccepted: {
             save();

@@ -38,7 +38,6 @@ ProgressTracker::ProgressTracker(QObject *parent)
       m_items_to_save()
     , m_activeProgressItem(nullptr)
     , m_maximumIdleMinutes(0)
-    , m_autosaveMinutes(0)
     , m_dailyReset()
     , m_fileUrl()
     , m_hasRunningTimer(false)
@@ -64,17 +63,6 @@ void ProgressTracker::setMaximumIdleMinutes(const int minutes)
 {
     this->m_maximumIdleMinutes = minutes;
     emit maximumIdleMinutesChanged();
-}
-
-int ProgressTracker::autosaveMinutes() const
-{
-    return this->m_autosaveMinutes;
-}
-
-void ProgressTracker::setAutosaveMinutes(const int minutes)
-{
-    this->m_autosaveMinutes = minutes;
-    emit autosaveMinutesChanged();
 }
 
 QTime ProgressTracker::dailyReset() const {
@@ -129,22 +117,6 @@ void ProgressTracker::addProgress(const int words)
 
     this->m_progressToday += words;
     emit progressTodayChanged();
-
-    if (!m_hasRunningTimer) {
-        QTimer::singleShot(m_autosaveMinutes * 60000, this, SLOT(autosave()));
-        m_hasRunningTimer = true;
-    }
-}
-
-void ProgressTracker::autosave() {
-    if (!m_hasRunningTimer) {
-        // Consider the autosave canceled and abort the operation.
-        return;
-    }
-
-    this->save();
-
-    m_hasRunningTimer = false;
 }
 
 void ProgressTracker::changeActiveFile(const QUrl& fileUrl)

@@ -28,7 +28,6 @@ class ProgressTracker : public QObject {
     Q_PROPERTY(const QList<ProgressItem*> items READ items NOTIFY itemsChanged);
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged);
     Q_PROPERTY(int maximumIdleMinutes READ maximumIdleMinutes WRITE setMaximumIdleMinutes NOTIFY maximumIdleMinutesChanged);
-    Q_PROPERTY(int autosaveMinutes READ autosaveMinutes WRITE setAutosaveMinutes NOTIFY autosaveMinutesChanged);
     Q_PROPERTY(QTime dailyReset READ dailyReset WRITE setDailyReset NOTIFY dailyResetChanged);
 
     public:
@@ -39,9 +38,6 @@ class ProgressTracker : public QObject {
 
         int maximumIdleMinutes() const;
         void setMaximumIdleMinutes(const int minutes);
-
-        int autosaveMinutes() const;
-        void setAutosaveMinutes(const int minutes);
 
         QTime dailyReset() const;
         void setDailyReset(const QTime& time);
@@ -71,7 +67,6 @@ class ProgressTracker : public QObject {
         void progressTodayChanged();
         void itemsChanged();
         void maximumIdleMinutesChanged();
-        void autosaveMinutesChanged();
         void dailyResetChanged();
         void fileUrlChanged();
         void activeFileChanged();
@@ -84,13 +79,9 @@ class ProgressTracker : public QObject {
         QList<ProgressItem*> m_items_to_save;
         ProgressItem* m_activeProgressItem;
         int m_maximumIdleMinutes;
-        int m_autosaveMinutes;
         QTime m_dailyReset;
         QUrl m_fileUrl;
         bool m_hasRunningTimer;
-
-    private Q_SLOTS:
-        void autosave();
 };
 
 #endif // PROGRESSTRACKER_H

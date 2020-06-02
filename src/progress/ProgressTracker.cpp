@@ -40,7 +40,6 @@ ProgressTracker::ProgressTracker(QObject *parent)
     , m_maximumIdleMinutes(0)
     , m_dailyReset()
     , m_fileUrl()
-    , m_hasRunningTimer(false)
 {
 }
 
@@ -239,8 +238,9 @@ void ProgressTracker::save()
         const std::function<bool(QTextStream&)> boundFunction = std::bind(&ProgressTracker::write, this, std::placeholders::_1);
         if (persistence::overwrite(inputFile, boundFunction)) {
             m_items_to_save.clear();
-
-            m_hasRunningTimer = false;
+            // activeProgressItem must be cleared, else it will never be
+            // readded to m_items_to_save
+            m_activeProgressItem = nullptr;
         } else {
             emit ErrorManager::instance()->error(tr("Failed to write progress file."));
         }

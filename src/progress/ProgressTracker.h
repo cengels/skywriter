@@ -81,7 +81,6 @@ class ProgressTracker : public QObject {
         int m_maximumIdleMinutes;
         QTime m_dailyReset;
         QUrl m_fileUrl;
-        bool m_hasRunningTimer;
 };
 
 #endif // PROGRESSTRACKER_H

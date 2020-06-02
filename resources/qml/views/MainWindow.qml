@@ -704,7 +704,7 @@ ApplicationWindow {
 
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
-                            loadDocument(Qt.resolvedUrl(Settings.Document.lastFile));
+                            loadDocument(fromLocalFileString(Settings.Document.lastFile));
                             textArea.caretPosition = Settings.Document.caretPosition;
                             verticalScrollbar.centerOnCaret();
                         }
@@ -723,7 +723,7 @@ ApplicationWindow {
                     }
 
                     onFileUrlChanged: {
-                        Settings.Document.lastFile = textArea.fileUrl.toString();
+                        Settings.Document.lastFile = toLocalFileString(textArea.fileUrl)
                     }
 
                     property int oldWordCount;

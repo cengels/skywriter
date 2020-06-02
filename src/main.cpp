@@ -15,6 +15,7 @@
 #include "theming/ThemeManager.h"
 #include "Mouse.h"
 #include "ErrorManager.h"
+#include "QmlHelper.h"
 
 namespace {
     template <typename T>
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QEvent*>("QEvent*");
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextObject(new QmlHelper(&app));
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
     engine.addImportPath(":/");
     engine.load(":/qml/views/MainWindow.qml");

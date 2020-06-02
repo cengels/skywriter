@@ -67,8 +67,6 @@ void ProgressItem::setWords(int words)
 }
 
 QString ProgressItem::toCsv() const {
-    Q_ASSERT(m_fileUrl.toLocalFile().startsWith("E://"));
-
     return QStringLiteral("%1,%2,%3,%4")
             .arg(QQmlFile::urlToLocalFileOrQrc(m_fileUrl))
             .arg(m_start.toString(Qt::DateFormat::ISODate))

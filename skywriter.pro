@@ -29,6 +29,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 SOURCES += \
         src/ErrorManager.cpp \
         src/Mouse.cpp \
+        src/QmlHelper.cpp \
         src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
@@ -74,6 +75,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     src/ErrorManager.h \
     src/Mouse.h \
+    src/QmlHelper.h \
     src/numbers.h \
     src/persistence.h \
     src/progress/ProgressItem.h \

@@ -149,6 +149,8 @@ void ProgressTracker::autosave() {
 
 void ProgressTracker::changeActiveFile(const QUrl& fileUrl)
 {
+    this->save();
+
     this->m_activeProgressItem = nullptr;
     this->m_fileUrl = fileUrl;
 

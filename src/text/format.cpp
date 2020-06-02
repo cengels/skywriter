@@ -41,6 +41,10 @@ namespace {
 
 const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
 {
+    if (!textCursor.hasSelection()) {
+        return textCursor.charFormat();
+    }
+
     const int start = textCursor.selectionStart();
     const int end = textCursor.selectionEnd();
     const QTextBlock startBlock = textCursor.document()->findBlock(start);
@@ -67,6 +71,10 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
         if (startReached) {
             mergeCharFormat(mergedFormat, iterator.fragment().charFormat());
         }
+    }
+
+    if (!startReached) {
+        mergeCharFormat(mergedFormat, startBlock.textFormats().last().format);
     }
 
     if (!sameBlock) {

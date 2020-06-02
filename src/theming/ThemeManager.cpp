@@ -13,7 +13,7 @@ namespace {
     QString progressPath()
     {
         if (m_progressPath.isNull()) {
-            m_progressPath = persistence::documentsPath() + "/themes2.json";
+            m_progressPath = persistence::documentsPath() + "/themes.json";
         }
 
         return m_progressPath;

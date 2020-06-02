@@ -11,7 +11,7 @@
 
 namespace {
     QString m_progressPath = QString();
-    const QString progressFileName = "/progress2.csv";
+    const QString progressFileName = "/progress.csv";
     QString progressPath()
     {
         if (m_progressPath.isNull()) {

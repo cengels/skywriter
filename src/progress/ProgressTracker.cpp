@@ -157,9 +157,11 @@ void ProgressTracker::changeActiveFile(const QUrl& fileUrl)
 
 void ProgressTracker::renameActiveFile(const QUrl& fileUrl)
 {
-    this->m_activeProgressItem->setFileUrl(fileUrl);
+    if (m_activeProgressItem)
+        m_activeProgressItem->setFileUrl(fileUrl);
+
     QString previousUrl = m_fileUrl.toLocalFile();
-    this->m_fileUrl = fileUrl;
+    m_fileUrl = fileUrl;
 
     QFile inputFile(progressPath());
 

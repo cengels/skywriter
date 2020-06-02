@@ -247,8 +247,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
             emit loaded();
         }
 
-        m_fileUrl = fileUrl;
-        emit fileUrlChanged();
+        setFileUrl(fileUrl);
         emit lastModifiedChanged();
     }
 
@@ -263,7 +262,7 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
     if (!m_document)
         return;
 
-    const QString filePath = fileUrl.toLocalFile();
+    const QString filePath = QQmlFile::urlToLocalFileOrQrc(fileUrl);
     const QFileInfo fileInfo = QFileInfo(filePath);
     const QString fileType = fileInfo.suffix();
 
@@ -292,6 +291,23 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         if (fileUrl != m_fileUrl)
             setFileUrl(fileUrl);
     }
+}
+
+bool FormattableTextArea::rename(const QUrl& newName)
+{
+    if (!fileExists()) {
+        return false;
+    }
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(m_fileUrl));
+
+    if (file.exists() && file.rename(QQmlFile::urlToLocalFileOrQrc(newName))) {
+        setFileUrl(newName);
+
+        return true;
+    }
+
+    return false;
 }
 
 void FormattableTextArea::copy()

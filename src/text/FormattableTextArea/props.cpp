@@ -40,7 +40,7 @@ QString FormattableTextArea::fileName() const
     const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
     const QString fileName = QFileInfo(filePath).fileName();
     if (fileName.isEmpty())
-        return QStringLiteral("untitled.txt");
+        return QStringLiteral("untitled");
     return fileName;
 }
 
@@ -66,6 +66,12 @@ QUrl FormattableTextArea::directoryUrl() const
     return m_fileUrl.adjusted(QUrl::RemoveFilename | QUrl::StripTrailingSlash);
 }
 
+bool FormattableTextArea::fileExists() const
+{
+    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
+    return m_document && !m_fileUrl.isEmpty() && !QFileInfo(filePath).fileName().isEmpty();
+}
+
 bool FormattableTextArea::modified() const
 {
     return m_document && m_document->isModified();
@@ -84,9 +90,14 @@ bool FormattableTextArea::loading() const
 
 void FormattableTextArea::setFileUrl(const QUrl& url)
 {
-    bool isSameFolder = m_fileUrl.adjusted(QUrl::RemoveFilename) == url.adjusted(QUrl::RemoveFilename);
+    const bool isSameFolder = m_fileUrl.adjusted(QUrl::RemoveFilename) == url.adjusted(QUrl::RemoveFilename);
+    const bool didExist = fileExists();
     m_fileUrl = url;
     emit fileUrlChanged();
+
+    if (!didExist && fileExists()) {
+        emit fileExistsChanged();
+    }
 
     if (!isSameFolder) {
         emit directoryUrlChanged();

@@ -62,7 +62,7 @@ ApplicationWindow {
     function save() {
         if (textArea.fileUrl != null
                 && textArea.fileUrl !== ''
-                && textArea.fileName !== 'untitled.txt') {
+                && textArea.fileName !== 'untitled') {
             textArea.saveAs(textArea.fileUrl);
         } else {
             saveDialog.open();
@@ -146,10 +146,16 @@ ApplicationWindow {
         nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
         selectedNameFilter: "All files (*)"
         selectExisting: true
-        folder: textArea.fileName !== '' && textArea.fileName != null
+        folder: textArea.fileExists
                 ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
-        onAccepted: loadDocument(openDialog.fileUrl);
+        onAccepted: {
+            if (openDialog.fileUrl == null || openDialog.fileUrl === '') {
+                return;
+            }
+
+            loadDocument(openDialog.fileUrl);
+        }
     }
 
     FileDialog {
@@ -159,14 +165,49 @@ ApplicationWindow {
         nameFilters: openDialog.nameFilters
         selectedNameFilter: "All files (*)"
         selectExisting: false
-        folder: textArea.fileName !== '' && textArea.fileName != null
+        folder: textArea.fileExists
                 ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
+        onVisibleChanged: {
+            if (visible && textArea.fileExists) {
+                renameDialog.folder = textArea.directoryUrl;
+            }
+        }
+
         onAccepted: {
+            if (saveDialog.fileUrl == null || saveDialog.fileUrl === '') {
+                return;
+            }
+
             textArea.saveAs(saveDialog.fileUrl);
 
             if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
-                ProgressTracker.renameActiveFile(saveDialog.fileUrl);
+                ProgressTracker.changeActiveFile(saveDialog.fileUrl);
+            }
+        }
+    }
+
+    FileDialog {
+        id: renameDialog
+        title: qsTr("Rename...")
+        defaultSuffix: saveDialog.defaultSuffix
+        nameFilters: saveDialog.nameFilters
+        selectedNameFilter: saveDialog.selectedNameFilter
+        selectExisting: saveDialog.selectExisting
+        folder: saveDialog.folder
+        onVisibleChanged: {
+            if (visible && textArea.fileExists) {
+                renameDialog.folder = textArea.directoryUrl;
+            }
+        }
+
+        onAccepted: {
+            if (renameDialog.fileUrl == null || renameDialog.fileUrl === '') {
+                return;
+            }
+
+            if (textArea.rename(renameDialog.fileUrl)) {
+                ProgressTracker.renameActiveFile(renameDialog.fileUrl);
             }
         }
     }
@@ -260,7 +301,8 @@ ApplicationWindow {
                 }
                 Action {
                     text: qsTr("Rename...")
-                    // Remember to rename file in ProgressTracker as well
+                    enabled: textArea.fileExists
+                    onTriggered: renameDialog.open()
                 }
                 MenuSeparator {}
                 Action {

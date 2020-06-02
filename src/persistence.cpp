@@ -45,7 +45,6 @@ QString persistence::documentsPath()
     return m_documentsPath;
 }
 
-
 bool persistence::commit(QFile& from, QFile& to) {
     from.close();
     to.close();

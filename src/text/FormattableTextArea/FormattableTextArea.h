@@ -34,6 +34,7 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(QString fileType READ fileType NOTIFY fileUrlChanged)
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged)
     Q_PROPERTY(QUrl directoryUrl READ directoryUrl NOTIFY directoryUrlChanged)
+    Q_PROPERTY(bool fileExists READ fileExists NOTIFY fileExistsChanged)
 
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
@@ -97,6 +98,8 @@ class FormattableTextArea : public QQuickItem
         QString fileType() const;
         QUrl fileUrl() const;
         QUrl directoryUrl() const;
+        bool fileExists() const;
+
         bool loading() const;
 
         TextIterator wordIterator() const;
@@ -104,6 +107,7 @@ class FormattableTextArea : public QQuickItem
     public Q_SLOTS:
         void load(const QUrl &fileUrl);
         void saveAs(const QUrl &fileUrl);
+        bool rename(const QUrl& newName);
 
         void copy();
         void paste();
@@ -139,6 +143,7 @@ class FormattableTextArea : public QQuickItem
         void textChanged();
         void fileUrlChanged();
         void directoryUrlChanged();
+        void fileExistsChanged();
 
         void loaded();
 

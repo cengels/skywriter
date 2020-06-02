@@ -20,7 +20,6 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         case Qt::RightButton:
         {
             const int position = hitTest(event->localPos());
-            const int previousPosition = m_textCursor.position();
             m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
 
             if (event->button() == Qt::LeftButton
@@ -31,10 +30,8 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
                 m_selectionMode = SelectionMode::NoSelection;
             }
 
-            if (previousPosition != m_textCursor.position() || m_textCursor.hasSelection()) {
-                updateActive();
-                emit caretPositionChanged();
-            }
+            updateActive();
+            emit caretPositionChanged();
             break;
         }
         default: break;

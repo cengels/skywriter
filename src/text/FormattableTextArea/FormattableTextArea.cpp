@@ -26,6 +26,7 @@
 #include "../../theming/ThemeManager.h"
 #include "../../ErrorManager.h"
 #include "../../persistence.h"
+#include "../symbols.h"
 
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)

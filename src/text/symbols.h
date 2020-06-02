@@ -36,9 +36,6 @@ namespace symbols {
     bool isWordSeparator(const QChar& character);
     //! Removes unprintable characters from the string.
     QString sanitize(const QString& string);
-    //! Replaces all straight quotes in the passed string with replacement
-    //! characters from the
-    QString smartReplace(const QString& string, const QString& quoteCharacters);
 }
 
 #endif // SYMBOLS_H

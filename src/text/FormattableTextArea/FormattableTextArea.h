@@ -158,7 +158,6 @@ class FormattableTextArea : public QQuickItem
         void firstLineIndentChanged();
         void underlineChanged();
         void sceneBreakChanged(const QString& sceneBreak);
-        void smartQuotesChanged();
 
     private:
         void updateStyling();

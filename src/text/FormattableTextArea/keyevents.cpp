@@ -88,8 +88,10 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                             this->selectWord();
                         }
                     }
+
+                    return;
                 }
-                break;
+                // intended fallthrough
             default:
                 const QString text = symbols::sanitize(event->text());
 

@@ -757,8 +757,6 @@ ApplicationWindow {
                     overflowArea: height * 0.8
                     clip: true
 
-                    Keys.forwardTo: [menuBar]
-
                     // User-configurable properties
                     firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     sceneBreak: Settings.Document.sceneBreak

@@ -18,15 +18,19 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
     switch (event->key()) {
         case Qt::Key_Right:
             moveCursor(ctrl ? QTextCursor::NextWord : QTextCursor::Right, moveMode);
+            event->accept();
             break;
         case Qt::Key_Left:
             moveCursor(ctrl ? QTextCursor::PreviousWord : QTextCursor::Left, moveMode);
+            event->accept();
             break;
         case Qt::Key_Up:
             moveCursor(QTextCursor::Up, moveMode);
+            event->accept();
             break;
         case Qt::Key_Down:
             moveCursor(QTextCursor::Down, moveMode);
+            event->accept();
             break;
         case Qt::Key_Back:
         case Qt::Key_Backspace:
@@ -42,6 +46,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             updateWordCount();
             updateActive();
             emit caretPositionChanged();
+            event->accept();
             break;
         case Qt::Key_Delete:
             if (m_textCursor.hasSelection()) {
@@ -55,6 +60,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             }
             updateWordCount();
             updateActive();
+            event->accept();
             break;
         case Qt::Key_W:
             if (ctrl) {
@@ -72,6 +78,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 
                 return;
             }
+            event->accept();
             // intended fallthrough
         default:
             bool hadSelection = m_textCursor.hasSelection();
@@ -94,6 +101,8 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
                     m_textCursor.endEditBlock();
                 }
+
+                event->accept();
             }
 
             if (hadSelection) {

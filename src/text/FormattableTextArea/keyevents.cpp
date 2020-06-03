@@ -78,6 +78,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             const QString text = symbols::sanitize(event->text());
 
             if (!text.isEmpty()) {
+
                 const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
                 const QString replacedText = m_replacer.replace(text, previousCharacter);
                 m_textCursor.insertText(replacedText);
@@ -86,10 +87,13 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 if (symbols::isWordSeparator(previousCharacter)) {
                     updateWordCount();
                 }
-            }
 
-            if (m_textCursor.block().text().isEmpty()) {
-                m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+
+                if (m_textCursor.block().text().isEmpty()) {
+                    m_textCursor.joinPreviousEditBlock();
+                    m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+                    m_textCursor.endEditBlock();
+                }
             }
 
             if (hadSelection) {

@@ -52,7 +52,7 @@ bool persistence::commit(QFile& from, QFile& to) {
     const QString originalPath = to.fileName();
     const QString backupPath = originalPath + ".bak";
 
-    if (!to.rename(backupPath)) {
+    if (to.exists() && !to.rename(backupPath)) {
         // Couldn't rename target file. Might be read-only or backupPath already
         // exists.
         if (QFile::exists(backupPath)) {

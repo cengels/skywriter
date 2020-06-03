@@ -83,6 +83,11 @@ ApplicationWindow {
         return Math.min(Math.max(value, min), max);
     }
 
+    function reset() {
+        textArea.reset();
+        ProgressTracker.changeActiveFile(textArea.fileUrl);
+    }
+
     x: Settings.Window.x;
     y: Settings.Window.y;
     width: Settings.Window.width;
@@ -112,7 +117,10 @@ ApplicationWindow {
     onClosing: {
         if (textArea.modified && !forceClose) {
             close.accepted = false;
-            quitDialog.show();
+
+            unsavedQuitHandlers.enabled = true;
+
+            unsavedDialog.show();
 
             return;
         }
@@ -152,7 +160,13 @@ ApplicationWindow {
                 return;
             }
 
-            loadDocument(openDialog.fileUrl);
+            if (textArea.modified) {
+                unsavedOpenHandlers.enabled = true;
+
+                unsavedDialog.show();
+            } else {
+                loadDocument(openDialog.fileUrl);
+            }
         }
     }
 
@@ -216,8 +230,7 @@ ApplicationWindow {
     }
 
     Controls.MessageDialog {
-        id : quitDialog
-        title: qsTr("Quit?")
+        id: unsavedDialog
         text: qsTr("You have unsaved changes. Do you want to save your changes before quitting?")
         buttons: [
             Controls.Button {
@@ -235,7 +248,38 @@ ApplicationWindow {
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             }
         ]
+    }
 
+    Connections {
+        id: unsavedNewHandlers
+        target: unsavedDialog
+        enabled: false
+        onAccepted: {
+            save();
+            reset();
+        }
+        onDiscarded: reset()
+        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
+    }
+
+    Connections {
+        id: unsavedOpenHandlers
+        target: unsavedDialog
+        enabled: false
+        onAccepted: {
+            save();
+            loadDocument(openDialog.fileUrl);
+        }
+        onDiscarded: {
+            loadDocument(openDialog.fileUrl);
+        }
+        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
+    }
+
+    Connections {
+        id: unsavedQuitHandlers
+        target: unsavedDialog
+        enabled: false
         onAccepted: {
             save();
             mainWindow.close();
@@ -244,6 +288,7 @@ ApplicationWindow {
             forceClose = true;
             mainWindow.close();
         }
+        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
     }
 
     View.AboutQt { id: aboutQt }
@@ -278,6 +323,16 @@ ApplicationWindow {
                 Action {
                     text: qsTr("New")
                     shortcut: StandardKey.New
+                    onTriggered: {
+                        if (textArea.modified) {
+                            unsavedNewHandlers.enabled = true;
+
+                            unsavedDialog.show();
+                        } else {
+                            reset();
+                        }
+                    }
+
                     // Remember ProgressTracker integration
                 }
                 Action {
@@ -330,28 +385,33 @@ ApplicationWindow {
                 title: qsTr("Edit")
                 Action {
                     text: qsTr("Undo")
+                    shortcut: StandardKey.Undo
                     onTriggered: textArea.undo()
                     enabled: textArea.canUndo
                 }
                 Action {
                     text: qsTr("Redo")
+                    shortcut: StandardKey.Redo
                     onTriggered: textArea.redo()
                     enabled: textArea.canRedo
                 }
                 MenuSeparator {}
                 Action {
                     text: qsTr("Cut")
+                    shortcut: StandardKey.Cut
                     onTriggered: textArea.cut()
                     enabled: textArea.selectedText
                 }
                 Action {
                     text: qsTr("Copy")
+                    shortcut: StandardKey.Copy
                     onTriggered: textArea.copy()
                     enabled: textArea.selectedText
                 }
                 Action {
                     id: pasteAction
                     text: qsTr("Paste")
+                    shortcut: StandardKey.Paste
                     onTriggered: textArea.paste()
                     enabled: textArea.canPaste
                 }
@@ -395,6 +455,8 @@ ApplicationWindow {
                 }
                 Action {
                     text: qsTr("Select All")
+                    shortcut: StandardKey.SelectAll
+                    onTriggered: textArea.selectAll()
                 }
                 MenuSeparator {}
                 Action {
@@ -694,6 +756,8 @@ ApplicationWindow {
                     contentY: verticalScrollbar.position * contentHeight
                     overflowArea: height * 0.8
                     clip: true
+
+                    Keys.forwardTo: [menuBar]
 
                     // User-configurable properties
                     firstLineIndent: ThemeManager.activeTheme.firstLineIndent

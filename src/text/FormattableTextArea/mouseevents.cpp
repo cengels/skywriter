@@ -19,6 +19,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         case Qt::LeftButton:
         case Qt::RightButton:
         {
+            bool hadSelection = m_textCursor.hasSelection();
             const int position = hitTest(event->localPos());
             m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
 
@@ -32,6 +33,10 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
 
             updateActive();
             emit caretPositionChanged();
+
+            if (hadSelection) {
+                emit selectedTextChanged();
+            }
             break;
         }
         default: break;
@@ -46,12 +51,16 @@ void FormattableTextArea::expandSelection()
         case SelectionMode::NoSelection:
             m_selectionMode = SelectionMode::WordSelection;
             m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
+            emit caretPositionChanged();
+            emit selectedTextChanged();
             break;
         case SelectionMode::WordSelection: {
             m_selectionMode = SelectionMode::BlockSelection;
             const QTextBlock& block = m_textCursor.block();
             m_textCursor.setPosition(block.position());
             m_textCursor.setPosition(block.position() + block.length() - 1, QTextCursor::KeepAnchor);
+            emit caretPositionChanged();
+            emit selectedTextChanged();
             break;
         }
         default: break;
@@ -110,6 +119,7 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
 
             update();
             emit caretPositionChanged();
+            emit selectedTextChanged();
         }
     }
 }

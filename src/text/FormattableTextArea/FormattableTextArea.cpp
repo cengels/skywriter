@@ -110,6 +110,8 @@ void FormattableTextArea::newDocument(QTextDocument* document)
     if (m_document) {
         connect(m_document, &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
         connect(m_document, &QTextDocument::contentsChanged, this, &FormattableTextArea::handleTextChange);
+        connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
+        connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
 
         if (m_highlighter) {
             m_highlighter->setDocument(m_document);
@@ -120,13 +122,20 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         }
 
         this->updateStyling();
-        this->updateWordCount();
         m_textCursor = QTextCursor(m_document);
+        emit caretPositionChanged();
+        emit selectedTextChanged();
+
+        if (canPaste()) {
+            emit canPasteChanged();
+        }
     }
 
     clearUndoStack();
 
     emit documentChanged();
+    emit modifiedChanged();
+    emit lastModifiedChanged();
     update();
 }
 
@@ -244,6 +253,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
 
             doc->setModified(false);
             newDocument(doc);
+            this->updateWordCount();
             emit loaded();
         }
 
@@ -273,9 +283,9 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         if (fileType == "md") {
             MarkdownParser(m_document, m_sceneBreak).write(stream);
         } else if (fileType.contains("htm")) {
-            file.write(m_document->toHtml().toUtf8());
+            stream << m_document->toHtml().toUtf8();
         } else {
-            file.write(m_document->toPlainText().toUtf8());
+            stream << m_document->toPlainText().toUtf8();
         }
 
         return true;
@@ -310,19 +320,44 @@ bool FormattableTextArea::rename(const QUrl& newName)
     return false;
 }
 
+void FormattableTextArea::reset()
+{
+    newDocument(new QTextDocument());
+    m_characterCount = 0;
+    m_wordCount = 0;
+    m_paragraphCount = 0;
+    m_pageCount = 0;
+    emit characterCountChanged();
+    emit wordCountChanged(false);
+    emit paragraphCountChanged();
+    emit pageCountChanged();
+    setFileUrl(QUrl());
+}
+
 void FormattableTextArea::copy()
 {
     if (m_textCursor.hasSelection()) {
+        bool couldPaste = canPaste();
+
         QClipboard* clipboard = QGuiApplication::clipboard();
         QMimeData* mimeData = new QMimeData();
         mimeData->setText(m_textCursor.selection().toPlainText());
         mimeData->setHtml(m_textCursor.selection().toHtml("utf-8"));
         clipboard->setMimeData(mimeData);
+
+        if (!couldPaste) {
+            emit canPasteChanged();
+        }
     }
 }
 
 void FormattableTextArea::paste()
 {
+    if (!canPaste()) {
+        return;
+    }
+
+    bool hadSelection = m_textCursor.hasSelection();
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasHtml()) {
@@ -340,34 +375,54 @@ void FormattableTextArea::paste()
     updateActive();
     emit caretPositionChanged();
 
+    if (hadSelection) {
+        emit selectedTextChanged();
+    }
+
     this->updateWordCount();
 }
 
 void FormattableTextArea::undo()
 {
+    bool hadSelection = m_textCursor.hasSelection();
     m_document->undo(&m_textCursor);
     updateActive();
     emit textChanged();
     emit caretPositionChanged();
+
+    if (hadSelection) {
+        emit selectedTextChanged();
+    }
 
     this->updateWordCount();
 }
 
 void FormattableTextArea::redo()
 {
+    bool hadSelection = m_textCursor.hasSelection();
     m_document->redo(&m_textCursor);
     updateActive();
     emit textChanged();
     emit caretPositionChanged();
+
+    if (hadSelection) {
+        emit selectedTextChanged();
+    }
 
     this->updateWordCount();
 }
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)
 {
+    bool hadSelection = m_textCursor.hasSelection();
+
     m_textCursor.movePosition(op, mode, by);
     updateActive();
     emit caretPositionChanged();
+
+    if (hadSelection) {
+        emit selectedTextChanged();
+    }
 }
 
 void FormattableTextArea::clearUndoStack()

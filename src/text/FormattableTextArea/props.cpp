@@ -7,6 +7,9 @@
 #include <QQmlFile>
 #include <QFileInfo>
 #include <QAbstractTextDocumentLayout>
+#include <QGuiApplication>
+#include <QClipboard>
+#include <QMimeData>
 
 #include "FormattableTextArea.h"
 #include "../../numbers.h"
@@ -54,6 +57,28 @@ QDateTime FormattableTextArea::lastModified() const
 {
     const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
     return QFileInfo(filePath).lastModified();
+}
+
+bool FormattableTextArea::canUndo() const
+{
+    return m_document->isUndoAvailable();
+}
+
+bool FormattableTextArea::canRedo() const
+{
+    return m_document->isRedoAvailable();
+}
+
+bool FormattableTextArea::canPaste() const
+{
+    return QGuiApplication::clipboard()->mimeData()
+        && (QGuiApplication::clipboard()->mimeData()->hasText()
+        || QGuiApplication::clipboard()->mimeData()->hasHtml());
+}
+
+QString FormattableTextArea::selectedText() const
+{
+    return m_textCursor.selectedText();
 }
 
 QUrl FormattableTextArea::fileUrl() const
@@ -132,6 +157,7 @@ void FormattableTextArea::selectWord()
 {
     m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
     emit caretPositionChanged();
+    emit selectedTextChanged();
     update();
 }
 
@@ -139,12 +165,27 @@ void FormattableTextArea::selectParagraph()
 {
     m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
     emit caretPositionChanged();
+    emit selectedTextChanged();
+    update();
+}
+
+void FormattableTextArea::selectAll()
+{
+    m_textCursor.select(QTextCursor::SelectionType::Document);
+    emit caretPositionChanged();
+    emit selectedTextChanged();
     update();
 }
 
 QRectF FormattableTextArea::caretRectangle() const
 {
     const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
+
+    if (!line.isValid()) {
+        // Without this check, the program crashes when user clicks "new".
+        return QRect();
+    }
+
     const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
 
     return QRectF(x, line.y() + m_textCursor.block().layout()->position().y() + m_overflowArea - m_contentY, 1, line.height());

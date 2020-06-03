@@ -36,6 +36,11 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(QUrl directoryUrl READ directoryUrl NOTIFY directoryUrlChanged)
     Q_PROPERTY(bool fileExists READ fileExists NOTIFY fileExistsChanged)
 
+    Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
+    Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
+    Q_PROPERTY(bool canPaste READ canPaste NOTIFY canPasteChanged)
+    Q_PROPERTY(QString selectedText READ selectedText NOTIFY selectedTextChanged)
+
     Q_PROPERTY(bool modified READ modified WRITE setModified NOTIFY modifiedChanged)
     Q_PROPERTY(QDateTime lastModified READ lastModified NOTIFY lastModifiedChanged)
     Q_PROPERTY(bool loading READ loading MEMBER m_loading NOTIFY loadingChanged)
@@ -82,6 +87,10 @@ class FormattableTextArea : public QQuickItem
 
         bool modified() const;
         QDateTime lastModified() const;
+        bool canUndo() const;
+        bool canRedo() const;
+        bool canPaste() const;
+        QString selectedText() const;
 
         int characterCount() const;
         int paragraphCount() const;
@@ -105,6 +114,9 @@ class FormattableTextArea : public QQuickItem
         TextIterator wordIterator() const;
 
     public Q_SLOTS:
+        //! Resets the text area by detaching the document and clearing the
+        //! loaded file.
+        void reset();
         void load(const QUrl &fileUrl);
         void saveAs(const QUrl &fileUrl);
         bool rename(const QUrl& newName);
@@ -131,6 +143,7 @@ class FormattableTextArea : public QQuickItem
 
         void selectWord();
         void selectParagraph();
+        void selectAll();
 
         QRectF caretRectangle() const;
 
@@ -144,6 +157,11 @@ class FormattableTextArea : public QQuickItem
         void fileUrlChanged();
         void directoryUrlChanged();
         void fileExistsChanged();
+
+        void canUndoChanged(bool);
+        void canRedoChanged(bool);
+        void canPasteChanged();
+        void selectedTextChanged();
 
         void loaded();
 

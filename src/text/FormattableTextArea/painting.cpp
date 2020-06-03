@@ -21,6 +21,10 @@ bool FormattableTextArea::event(QEvent* event)
         forceActiveFocus();
     } else if (event->type() == QEvent::FocusIn) {
         m_caretTimer.start();
+
+        if (canPaste()) {
+            emit canPasteChanged();
+        }
     } else if (event->type() == QEvent::FocusOut) {
         m_blinking = false;
         m_caretTimer.stop();
@@ -61,13 +65,18 @@ void FormattableTextArea::updateStyling()
 QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_UNUSED(updatePaintNodeData)
-    const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
-    const bool hasSelection = m_textCursor.hasSelection();
 
     QQuickTextNode* n = static_cast<QQuickTextNode*>(oldNode);
     if (!n)
         n = new QQuickTextNode(this);
     n->removeAllChildNodes();
+
+    if (!m_document || m_textCursor.isNull()) {
+        return n;
+    }
+
+    const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
+    const bool hasSelection = m_textCursor.hasSelection();
 
     const QTextBlock& end = this->m_document->end();
     for (QTextBlock block = this->m_document->begin(); block != end; block = block.next())
@@ -112,8 +121,6 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
                          selectionStart,
                          selectionEnd);
     }
-
-//    qDebug() << QTime::currentTime().toString(Qt::ISODateWithMs) << "done painting";
 
     if (this->hasFocus() && !m_blinking && !hasSelection) {
         n->setCursor(caretRectangle(), fontColor);

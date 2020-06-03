@@ -17,7 +17,7 @@ Pane {
         spacing: 0
 
         Label {
-            text: qsTr('Last saved %1').arg(Qt.formatDateTime(document.lastModified))
+            text: document.fileExists ? qsTr('Last saved %1').arg(Qt.formatDateTime(document.lastModified)) : ''
             color: ThemeManager.activeTheme.uiColor
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter

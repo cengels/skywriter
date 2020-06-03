@@ -265,7 +265,7 @@ bool ProgressTracker::write(QTextStream& out)
         // if found
 
         for (ProgressItem* item : m_items_to_save) {
-            if (item->isCsv(line)) {
+            if (item->fileUrl().isValid() && item->isCsv(line)) {
                 matchingItem = item;
                 m_items_to_save.removeOne(item);
                 break;
@@ -284,7 +284,7 @@ bool ProgressTracker::write(QTextStream& out)
     // Append the items that could not be matched
 
     for (ProgressItem* item : m_items_to_save) {
-        if (item->words() != 0) {
+        if (item->fileUrl().isValid() && item->words() != 0) {
             out << item->toCsv() << '\n';
         }
     }

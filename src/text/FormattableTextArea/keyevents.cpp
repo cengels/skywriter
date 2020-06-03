@@ -15,101 +15,86 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                                            ? QTextCursor::KeepAnchor
                                            : QTextCursor::MoveAnchor;
 
-    if (event->matches(QKeySequence::SelectAll))
-    {
-        m_textCursor.select(QTextCursor::SelectionType::Document);
-    }
-    else if (event->matches(QKeySequence::Copy))
-    {
-        copy();
-    }
-    else if (event->matches(QKeySequence::Paste))
-    {
-        paste();
-    }
-    else if (event->matches(QKeySequence::Undo))
-    {
-        undo();
-    }
-    else if (event->matches(QKeySequence::Redo))
-    {
-        redo();
-    }
-    else {
-        switch (event->key()) {
-            case Qt::Key_Right:
-                moveCursor(ctrl ? QTextCursor::NextWord : QTextCursor::Right, moveMode);
-                break;
-            case Qt::Key_Left:
-                moveCursor(ctrl ? QTextCursor::PreviousWord : QTextCursor::Left, moveMode);
-                break;
-            case Qt::Key_Up:
-                moveCursor(QTextCursor::Up, moveMode);
-                break;
-            case Qt::Key_Down:
-                moveCursor(QTextCursor::Down, moveMode);
-                break;
-            case Qt::Key_Back:
-            case Qt::Key_Backspace:
-                if (m_textCursor.hasSelection()) {
-                    m_textCursor.removeSelectedText();
-                } else if (!ctrl) {
-                    m_textCursor.deletePreviousChar();
+    switch (event->key()) {
+        case Qt::Key_Right:
+            moveCursor(ctrl ? QTextCursor::NextWord : QTextCursor::Right, moveMode);
+            break;
+        case Qt::Key_Left:
+            moveCursor(ctrl ? QTextCursor::PreviousWord : QTextCursor::Left, moveMode);
+            break;
+        case Qt::Key_Up:
+            moveCursor(QTextCursor::Up, moveMode);
+            break;
+        case Qt::Key_Down:
+            moveCursor(QTextCursor::Down, moveMode);
+            break;
+        case Qt::Key_Back:
+        case Qt::Key_Backspace:
+            if (m_textCursor.hasSelection()) {
+                m_textCursor.removeSelectedText();
+                emit selectedTextChanged();
+            } else if (!ctrl) {
+                m_textCursor.deletePreviousChar();
+            } else {
+                m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+                m_textCursor.removeSelectedText();
+            }
+            updateWordCount();
+            updateActive();
+            emit caretPositionChanged();
+            break;
+        case Qt::Key_Delete:
+            if (m_textCursor.hasSelection()) {
+                m_textCursor.removeSelectedText();
+                emit selectedTextChanged();
+            } else if (!ctrl) {
+                m_textCursor.deleteChar();
+            } else {
+                m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+                m_textCursor.removeSelectedText();
+            }
+            updateWordCount();
+            updateActive();
+            break;
+        case Qt::Key_W:
+            if (ctrl) {
+                if (!m_textCursor.hasSelection()) {
+                    this->selectWord();
                 } else {
-                    m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
-                    m_textCursor.removeSelectedText();
-                }
-                updateWordCount();
-                updateActive();
-                emit caretPositionChanged();
-                break;
-            case Qt::Key_Delete:
-                if (m_textCursor.hasSelection()) {
-                    m_textCursor.removeSelectedText();
-                } else if (!ctrl) {
-                    m_textCursor.deleteChar();
-                } else {
-                    m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-                    m_textCursor.removeSelectedText();
-                }
-                updateWordCount();
-                updateActive();
-                break;
-            case Qt::Key_W:
-                if (ctrl) {
-                    if (!m_textCursor.hasSelection()) {
+                    if (symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionStart() - 1))
+                               && symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionEnd()))) {
+                        this->selectParagraph();
+                    } else if (m_document->characterAt(m_textCursor.selectionStart()) != QChar::ParagraphSeparator
+                               && m_document->characterAt(m_textCursor.selectionEnd()) != QChar::ParagraphSeparator) {
                         this->selectWord();
-                    } else {
-                        if (symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionStart() - 1))
-                                   && symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionEnd()))) {
-                            this->selectParagraph();
-                        } else if (m_document->characterAt(m_textCursor.selectionStart()) != QChar::ParagraphSeparator
-                                   && m_document->characterAt(m_textCursor.selectionEnd()) != QChar::ParagraphSeparator) {
-                            this->selectWord();
-                        }
-                    }
-
-                    return;
-                }
-                // intended fallthrough
-            default:
-                const QString text = symbols::sanitize(event->text());
-
-                if (!text.isEmpty()) {
-                    const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
-                    const QString replacedText = m_replacer.replace(text, previousCharacter);
-                    m_textCursor.insertText(replacedText);
-                    moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
-
-                    if (symbols::isWordSeparator(previousCharacter)) {
-                        updateWordCount();
                     }
                 }
 
-                if (m_textCursor.block().text().isEmpty()) {
-                    m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+                return;
+            }
+            // intended fallthrough
+        default:
+            bool hadSelection = m_textCursor.hasSelection();
+            const QString text = symbols::sanitize(event->text());
+
+            if (!text.isEmpty()) {
+                const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
+                const QString replacedText = m_replacer.replace(text, previousCharacter);
+                m_textCursor.insertText(replacedText);
+                moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
+
+                if (symbols::isWordSeparator(previousCharacter)) {
+                    updateWordCount();
                 }
-                break;
-        }
+            }
+
+            if (m_textCursor.block().text().isEmpty()) {
+                m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+            }
+
+            if (hadSelection) {
+                emit selectedTextChanged();
+            }
+            break;
     }
 }

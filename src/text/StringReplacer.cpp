@@ -5,7 +5,9 @@ namespace {
     const QString& getReplacement(const Replacement& replacement, const QString& before = "")
     {
         if (replacement.isSmartReplacement()) {
-            if (symbols::isWordSeparator(before.at(before.length() - 1))) {
+            const QChar& previousChar = before.at(before.length() - 1);
+
+            if (symbols::word_separators.contains(previousChar) || symbols::word_separators_multiple.contains(previousChar)) {
                 return replacement.openingSymbol();
             }
 

@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "StringReplacer.h"
 #include "symbols.h"
 
@@ -5,7 +7,7 @@ namespace {
     const QString& getReplacement(const Replacement& replacement, const QString& before = "")
     {
         if (replacement.isSmartReplacement()) {
-            const QChar& previousChar = before.at(before.length() - 1);
+            const QChar& previousChar = before.isEmpty() ? ' ' : before.at(before.length() - 1);
 
             if (symbols::word_separators.contains(previousChar) || symbols::word_separators_multiple.contains(previousChar)) {
                 return replacement.openingSymbol();

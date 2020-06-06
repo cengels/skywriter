@@ -31,36 +31,57 @@ Sky.Dialog {
         anchors.fill: parent
         model: ThemeManager.themes
         cellWidth: 140
-        cellHeight: 140
+        cellHeight: 145
         focus: true
-        highlightMoveDuration: 0
-
-        highlight: Item {
-            Rectangle {
-                color: palette.highlight
-                radius: 5
-
-                width: grid.cellWidth
-                height: grid.cellHeight
-            }
-        }
 
         delegate: Item {
+            id: rootDelegate
             height: grid.cellHeight
             width: grid.cellWidth
+            readonly property bool selected: GridView.isCurrentItem
 
-            Column {
+            Rectangle {
+                anchors.fill: parent
+                radius: 5
+                color: rootDelegate.selected
+                       ? palette.highlight
+                       : mouseArea.containsMouse
+                         ? palette.alternateBase
+                         : 'transparent'
+            }
+
+            ColumnLayout {
                 id: column
                 anchors.fill: parent
-                Rectangle { anchors.horizontalCenter: parent.horizontalCenter }
+                anchors.topMargin: 10
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
+                anchors.bottomMargin: 5
+                spacing: 5
+
+                Sky.ThemePreview {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    theme: model.modelData
+
+                    Text {
+                        text: 'A'
+                        font.family: model.modelData.fontFamily
+                        font.pointSize: model.modelData.fontSize * 2
+                        color: model.modelData.fontColor
+                        anchors.centerIn: parent
+                    }
+                }
                 Sky.Text {
+                    id: caption
                     text: model.modelData.name
-                    width: grid.cellWidth
+                    Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
 
             MouseArea {
+                id: mouseArea
                 anchors.fill: parent
                 onClicked: {
                     grid.currentIndex = index;

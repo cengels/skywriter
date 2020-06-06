@@ -293,11 +293,7 @@ ApplicationWindow {
 
     View.AboutQt { id: aboutQt }
     View.AboutSkywriter { id: aboutSkywriter }
-    View.Appearance {
-        id: appearance
-        property int oldThemeIndex;
-        onRejected: ThemeManager.activeThemeIndex = oldThemeIndex;
-    }
+    View.Appearance { id: appearance }
 
     menuBar: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : menuBar.implicitHeight

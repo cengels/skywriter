@@ -33,6 +33,12 @@ class ThemeManager : public QObject {
         void load();
         //! Saves all themes to the file system.
         void save() const;
+        //! Creates a new theme.
+        Theme* createNew();
+        //! Duplicates the selected theme.
+        Theme* duplicate();
+        //! Removes the selected theme.
+        void remove();
 
     Q_SIGNALS:
         void themesChanged();
@@ -40,6 +46,7 @@ class ThemeManager : public QObject {
         void activeThemeIndexChanged();
 
     private:
+        Theme* createTheme(const Theme* from = nullptr);
         QList<Theme*> m_themes;
         int m_activeThemeIndex;
 };

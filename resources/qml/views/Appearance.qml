@@ -8,6 +8,7 @@ import Skywriter.Theming 1.0
 import Skywriter.Settings 1.0 as Settings
 
 Sky.Dialog {
+    id: root
     title: qsTr("Appearance")
     padding: 5
     width: 800
@@ -15,82 +16,122 @@ Sky.Dialog {
     minimumWidth: 450
     minimumHeight: 270
     standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel;
+    property int oldThemeIndex;
 
-    onVisibleChanged: {
-        if (visible) {
-            grid.currentIndex = ThemeManager.activeThemeIndex;
-        }
-    }
+    Component.onCompleted: oldThemeIndex = ThemeManager.activeThemeIndex
 
     onAccepted: {
         Settings.Application.theme = ThemeManager.activeTheme.name;
+        oldThemeIndex = ThemeManager.activeThemeIndex;
     }
 
-    GridView {
-        id: grid
+    onRejected: ThemeManager.activeThemeIndex = oldThemeIndex;
+
+    RowLayout {
         anchors.fill: parent
-        model: ThemeManager.themes
-        cellWidth: 140
-        cellHeight: 145
-        focus: true
 
-        delegate: Item {
-            id: rootDelegate
-            height: grid.cellHeight
-            width: grid.cellWidth
-            readonly property bool selected: GridView.isCurrentItem
+        GridView {
+            id: grid
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            model: ThemeManager.themes
+            cellWidth: 140
+            cellHeight: 145
+            focus: true
+            currentIndex: ThemeManager.activeThemeIndex
 
-            Rectangle {
-                anchors.fill: parent
-                radius: 5
-                color: rootDelegate.selected
-                       ? palette.highlight
-                       : mouseArea.containsMouse
-                         ? palette.alternateBase
-                         : 'transparent'
-            }
+            delegate: Item {
+                id: rootDelegate
+                height: grid.cellHeight
+                width: grid.cellWidth
+                readonly property bool selected: GridView.isCurrentItem
 
-            ColumnLayout {
-                id: column
-                anchors.fill: parent
-                anchors.topMargin: 10
-                anchors.leftMargin: 10
-                anchors.rightMargin: 10
-                anchors.bottomMargin: 5
-                spacing: 5
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 5
+                    color: rootDelegate.selected
+                           ? palette.highlight
+                           : mouseArea.containsMouse
+                             ? palette.alternateBase
+                             : 'transparent'
+                }
 
-                Sky.ThemePreview {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    theme: model.modelData
+                ColumnLayout {
+                    id: column
+                    anchors.fill: parent
+                    anchors.topMargin: 10
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 10
+                    anchors.bottomMargin: 5
+                    spacing: 5
 
-                    Text {
-                        text: 'A'
-                        font.family: model.modelData.fontFamily
-                        font.pointSize: model.modelData.fontSize * 2
-                        color: model.modelData.fontColor
-                        anchors.centerIn: parent
+                    Sky.ThemePreview {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        theme: model.modelData
+
+                        Text {
+                            text: 'A'
+                            font.family: model.modelData.fontFamily
+                            font.pointSize: model.modelData.fontSize * 2
+                            color: model.modelData.fontColor
+                            anchors.centerIn: parent
+                        }
+                    }
+                    Sky.Text {
+                        id: caption
+                        text: model.modelData.name
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
-                Sky.Text {
-                    id: caption
-                    text: model.modelData.name
-                    Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignHCenter
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    onClicked: {
+                        ThemeManager.activeThemeIndex = index;
+                    }
+
+                    hoverEnabled: true
+                    preventStealing: true
+                    z: 99
+                }
+            }
+        }
+
+        Column {
+            Layout.fillHeight: true
+            padding: 10
+            spacing: 10
+
+            Sky.MessageDialog {
+                id: deleteConfirmationDialog
+                text: qsTr("Are you sure you want to delete this theme? This operation cannot be undone.")
+                standardButtons: Dialog.Ok | Dialog.Cancel
+                onAccepted: {
+                    ThemeManager.remove();
+                    root.oldThemeIndex = ThemeManager.activeThemeIndex;
                 }
             }
 
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                onClicked: {
-                    grid.currentIndex = index;
-                    ThemeManager.activeThemeIndex = index;
-                }
+            Sky.Button {
+                text: qsTr("New")
+                onClicked: ThemeManager.createNew()
+            }
 
-                hoverEnabled: true
-                preventStealing: true
-                z: 99
+            Sky.Button {
+                text: qsTr("Duplicate")
+                onClicked: ThemeManager.duplicate()
+            }
+
+            Sky.Button {
+                text: qsTr("Edit")
+            }
+
+            Sky.Button {
+                text: qsTr("Remove")
+                onClicked: deleteConfirmationDialog.show()
             }
         }
     }

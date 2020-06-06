@@ -40,7 +40,8 @@ struct Theme : public QObject
 
     public:
         explicit Theme(QObject *parent = nullptr);
-        explicit Theme(const Theme& copy, QObject *parent = nullptr);
+        Theme(const QString& name, QObject *parent = nullptr);
+        Theme(const QString& name, const Theme& copy);
 
         enum FillMode { Stretch, PreserveAspectFit, PreserveAspectCrop, Tile, TileVertically, TileHorizontally, Pad };
         Q_ENUM(FillMode);
@@ -80,6 +81,8 @@ struct Theme : public QObject
 
         void read(const QJsonObject& json);
         void write(QJsonArray& json) const;
+
+        static Theme* fromJson(const QJsonObject& json, QObject* parent = nullptr);
 
     public Q_SLOTS:
         const QString headingName(int headingLevel) const;

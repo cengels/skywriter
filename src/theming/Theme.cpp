@@ -10,39 +10,43 @@
 #include "defaults.h"
 
 namespace {
-    Theme* m_defaultLight = new Theme();
-    Theme* m_defaultDark = new Theme();
-    Theme* m_defaultSky = new Theme();
-
-    QString duplicateName(const QString& name)
-    {
-        if (name[name.length() - 1].isDigit()) {
-            QString suffix;
-
-            const auto end = suffix.crend();
-
-            for (auto i = suffix.crbegin(); i != end; i++) {
-                const auto character = (*i);
-
-                if (!character.isDigit()) {
-                    break;
-                }
-
-                suffix.prepend(character);
-            }
-
-            const int number = suffix.toInt();
-            return QStringLiteral("%1 %2")
-                    .arg(name.chopped(suffix.length()))
-                    .arg(number);
-        }
-
-        return QStringLiteral("%1 %2").arg(name).arg(1);
-    }
+    Theme* m_defaultLight = new Theme("Default (Light)");
+    Theme* m_defaultDark = new Theme("Default (Dark)");
+    Theme* m_defaultSky = new Theme("Default (Sky)");
 }
 
-Theme::Theme(QObject *parent) : QObject(parent),
-    m_name(""),
+Theme::Theme(QObject* parent) : QObject(parent),
+  m_name("Untitled"),
+  m_isReadOnly(false),
+  m_font("Times New Roman", defaults::fontSize),
+  m_backgroundImage(""),
+  m_fillMode(FillMode::PreserveAspectCrop),
+  m_documentWidth(0.9),
+  m_documentHeight(1.0),
+  m_paddingVertical(20),
+  m_paddingHorizontal(50),
+  m_firstLineIndent(32.0),
+  m_lineHeight(1.5),
+  m_paragraphSpacing(24.0),
+  m_fontColor(QColor(Qt::GlobalColor::black)),
+  m_windowBackground(QColor(Qt::GlobalColor::lightGray)),
+  m_documentBackground(QColor(Qt::GlobalColor::white)),
+  m_textAlignment(HAlignment::AlignLeft),
+  m_uiBackground(QColor("#d9d9d9")),
+  m_uiColor(QColor("#1a1a1a")),
+  m_formatH1(1),
+  m_formatH2(2),
+  m_formatH3(3),
+  m_formatH4(4),
+  m_formatH5(5),
+  m_formatH6(6)
+{
+    m_font.setStyleStrategy(QFont::PreferAntialias);
+    m_font.setHintingPreference(QFont::PreferFullHinting);
+}
+
+Theme::Theme(const QString& name, QObject *parent) : QObject(parent),
+    m_name(name),
     m_isReadOnly(false),
     m_font("Times New Roman", defaults::fontSize),
     m_backgroundImage(""),
@@ -67,12 +71,13 @@ Theme::Theme(QObject *parent) : QObject(parent),
     m_formatH5(5),
     m_formatH6(6)
 {
+    Q_ASSERT(!m_name.isEmpty());
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
 }
 
-Theme::Theme(const Theme& copy, QObject *parent) : QObject(parent),
-    m_name(duplicateName(copy.m_name)),
+Theme::Theme(const QString& name, const Theme& copy) : QObject(copy.parent()),
+    m_name(name),
     m_isReadOnly(false),
     m_font(copy.m_font),
     m_backgroundImage(copy.m_backgroundImage),
@@ -97,6 +102,7 @@ Theme::Theme(const Theme& copy, QObject *parent) : QObject(parent),
     m_formatH5(copy.m_formatH5),
     m_formatH6(copy.m_formatH6)
 {
+    Q_ASSERT(!m_name.isEmpty());
     m_font.setStyleStrategy(QFont::PreferAntialias);
     m_font.setHintingPreference(QFont::PreferFullHinting);
 }
@@ -105,7 +111,6 @@ Theme* Theme::defaultLight()
 {
     if (!m_defaultLight->m_isReadOnly) {
         m_defaultLight->m_isReadOnly = true;
-        m_defaultLight->m_name = "Default (Light)";
     }
 
     return m_defaultLight;
@@ -115,7 +120,6 @@ Theme* Theme::defaultDark()
 {
     if (!m_defaultDark->m_isReadOnly) {
         m_defaultDark->m_isReadOnly = true;
-        m_defaultDark->m_name = "Default (Dark)";
         m_defaultDark->m_fontColor = QColor(QColor(200, 200, 200));
         m_defaultDark->m_documentBackground = QColor(60, 60, 60);
         m_defaultDark->m_windowBackground = QColor(30, 30, 30);
@@ -130,7 +134,6 @@ Theme* Theme::defaultSky()
 {
     if (!m_defaultSky->m_isReadOnly) {
         m_defaultSky->m_isReadOnly = true;
-        m_defaultSky->m_name = "Default (Sky)";
         m_defaultSky->m_fontColor = colors::palette().text().color();
         m_defaultSky->m_documentBackground = colors::palette().dark().color();
         m_defaultSky->m_windowBackground = colors::palette().base().color();
@@ -359,6 +362,14 @@ void Theme::write(QJsonArray& json) const
 
         json.append(object);
     }
+}
+
+Theme* Theme::fromJson(const QJsonObject& json, QObject* parent)
+{
+    Theme* theme = new Theme(json["name"].toString());
+    theme->read(json);
+
+    return theme;
 }
 
 const QString Theme::headingName(int headingLevel) const

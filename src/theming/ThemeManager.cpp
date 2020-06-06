@@ -19,6 +19,31 @@ namespace {
         return m_progressPath;
     }
     ThemeManager* m_instance = nullptr;
+
+    QString duplicateName(const QString& name) {
+        if (name[name.length() - 1].isDigit()) {
+            QString suffix;
+
+            const auto end = name.crend();
+
+            for (auto i = name.crbegin(); i != end; i++) {
+                const auto character = (*i);
+
+                if (!character.isDigit()) {
+                    break;
+                }
+
+                suffix.prepend(character);
+            }
+
+            const int number = suffix.toInt();
+            return QStringLiteral("%1 %2")
+                    .arg(name.chopped(suffix.length()))
+                    .arg(number + 1);
+        }
+
+        return QStringLiteral("%1 %2").arg(name).arg(1);
+    }
 }
 
 ThemeManager::ThemeManager(QObject *parent) : QObject(parent),
@@ -26,6 +51,10 @@ ThemeManager::ThemeManager(QObject *parent) : QObject(parent),
     m_activeThemeIndex(0)
 {
     Q_ASSERT(!m_instance);
+
+    for (Theme* theme : m_themes) {
+        theme->setParent(this);
+    }
 
     load();
 }
@@ -71,8 +100,7 @@ void ThemeManager::load() {
     QJsonArray array = document.array();
 
     for (const QJsonValue value : array) {
-        Theme* theme = new Theme(this);
-        theme->read(value.toObject());
+        Theme* theme = Theme::fromJson(value.toObject(), this);
 
         if (!std::any_of(m_themes.cbegin(), m_themes.cend(), [&theme](const Theme* item) { return item->name() == theme->name(); })) {
             // If the user manually edited the themes.json file so that there
@@ -103,7 +131,75 @@ void ThemeManager::save() const {
         out << document.toJson();
 
         return true;
-    }));
+                           }));
+}
+
+Theme* ThemeManager::createNew()
+{
+    Theme* newTheme = createTheme();
+    m_themes.append(newTheme);
+    emit themesChanged();
+    setActiveThemeIndex(m_themes.length() - 1);
+    save();
+
+    return newTheme;
+}
+
+Theme* ThemeManager::duplicate()
+{
+    Theme* copy = createTheme(activeTheme());
+    m_themes.append(copy);
+    emit themesChanged();
+    setActiveThemeIndex(m_themes.length() - 1);
+    save();
+
+    return copy;
+}
+
+void ThemeManager::remove()
+{
+    m_themes.removeAt(activeThemeIndex());
+    emit themesChanged();
+    const int length = m_themes.length();
+    if (activeThemeIndex() >= length) {
+        setActiveThemeIndex(length - 1);
+    } else {
+        emit activeThemeChanged();
+    }
+
+    save();
+}
+
+Theme* ThemeManager::createTheme(const Theme* from)
+{
+    QString name = from ? from->name() : "Untitled";
+    bool nameOk = false;
+    bool tryAgain = false;
+
+    // Check against all themes to see if the name already exists.
+    // If yes, add a number at the end and check against all themes again.
+    // Repeat until no themes match anymore.
+    while (!nameOk) {
+        for (const Theme* theme : m_themes) {
+            if (theme->name() == name) {
+                name = duplicateName(name);
+                tryAgain = true;
+            }
+        }
+
+        if (tryAgain) {
+            tryAgain = false;
+            continue;
+        }
+
+        nameOk = true;
+    }
+
+    if (from) {
+        return new Theme(name, *from);
+    }
+
+    return new Theme(name, this);
 }
 
 ThemeManager* ThemeManager::instance() {

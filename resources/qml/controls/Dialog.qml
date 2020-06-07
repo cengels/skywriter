@@ -32,7 +32,7 @@ Window {
         height: parent.height
         padding: dialog.padding
 
-        contentChildren: dialog.content
+        contentChildren: dialog.content != null ? dialog.content : []
 
         footer: DialogButtonBox {
             alignment: dialog.buttonAlignment

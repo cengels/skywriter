@@ -29,6 +29,8 @@
         <file alias="MessageDialog.qml">resources/qml/controls/MessageDialog.qml</file>
         <file alias="ThemePreview.qml">resources/qml/controls/ThemePreview.qml</file>
         <file alias="CornerRadius.qml">resources/qml/controls/CornerRadius.qml</file>
+        <file alias="FullThemePreview.qml">resources/qml/controls/FullThemePreview.qml</file>
+        <file alias="LoremIpsum.qml">resources/qml/controls/LoremIpsum.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

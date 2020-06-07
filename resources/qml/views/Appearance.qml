@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import "../controls" as Sky
 import "../types" as SkyT
+import "../views" as SkyV
 import Skywriter.Theming 1.0
 import Skywriter.Settings 1.0 as Settings
 
@@ -15,7 +16,9 @@ Sky.Dialog {
     height: 600
     minimumWidth: 450
     minimumHeight: 270
-    standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel;
+    standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
+
+    readonly property SkyV.ThemeEdit themeEdit: SkyV.ThemeEdit { }
     property int oldThemeIndex;
 
     Component.onCompleted: oldThemeIndex = ThemeManager.activeThemeIndex
@@ -70,7 +73,7 @@ Sky.Dialog {
                         Layout.fillHeight: true
                         theme: model.modelData
 
-                        Text {
+                        content: Text {
                             text: 'A'
                             font.family: model.modelData.fontFamily
                             font.pointSize: model.modelData.fontSize * 2
@@ -111,6 +114,8 @@ Sky.Dialog {
                 standardButtons: Dialog.Ok | Dialog.Cancel
                 onAccepted: {
                     ThemeManager.remove();
+                    // Must reset oldThemeIndex here, or clicking Cancel
+                    // may cause an out of bounds exception.
                     root.oldThemeIndex = ThemeManager.activeThemeIndex;
                 }
             }
@@ -127,6 +132,10 @@ Sky.Dialog {
 
             Sky.Button {
                 text: qsTr("Edit")
+                onClicked: {
+                    themeEdit.theme = ThemeManager.activeTheme;
+                    themeEdit.show();
+                }
             }
 
             Sky.Button {

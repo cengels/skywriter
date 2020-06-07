@@ -29,17 +29,22 @@ namespace {
         });
     }
 
-    void registerQmlTypes()
+    void registerQmlTypes(QGuiApplication& app)
     {
         qmlRegisterType<FormattableTextArea>("Skywriter.Text", 1, 0, "FormattableTextArea");
 
         registerSingleton<ProgressTracker>("Skywriter.Progress", 1, 0, "ProgressTracker");
 
-        qmlRegisterType<Theme>("Skywriter.Theming", 1, 0, "Theme");
-
         qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
         qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
         qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
+
+        ThemeManager::instance()->setParent(&app);
+        ErrorManager::instance()->setParent(&app);
+        qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
+        qmlRegisterType<Theme>("Skywriter.Theming", 1, 0, "Theme");
+        qmlRegisterSingletonInstance("Skywriter.Errors", 1, 0, "ErrorManager", ErrorManager::instance());
+        qRegisterMetaType<QEvent*>("QEvent*");
     }
 }
 
@@ -59,27 +64,23 @@ int main(int argc, char *argv[])
     QGuiApplication::setPalette(colors::palette());
     QGuiApplication::styleHints()->setMousePressAndHoldInterval(300);
 
-    registerQmlTypes();
-
     QQuickStyle::setFallbackStyle("Fusion");
 
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QFont font("Baloo 2", 11);
     font.setStyleStrategy(QFont::PreferAntialias);
     QGuiApplication::setFont(font);
+
+    registerQmlTypes(app);
     Mouse* mouse = new Mouse(&app);
-    ThemeManager::instance()->setParent(&app);
-    ErrorManager::instance()->setParent(&app);
     qmlRegisterSingletonInstance("Skywriter.Events", 1, 0, "Mouse", mouse);
-    qmlRegisterSingletonInstance("Skywriter.Theming", 1, 0, "ThemeManager", ThemeManager::instance());
-    qmlRegisterSingletonInstance("Skywriter.Errors", 1, 0, "ErrorManager", ErrorManager::instance());
-    qRegisterMetaType<QEvent*>("QEvent*");
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextObject(new QmlHelper(&app));
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
     engine.addImportPath(":/");
     engine.load(":/qml/views/MainWindow.qml");
+
     app.topLevelWindows().first()->installEventFilter(mouse);
 
     return app.exec();

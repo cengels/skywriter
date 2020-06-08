@@ -34,7 +34,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
             updateActive();
             emit caretPositionChanged();
 
-            if (hadSelection) {
+            if (hadSelection || m_textCursor.hasSelection()) {
                 emit selectedTextChanged();
             }
             break;

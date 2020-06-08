@@ -757,6 +757,19 @@ ApplicationWindow {
                     firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     sceneBreak: Settings.Document.sceneBreak
 
+                    Keys.onPressed: {
+                        const maxScroll = 1.0 - (textArea.overflowArea / contentHeight);
+                        if (event.key === Qt.Key_Home) {
+                            verticalScrollbar.position = 0.0;
+                        } else if (event.key === Qt.Key_End) {
+                            verticalScrollbar.position = maxScroll;
+                        } else if (event.key === Qt.Key_PageUp) {
+                            verticalScrollbar.position = Math.max(0.0, verticalScrollbar.position - (textArea.height / contentHeight));
+                        } else if (event.key === Qt.Key_PageDown) {
+                            verticalScrollbar.position = Math.min(maxScroll, verticalScrollbar.position + (textArea.height / contentHeight));
+                        }
+                    }
+
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
                             loadDocument(fromLocalFileString(Settings.Document.lastFile));

@@ -428,7 +428,7 @@ ApplicationWindow {
                 Action {
                     id: deleteAction
                     text: qsTr("Delete")
-                    onTriggered: textArea.remove(textArea.selectionStart, textArea.selectionEnd)
+                    onTriggered: textArea.remove()
                     enabled: textArea.selectedText
                 }
                 Action {

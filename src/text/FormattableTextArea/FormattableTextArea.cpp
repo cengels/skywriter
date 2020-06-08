@@ -382,6 +382,15 @@ void FormattableTextArea::paste()
     this->updateWordCount();
 }
 
+void FormattableTextArea::remove()
+{
+    if (m_textCursor.hasSelection()) {
+        m_textCursor.removeSelectedText();
+        emit selectedTextChanged();
+        emit textChanged();
+    }
+}
+
 void FormattableTextArea::undo()
 {
     bool hadSelection = m_textCursor.hasSelection();

@@ -35,13 +35,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Back:
         case Qt::Key_Backspace:
             if (m_textCursor.hasSelection()) {
-                m_textCursor.removeSelectedText();
-                emit selectedTextChanged();
+                remove();
             } else if (!ctrl) {
                 m_textCursor.deletePreviousChar();
+                emit textChanged();
             } else {
                 m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
                 m_textCursor.removeSelectedText();
+                emit textChanged();
             }
             updateWordCount();
             updateActive();
@@ -50,13 +51,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             break;
         case Qt::Key_Delete:
             if (m_textCursor.hasSelection()) {
-                m_textCursor.removeSelectedText();
-                emit selectedTextChanged();
+                remove();
             } else if (!ctrl) {
                 m_textCursor.deleteChar();
+                emit textChanged();
             } else {
                 m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
                 m_textCursor.removeSelectedText();
+                emit textChanged();
             }
             updateWordCount();
             updateActive();
@@ -85,7 +87,6 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             const QString text = symbols::sanitize(event->text());
 
             if (!text.isEmpty()) {
-
                 const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
                 const QString replacedText = m_replacer.replace(text, previousCharacter);
                 m_textCursor.insertText(replacedText);
@@ -103,6 +104,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 }
 
                 event->accept();
+                emit textChanged();
             }
 
             if (hadSelection) {

@@ -121,8 +121,12 @@ class FormattableTextArea : public QQuickItem
         void saveAs(const QUrl &fileUrl);
         bool rename(const QUrl& newName);
 
+        //! Copies the selected text.
         void copy();
+        //! Pastes at the text cursor's position.
         void paste();
+        //! Removes the selected text.
+        void remove();
 
         void undo();
         void redo();

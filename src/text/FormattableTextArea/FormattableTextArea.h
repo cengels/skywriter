@@ -50,6 +50,11 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
 
+    Q_PROPERTY(int selectedCharacterCount READ selectedCharacterCount NOTIFY selectedCharacterCountChanged)
+    Q_PROPERTY(int selectedParagraphCount READ selectedParagraphCount NOTIFY selectedParagraphCountChanged)
+    Q_PROPERTY(int selectedWordCount READ selectedWordCount NOTIFY selectedWordCountChanged)
+    Q_PROPERTY(int selectedPageCount READ selectedPageCount NOTIFY selectedPageCountChanged)
+
     Q_PROPERTY(double contentWidth READ contentWidth NOTIFY contentWidthChanged)
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
     Q_PROPERTY(double overflowArea MEMBER m_overflowArea NOTIFY overflowAreaChanged)
@@ -97,6 +102,11 @@ class FormattableTextArea : public QQuickItem
         int wordCount() const;
         int pageCount() const;
 
+        int selectedCharacterCount() const;
+        int selectedParagraphCount() const;
+        int selectedWordCount() const;
+        int selectedPageCount() const;
+
         double contentWidth() const;
         double contentHeight() const;
 
@@ -112,6 +122,7 @@ class FormattableTextArea : public QQuickItem
         bool loading() const;
 
         TextIterator wordIterator() const;
+        TextIterator selectedWordIterator() const;
 
     public Q_SLOTS:
         //! Resets the text area by detaching the document and clearing the
@@ -178,6 +189,11 @@ class FormattableTextArea : public QQuickItem
         void wordCountChanged(bool isProgress);
         void pageCountChanged();
 
+        void selectedCharacterCountChanged();
+        void selectedParagraphCountChanged();
+        void selectedWordCountChanged();
+        void selectedPageCountChanged();
+
         void contentWidthChanged();
         void contentHeightChanged();
         void overflowAreaChanged();
@@ -217,12 +233,18 @@ class FormattableTextArea : public QQuickItem
         void expandSelection();
 
         int m_characterCount;
+        int m_selectedCharacterCount;
         int m_wordCount;
+        int m_selectedWordCount;
         int m_paragraphCount;
+        int m_selectedParagraphCount;
         int m_pageCount;
+        int m_selectedPageCount;
         void updateCounts();
+        void updateSelectedCounts();
         void updateCharacterCount();
         void updateWordCount();
+        void updateSelectedWordCount();
         void updateParagraphCount();
         void updatePageCount();
 

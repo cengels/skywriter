@@ -43,7 +43,7 @@ Pane {
             Layout.preferredWidth: 400
 
             Label {
-                text: qsTr('%1 characters').arg(document.characterCount)
+                text: qsTr('%1 characters').arg(document.selectedText ? document.selectedCharacterCount : document.characterCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -51,7 +51,7 @@ Pane {
             }
 
             Label {
-                text: qsTr('%1 paragraphs').arg(document.paragraphCount)
+                text: qsTr('%1 paragraphs').arg(document.selectedText ? document.selectedParagraphCount : document.paragraphCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -59,7 +59,7 @@ Pane {
             }
 
             Label {
-                text: qsTr('%1 pages').arg(document.pageCount)
+                text: qsTr('%1 pages').arg(document.selectedText ? document.selectedPageCount : document.pageCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -67,7 +67,7 @@ Pane {
             }
 
             Label {
-                text: qsTr('%1 words').arg(document.wordCount)
+                text: qsTr('%1 words').arg(document.selectedText ? document.selectedWordCount : document.wordCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter

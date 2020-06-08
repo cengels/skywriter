@@ -40,9 +40,13 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_loading(false)
     , m_counting(false)
     , m_characterCount(0)
+    , m_selectedCharacterCount(0)
     , m_wordCount(0)
+    , m_selectedWordCount(0)
     , m_paragraphCount(0)
+    , m_selectedParagraphCount(0)
     , m_pageCount(0)
+    , m_selectedPageCount(0)
     , m_firstLineIndent(0.0)
     , m_underline(false)
     , m_sceneBreak()
@@ -84,6 +88,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
         emit contentHeightChanged();
     });
+
+    connect(this, &FormattableTextArea::selectedTextChanged, this, &FormattableTextArea::updateSelectedCounts);
 
     newDocument();
 }

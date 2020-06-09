@@ -394,6 +394,7 @@ void FormattableTextArea::remove()
         m_textCursor.removeSelectedText();
         emit selectedTextChanged();
         emit textChanged();
+        updateWordCount();
     }
 }
 

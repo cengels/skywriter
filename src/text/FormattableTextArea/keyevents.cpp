@@ -38,13 +38,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 remove();
             } else if (!ctrl) {
                 m_textCursor.deletePreviousChar();
+                updateWordCount();
                 emit textChanged();
             } else {
                 m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
                 m_textCursor.removeSelectedText();
+                updateWordCount();
                 emit textChanged();
             }
-            updateWordCount();
             updateActive();
             emit caretPositionChanged();
             event->accept();
@@ -54,13 +55,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 remove();
             } else if (!ctrl) {
                 m_textCursor.deleteChar();
+                updateWordCount();
                 emit textChanged();
             } else {
                 m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
                 m_textCursor.removeSelectedText();
+                updateWordCount();
                 emit textChanged();
             }
-            updateWordCount();
             updateActive();
             event->accept();
             break;
@@ -105,6 +107,8 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 
                 event->accept();
                 emit textChanged();
+            } else {
+                event->ignore();
             }
 
             if (hadSelection) {

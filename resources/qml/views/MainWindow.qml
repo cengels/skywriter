@@ -655,7 +655,7 @@ ApplicationWindow {
                 repeat: true
                 triggeredOnStart: true
                 onTriggered: {
-                    verticalScrollbar.position = clamp(verticalScrollbar.position + verticalScrollbar.movementFactor, 0, 1);
+                    verticalScrollbar.position = clamp(verticalScrollbar.position + verticalScrollbar.movementFactor, 0, 1 - verticalScrollbar.size);
                 }
             }
 
@@ -758,7 +758,7 @@ ApplicationWindow {
                     sceneBreak: Settings.Document.sceneBreak
 
                     Keys.onPressed: {
-                        const maxScroll = 1.0 - (textArea.overflowArea / contentHeight);
+                        const maxScroll = 1.0 - verticalScrollbar.size
                         if (event.key === Qt.Key_Home) {
                             verticalScrollbar.position = 0.0;
                         } else if (event.key === Qt.Key_End) {

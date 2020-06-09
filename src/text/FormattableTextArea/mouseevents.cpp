@@ -39,7 +39,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
             }
             break;
         }
-        default: break;
+        default: event->ignore(); break;
     }
 
     m_lastMouseDownEvent = QMouseEvent(*event);

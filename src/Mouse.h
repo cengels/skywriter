@@ -22,7 +22,7 @@ class Mouse : public QObject
         static bool isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent, QMouseEvent* lastMouseDownEvent);
 
     public Q_SLOTS:
-        bool isInside(const QQuickItem* item) const;
+        bool isInside(QQuickItem* item) const;
         void setCursor(Qt::CursorShape cursorShape);
         void resetCursor();
 

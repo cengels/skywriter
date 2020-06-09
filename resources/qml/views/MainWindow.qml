@@ -661,7 +661,22 @@ ApplicationWindow {
 
             Connections {
                 target: Mouse
+
+                property bool isDragging: false
+
                 onMove: {
+                    if (Mouse.buttons & Qt.LeftButton && isDragging) {
+                        const textAreaPosition = textArea.mapFromGlobal(Mouse.globalPosition.x, Mouse.globalPosition.y);
+
+                        if (textAreaPosition.y < 0 || textAreaPosition.y > textArea.height) {
+                            const delta = textAreaPosition.y < 0 ? -textAreaPosition.y : textArea.height - textAreaPosition.y;
+
+                            verticalScrollbar.movementFactor = -(delta / container.height / 70);
+                        } else {
+                            verticalScrollbar.movementFactor = 0;
+                        }
+                    }
+
                     if (verticalScrollbar.middleMouseOriginY >= 0) {
                         const yDelta = verticalScrollbar.middleMouseOriginY - Mouse.globalPosition.y;
 
@@ -672,11 +687,21 @@ ApplicationWindow {
                         }
                     }
                 }
+
+                onPressed: {
+                    if (Mouse.isInside(textArea)) {
+                        isDragging = true;
+                    }
+                }
+
                 onReleased: {
                     if (button === Qt.MiddleButton && longPress) {
                         verticalScrollbar.middleMouseOriginY = -1;
                         verticalScrollbar.movementFactor = 0;
                         Mouse.resetCursor();
+                    } else if (button === Qt.LeftButton) {
+                        isDragging = false;
+                        verticalScrollbar.movementFactor = 0;
                     }
                 }
             }

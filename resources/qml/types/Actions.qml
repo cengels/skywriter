@@ -14,7 +14,7 @@ QtObject {
     property FormattableTextArea textArea;
     property ApplicationWindow mainWindow;
 
-    function save() {
+    function saveWithPrompt() {
         if (textArea.fileUrl != null
                 && textArea.fileUrl !== ''
                 && textArea.fileName !== 'untitled') {
@@ -139,7 +139,7 @@ QtObject {
         target: unsavedDialog
         enabled: false
         onAccepted: {
-            save();
+            saveWithPrompt();
             reset();
         }
         onDiscarded: reset()
@@ -151,7 +151,7 @@ QtObject {
         target: unsavedDialog
         enabled: false
         onAccepted: {
-            save();
+            saveWithPrompt();
             loadDocument(openDialog.fileUrl);
         }
         onDiscarded: {
@@ -165,7 +165,7 @@ QtObject {
         target: unsavedDialog
         enabled: false
         onAccepted: {
-            save();
+            saveWithPrompt();
             mainWindow.close();
         }
         onDiscarded: {
@@ -213,7 +213,7 @@ QtObject {
     readonly property Action save: Action {
         text: qsTr("Save")
         shortcut: StandardKey.Save
-        onTriggered: save()
+        onTriggered: saveWithPrompt()
     }
     readonly property Action saveAs: Action {
         text: qsTr("Save As...")

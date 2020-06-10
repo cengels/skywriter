@@ -9,7 +9,7 @@ namespace {
         if (replacement.isSmartReplacement()) {
             const QChar& previousChar = before.isEmpty() ? ' ' : before.at(before.length() - 1);
 
-            if (symbols::word_separators.contains(previousChar) || symbols::word_separators_multiple.contains(previousChar)) {
+            if (symbols::smart_replacement_prefixes.contains(previousChar)) {
                 return replacement.openingSymbol();
             }
 

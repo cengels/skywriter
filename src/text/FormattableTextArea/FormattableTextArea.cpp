@@ -154,6 +154,19 @@ void FormattableTextArea::handleTextChange()
 
     emit contentHeightChanged();
 
+    // TODO: Fix this. For some reason, using edit blocks here doesn't work.
+    // The undo manager just stops working for some reason and you can't undo
+    // anything anymore.
+    if (format::isSceneBreak(m_textCursor) && m_textCursor.block().text() != m_sceneBreak) {
+        m_textCursor.joinPreviousEditBlock();
+        m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+        m_textCursor.endEditBlock();
+    } else if (!format::isSceneBreak(m_textCursor) && m_textCursor.block().text() == m_sceneBreak) {
+        m_textCursor.joinPreviousEditBlock();
+        format::insertSceneBreak(m_textCursor, m_sceneBreak, true);
+        m_textCursor.endEditBlock();
+    }
+
     this->updateCounts();
 }
 

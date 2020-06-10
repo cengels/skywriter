@@ -19,7 +19,9 @@ namespace format {
     //! Merges the given char format into all currently selected blocks.
     //! Like QTextCursor::mergeBlockCharFormat, but actually works.
     void mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format);
-    void insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakText);
+    void insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakText, bool replaceBlock = false);
+    //! Checks if the block underneath the cursor is a scene break.
+    bool isSceneBreak(QTextCursor& textCursor);
 
     enum BlockState {
         None = 0,

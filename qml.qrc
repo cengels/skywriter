@@ -31,10 +31,12 @@
         <file alias="CornerRadius.qml">resources/qml/controls/CornerRadius.qml</file>
         <file alias="FullThemePreview.qml">resources/qml/controls/FullThemePreview.qml</file>
         <file alias="LoremIpsum.qml">resources/qml/controls/LoremIpsum.qml</file>
+        <file alias="MenuItem.qml">resources/qml/controls/MenuItem.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>
         <file alias="Settings.qml">resources/qml/types/Settings.qml</file>
+        <file alias="Actions.qml">resources/qml/types/Actions.qml</file>
     </qresource>
     <qresource prefix="/qml/types/settings">
         <file alias="ApplicationSettings.qml">resources/qml/types/settings/ApplicationSettings.qml</file>

@@ -30,6 +30,11 @@ ApplicationWindow {
     minimumWidth: 820
     minimumHeight: 200
 
+    readonly property Sky.Actions actions: Sky.Actions {
+        textArea: textArea
+        mainWindow: mainWindow
+    }
+
     onVisibilityChanged: {
         // Ensure that the window does not retain screen size
         // when going from FullScreen/Maximized to Windowed
@@ -59,33 +64,8 @@ ApplicationWindow {
         }
     }
 
-    function save() {
-        if (textArea.fileUrl != null
-                && textArea.fileUrl !== ''
-                && textArea.fileName !== 'untitled') {
-            saveDocument(textArea.fileUrl);
-        } else {
-            saveDialog.open();
-        }
-    }
-
-    function saveDocument(url) {
-        textArea.saveAs(url);
-        ProgressTracker.save();
-    }
-
-    function loadDocument(url) {
-        textArea.load(url);
-        ProgressTracker.changeActiveFile(url);
-    }
-
     function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
-    }
-
-    function reset() {
-        textArea.reset();
-        ProgressTracker.changeActiveFile(textArea.fileUrl);
     }
 
     x: Settings.Window.x;
@@ -118,9 +98,9 @@ ApplicationWindow {
         if (textArea.modified && !forceClose) {
             close.accepted = false;
 
-            unsavedQuitHandlers.enabled = true;
+            actions.unsavedQuitHandlers.enabled = true;
 
-            unsavedDialog.show();
+            actions.unsavedDialog.show();
 
             return;
         }
@@ -146,149 +126,9 @@ ApplicationWindow {
         ProgressTracker.load();
     }
 
-    FileDialog {
-        id: openDialog
-        title: qsTr("Open...")
-        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
-        selectedNameFilter: "All files (*)"
-        selectExisting: true
-        folder: textArea.fileExists
-                ? textArea.directoryUrl
-                : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
-        onAccepted: {
-            if (openDialog.fileUrl == null || openDialog.fileUrl === '') {
-                return;
-            }
-
-            if (textArea.modified) {
-                unsavedOpenHandlers.enabled = true;
-
-                unsavedDialog.show();
-            } else {
-                loadDocument(openDialog.fileUrl);
-            }
-        }
-    }
-
-    FileDialog {
-        id: saveDialog
-        title: qsTr("Save As...")
-        defaultSuffix: "md"
-        nameFilters: openDialog.nameFilters
-        selectedNameFilter: "All files (*)"
-        selectExisting: false
-        folder: textArea.fileExists
-                ? textArea.directoryUrl
-                : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
-        onVisibleChanged: {
-            if (visible && textArea.fileExists) {
-                renameDialog.folder = textArea.directoryUrl;
-            }
-        }
-
-        onAccepted: {
-            if (saveDialog.fileUrl == null || saveDialog.fileUrl === '') {
-                return;
-            }
-
-            saveDocument(saveDialog.fileUrl);
-
-            if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
-                ProgressTracker.changeActiveFile(saveDialog.fileUrl);
-            }
-        }
-    }
-
-    FileDialog {
-        id: renameDialog
-        title: qsTr("Rename...")
-        defaultSuffix: saveDialog.defaultSuffix
-        nameFilters: saveDialog.nameFilters
-        selectedNameFilter: saveDialog.selectedNameFilter
-        selectExisting: saveDialog.selectExisting
-        folder: saveDialog.folder
-        onVisibleChanged: {
-            if (visible && textArea.fileExists) {
-                renameDialog.folder = textArea.directoryUrl;
-            }
-        }
-
-        onAccepted: {
-            if (renameDialog.fileUrl == null || renameDialog.fileUrl === '') {
-                return;
-            }
-
-            if (textArea.rename(renameDialog.fileUrl)) {
-                ProgressTracker.renameActiveFile(renameDialog.fileUrl);
-            }
-        }
-    }
-
     Controls.MessageDialog {
         id: errorDialog
         title: qsTr("Error")
-    }
-
-    Controls.MessageDialog {
-        id: unsavedDialog
-        text: qsTr("You have unsaved changes. Do you want to save your changes before quitting?")
-        buttons: [
-            Controls.Button {
-                text: qsTr("Save")
-                DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-            },
-
-            Controls.Button {
-                text: qsTr("Don't Save")
-                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-            },
-
-            Controls.Button {
-                text: qsTr("Cancel")
-                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-            }
-        ]
-    }
-
-    Connections {
-        id: unsavedNewHandlers
-        target: unsavedDialog
-        enabled: false
-        onAccepted: {
-            save();
-            reset();
-        }
-        onDiscarded: reset()
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
-    }
-
-    Connections {
-        id: unsavedOpenHandlers
-        target: unsavedDialog
-        enabled: false
-        onAccepted: {
-            save();
-            loadDocument(openDialog.fileUrl);
-        }
-        onDiscarded: {
-            loadDocument(openDialog.fileUrl);
-        }
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
-    }
-
-    Connections {
-        id: unsavedQuitHandlers
-        target: unsavedDialog
-        enabled: false
-        onAccepted: {
-            save();
-            mainWindow.close();
-        }
-        onDiscarded: {
-            forceClose = true;
-            mainWindow.close();
-        }
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
     }
 
     View.AboutQt { id: aboutQt }
@@ -316,244 +156,82 @@ ApplicationWindow {
 
             Controls.Menu {
                 title: qsTr("File")
-                Action {
-                    text: qsTr("New")
-                    shortcut: StandardKey.New
-                    onTriggered: {
-                        if (textArea.modified) {
-                            unsavedNewHandlers.enabled = true;
-
-                            unsavedDialog.show();
-                        } else {
-                            reset();
-                        }
-                    }
-
-                    // Remember ProgressTracker integration
-                }
-                Action {
-                    text: qsTr("Open...")
-                    shortcut: StandardKey.Open
-                    onTriggered: openDialog.open()
-                }
+                Controls.MenuItem { action: actions.newDocument }
+                Controls.MenuItem { action: actions.open }
                 MenuSeparator {}
-                Action {
-                    text: qsTr("Save")
-                    shortcut: StandardKey.Save
-                    onTriggered: save()
-                }
-                Action {
-                    text: qsTr("Save As...")
-                    shortcut: StandardKey.SaveAs
-                    onTriggered: saveDialog.open()
-                }
-                Action {
-                    text: qsTr("Rename...")
-                    enabled: textArea.fileExists
-                    onTriggered: renameDialog.open()
-                }
+                Controls.MenuItem { action: actions.save }
+                Controls.MenuItem { action: actions.saveAs }
+                Controls.MenuItem { action: actions.rename }
                 MenuSeparator {}
-                Action {
-                    property var previousVisibility: mainWindow.visibility
-                    text: qsTr("Fullscreen")
-                    shortcut: "F11"
-                    onTriggered: {
-                        if (mainWindow.visibility === Window.FullScreen) {
-                            mainWindow.visibility = previousVisibility === Window.FullScreen ? Window.AutomaticVisibility : previousVisibility;
-                            previousVisibility = null;
-                        } else {
-                            previousVisibility = mainWindow.visibility;
-                            mainWindow.showFullScreen();
-                        }
-                    }
-                }
-                Action {
+                Controls.MenuItem { action: actions.fullscreen }
+                Controls.MenuItem {
                     text: qsTr("Preferences...")
-                    shortcut: StandardKey.Preferences
                 }
-                Action {
-                    text: qsTr("Quit")
-                    shortcut: StandardKey.Quit
-                    onTriggered: mainWindow.close();
-                }
+                Controls.MenuItem { action: actions.quit }
             }
             Controls.Menu {
                 title: qsTr("Edit")
-                Action {
-                    text: qsTr("Undo")
-                    shortcut: StandardKey.Undo
-                    onTriggered: textArea.undo()
-                    enabled: textArea.canUndo
-                }
-                Action {
-                    text: qsTr("Redo")
-                    shortcut: StandardKey.Redo
-                    onTriggered: textArea.redo()
-                    enabled: textArea.canRedo
-                }
+                Controls.MenuItem { action: actions.undo }
+                Controls.MenuItem { action: actions.redo }
                 MenuSeparator {}
-                Action {
-                    text: qsTr("Cut")
-                    shortcut: StandardKey.Cut
-                    onTriggered: textArea.cut()
-                    enabled: textArea.selectedText
-                }
-                Action {
-                    text: qsTr("Copy")
-                    shortcut: StandardKey.Copy
-                    onTriggered: textArea.copy()
-                    enabled: textArea.selectedText
-                }
-                Action {
-                    id: pasteAction
-                    text: qsTr("Paste")
-                    shortcut: StandardKey.Paste
-                    onTriggered: textArea.paste()
-                    enabled: textArea.canPaste
-                }
-                Action {
-                    text: qsTr("Paste Unformatted")
-                    shortcut: "Ctrl+Shift+V"
-                    enabled: textArea.canPaste
-                }
-                Action {
-                    text: qsTr("Paste Untracked")
-                    enabled: textArea.canPaste
-                    onTriggered: {
-                        textArea.progressSuspended = true;
-                        pasteAction.trigger();
-                        textArea.progressSuspended = false;
-                    }
-                }
-                Action {
-                    id: deleteAction
-                    text: qsTr("Delete")
-                    onTriggered: textArea.remove()
-                    enabled: textArea.selectedText
-                }
-                Action {
-                    text: qsTr("Delete Untracked")
-                    enabled: textArea.selectedText
-                    onTriggered: {
-                        textArea.progressSuspended = true;
-                        deleteAction.trigger();
-                        textArea.progressSuspended = false;
-                    }
-                }
+                Controls.MenuItem { action: actions.cut }
+                Controls.MenuItem { action: actions.copy }
+                Controls.MenuItem { action: actions.paste }
+                Controls.MenuItem { action: actions.pasteUnformatted }
+                Controls.MenuItem { action: actions.pasteUntracked }
+                Controls.MenuItem { action: actions.deleteSelected }
+                Controls.MenuItem { action: actions.deleteUntracked }
                 MenuSeparator {}
-                Action {
-                    text: qsTr("Select Word")
-                    onTriggered: textArea.selectWord()
-                }
-                Action {
-                    text: qsTr("Select Paragraph")
-                    onTriggered: textArea.selectParagraph()
-                }
-                Action {
-                    text: qsTr("Select All")
-                    shortcut: StandardKey.SelectAll
-                    onTriggered: textArea.selectAll()
-                }
+                Controls.MenuItem { action: actions.selectWord }
+                Controls.MenuItem { action: actions.selectParagraph }
+                Controls.MenuItem { action: actions.selectAll }
                 MenuSeparator {}
-                Action {
+                Controls.MenuItem {
                     text: qsTr("Find")
                 }
-                Action {
+                Controls.MenuItem {
                     text: qsTr("Find and Replace")
                 }
             }
 
             Controls.Menu {
                 id: formattingMenu
-                function getHeadingName(level) {
-                    const base = qsTr("Heading") + " " + level;
-                    const name = ThemeManager.activeTheme.headingName(level);
-
-                    if (name === '') {
-                        return base;
-                    }
-
-                    return base + ": " + name;
-                }
 
                 title: qsTr("Formatting")
-                Action {
-                    text: qsTr("Bold")
-                    shortcut: StandardKey.Bold
-                    onTriggered: textArea.toggleBold()
-                }
-                Action {
-                    text: qsTr("Italic")
-                    shortcut: StandardKey.Italic
-                    onTriggered: textArea.toggleItalics()
-                }
-                Action {
-                    text: qsTr("Strikethrough")
-                    onTriggered: textArea.toggleStrikethrough()
-                }
+                Controls.MenuItem { action: actions.bold }
+                Controls.MenuItem { action: actions.italics }
+                Controls.MenuItem { action: actions.strikethrough }
                 MenuSeparator {}
-                Action {
-                    text: qsTr("No heading")
-                    shortcut: "Ctrl+0"
-                    onTriggered: textArea.applyHeading(0)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(1)
-                    shortcut: "Ctrl+1"
-                    onTriggered: textArea.applyHeading(1)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(2)
-                    shortcut: "Ctrl+2"
-                    onTriggered: textArea.applyHeading(2)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(3)
-                    shortcut: "Ctrl+3"
-                    onTriggered: textArea.applyHeading(3)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(4)
-                    shortcut: "Ctrl+4"
-                    onTriggered: textArea.applyHeading(4)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(5)
-                    shortcut: "Ctrl+5"
-                    onTriggered: textArea.applyHeading(5)
-                }
-                Action {
-                    text: formattingMenu.getHeadingName(6)
-                    shortcut: "Ctrl+6"
-                    onTriggered: textArea.applyHeading(6)
-                }
+                Controls.MenuItem { action: actions.noHeading }
+                Controls.MenuItem { action: actions.heading1 }
+                Controls.MenuItem { action: actions.heading2 }
+                Controls.MenuItem { action: actions.heading3 }
+                Controls.MenuItem { action: actions.heading4 }
+                Controls.MenuItem { action: actions.heading5 }
+                Controls.MenuItem { action: actions.heading6 }
                 MenuSeparator {}
-                Action {
-                    text: qsTr("Scene break")
-                    shortcut: "Ctrl+#"
-                    onTriggered: textArea.insertSceneBreak()
-                }
+                Controls.MenuItem { action: actions.sceneBreak }
             }
             Controls.Menu {
                 title: qsTr("Tools")
-                Action {
+                Controls.MenuItem {
                     text: qsTr("Appearance...")
                     onTriggered: {
                         appearance.oldThemeIndex = ThemeManager.activeThemeIndex;
                         appearance.show();
                     }
                 }
-                Action {
+                Controls.MenuItem {
                     text: qsTr("Progress...")
                 }
             }
             Controls.Menu {
                 title: qsTr("Help")
-                Action {
+                Controls.MenuItem {
                     text: qsTr("About Skywriter...")
                     onTriggered: aboutSkywriter.show()
                 }
-                Action {
+                Controls.MenuItem {
                     text: qsTr("About Qt...")
                     onTriggered: aboutQt.show()
                 }
@@ -797,7 +475,7 @@ ApplicationWindow {
 
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
-                            loadDocument(fromLocalFileString(Settings.Document.lastFile));
+                            actions.loadDocument(fromLocalFileString(Settings.Document.lastFile));
                             textArea.caretPosition = Settings.Document.caretPosition;
                             verticalScrollbar.centerOnCaret();
                         }

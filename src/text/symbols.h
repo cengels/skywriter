@@ -33,6 +33,9 @@ namespace symbols {
     //! of a new word only if this token appears multiple times in a row.
     //! Single occurrences are ignored.
     const QSet<QChar> word_separators_multiple { '-' };
+    //! Identifies all tokens after which the StringReplacer should use the
+    //! opening replacement of a smart replacement rather than the closing one.
+    const QSet<QChar> smart_replacement_prefixes { space, newline, paragraph_separator, carriage_return };
     //! Checks if the given character is a word separator.
     bool isWordSeparator(const QChar& character);
     //! Removes unprintable characters from the string.

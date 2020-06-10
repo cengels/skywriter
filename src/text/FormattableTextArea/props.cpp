@@ -31,7 +31,13 @@ void FormattableTextArea::setCaretPosition(int caretPosition)
 {
     int previousPosition = this->caretPosition();
 
-    m_textCursor.setPosition(caretPosition);
+    if (caretPosition < 0) {
+        m_textCursor.movePosition(QTextCursor::MoveOperation::Start);
+    } else if (caretPosition > m_document->characterCount() - 1) {
+        m_textCursor.movePosition(QTextCursor::MoveOperation::End);
+    } else {
+        m_textCursor.setPosition(caretPosition);
+    }
 
     if (this->caretPosition() != previousPosition) {
         updateActive();

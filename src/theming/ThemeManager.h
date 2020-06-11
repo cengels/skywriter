@@ -39,6 +39,12 @@ class ThemeManager : public QObject {
         Theme* duplicate();
         //! Removes the selected theme.
         void remove();
+        //! Gets an editable version of the current theme that can later
+        //! be reapplied.
+        Theme* editableTheme();
+        //! Saves the changes to the editable theme. Must first call
+        //! editableTheme().
+        void saveChanges(Theme* theme);
 
     Q_SIGNALS:
         void themesChanged();

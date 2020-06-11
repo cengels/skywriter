@@ -9,6 +9,10 @@ Sky.Text {
 
     onHeightChanged: recomputeLorem()
     onWidthChanged: recomputeLorem()
+    onTextIndentChanged: recomputeLorem()
+    onParagraphSpacingChanged: recomputeLorem()
+    onLineHeightChanged: recomputeLorem()
+    onFontChanged: recomputeLorem()
 
     function p(text) {
         return `<p style="margin-bottom: ` + paragraphSpacing + `px; text-indent: ` + textIndent + `px;">` + text + `</p>`
@@ -59,6 +63,6 @@ Sky.Text {
     }
 
     function checkFits() {
-        return contentHeight <= height && contentWidth <= width;
+        return height > 0 && width > 0 && contentHeight <= height && contentWidth <= width;
     }
 }

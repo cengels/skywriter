@@ -1,5 +1,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
+import QtQuick.Window 2.14
 import "../controls" as Sky
 import Skywriter.Theming 1.0
 
@@ -7,18 +9,70 @@ Sky.Dialog {
     id: root
     title: qsTr("Edit theme") + " " + theme.name
     modality: Qt.ApplicationModal
-    width: 800
+    width: Math.min(1000, Screen.width)
     height: 600
-    minimumWidth: 450
+    minimumWidth: Math.min(1000, Screen.width)
     minimumHeight: 270
     standardButtons: Dialog.Ok | Dialog.Cancel
-    readonly property Theme emptyTheme: Theme {}
-    property Theme theme: emptyTheme
+    property Theme theme: Theme {}
 
-    onRejected: theme = emptyTheme
+    onAccepted: ThemeManager.saveChanges(theme)
 
-    Sky.FullThemePreview {
+    RowLayout {
         anchors.fill: parent
-        theme: root.theme
+
+        ScrollView {
+            width: Math.max(Math.min(parent.width * 0.4, 300), 400)
+            Layout.fillHeight: true
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+            Column {
+                anchors.fill: parent
+
+                Sky.Section {
+                    title: "Heading"
+
+                    GridLayout {
+                        anchors.fill: parent
+                        columns: 2
+
+                        Sky.Field {
+                            Layout.columnSpan: 2
+                            title: "Name"
+                            text: theme.name
+                            onTextChanged: theme.name = text
+                        }
+
+                        Sky.ComboBox {
+                            title: "Font"
+                            items: Qt.fontFamilies()
+                            editable: true
+                            currentValue: theme.fontFamily
+                            onCurrentValueChanged: theme.fontFamily = currentValue
+                        }
+
+                        Sky.ComboBox {
+                            Layout.fillWidth: false
+                            width: 75
+                            title: ""
+                            items: [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 42, 48, 72]
+                            editable: true
+                            currentValue: theme.fontSize
+                            onAccepted: console.log(text);
+                            validator: IntValidator {
+                                bottom: 6
+                                top: 200
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Sky.FullThemePreview {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            theme: root.theme
+        }
     }
 }

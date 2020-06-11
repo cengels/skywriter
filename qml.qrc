@@ -31,7 +31,10 @@
         <file alias="CornerRadius.qml">resources/qml/controls/CornerRadius.qml</file>
         <file alias="FullThemePreview.qml">resources/qml/controls/FullThemePreview.qml</file>
         <file alias="LoremIpsum.qml">resources/qml/controls/LoremIpsum.qml</file>
+        <file alias="Section.qml">resources/qml/controls/Section.qml</file>
+        <file alias="Field.qml">resources/qml/controls/Field.qml</file>
         <file alias="MenuItem.qml">resources/qml/controls/MenuItem.qml</file>
+        <file alias="ComboBox.qml">resources/qml/controls/ComboBox.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

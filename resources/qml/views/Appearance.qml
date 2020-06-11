@@ -132,14 +132,16 @@ Sky.Dialog {
 
             Sky.Button {
                 text: qsTr("Edit")
+                enabled: !ThemeManager.activeTheme.isReadOnly
                 onClicked: {
-                    themeEdit.theme = ThemeManager.activeTheme;
+                    themeEdit.theme = ThemeManager.editableTheme();
                     themeEdit.show();
                 }
             }
 
             Sky.Button {
                 text: qsTr("Remove")
+                enabled: !ThemeManager.activeTheme.isReadOnly
                 onClicked: deleteConfirmationDialog.show()
             }
         }

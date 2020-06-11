@@ -170,6 +170,24 @@ void ThemeManager::remove()
     save();
 }
 
+Theme* ThemeManager::editableTheme()
+{
+    Theme* theme = activeTheme();
+    return new Theme(theme->name(), *theme);
+}
+
+void ThemeManager::saveChanges(Theme* theme)
+{
+    Theme* originalTheme = activeTheme();
+    m_themes.replace(m_activeThemeIndex, theme);
+    emit themesChanged();
+    emit activeThemeIndexChanged();
+    emit activeThemeChanged();
+    delete originalTheme;
+
+    save();
+}
+
 Theme* ThemeManager::createTheme(const Theme* from)
 {
     QString name = from ? from->name() : "Untitled";

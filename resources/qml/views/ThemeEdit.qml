@@ -34,10 +34,10 @@ Sky.Dialog {
 
                     GridLayout {
                         anchors.fill: parent
-                        columns: 2
+                        columns: 3
 
                         Sky.Field {
-                            Layout.columnSpan: 2
+                            Layout.columnSpan: 3
                             title: "Name"
                             text: theme.name
                             onTextChanged: theme.name = text
@@ -54,15 +54,19 @@ Sky.Dialog {
                         Sky.ComboBox {
                             Layout.fillWidth: false
                             width: 75
-                            title: ""
                             items: [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 42, 48, 72]
                             editable: true
                             currentValue: theme.fontSize
-                            onAccepted: console.log(text);
+                            onAccepted: theme.fontSize = text
                             validator: IntValidator {
                                 bottom: 6
                                 top: 200
                             }
+                        }
+
+                        Sky.ColorPicker {
+                            color: theme.fontColor
+                            onColorChanged: console.log(color)
                         }
                     }
                 }

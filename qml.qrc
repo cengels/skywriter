@@ -35,6 +35,7 @@
         <file alias="Field.qml">resources/qml/controls/Field.qml</file>
         <file alias="MenuItem.qml">resources/qml/controls/MenuItem.qml</file>
         <file alias="ComboBox.qml">resources/qml/controls/ComboBox.qml</file>
+        <file alias="ColorPicker.qml">resources/qml/controls/ColorPicker.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

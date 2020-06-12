@@ -92,14 +92,16 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
 
         int selectionStart = -1;
         int selectionEnd = -1;
+        bool hasStartSelection = false;
+        bool hasEndSelection = false;
 
         if (hasSelection) {
-            const bool hasStartSelection = block.contains(m_textCursor.selectionStart());
-            const bool hasEndSelection = block.contains(m_textCursor.selectionEnd());
+            hasStartSelection = block.contains(m_textCursor.selectionStart());
+            hasEndSelection = block.contains(m_textCursor.selectionEnd());
 
             if (hasStartSelection) {
                 selectionStart = m_textCursor.selectionStart() - block.position();
-            } else if (hasEndSelection || m_textCursor.selectionStart() < block.position()) {
+            } else if (hasEndSelection || (m_textCursor.selectionStart() < block.position() && m_textCursor.selectionEnd() > block.position())) {
                 selectionStart = 0;
             }
 
@@ -110,19 +112,33 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             }
         }
 
-        n->addTextLayout(QPointF(blockPosition.x(), blockPosition.y() + m_overflowArea - m_contentY),
-                         block.layout(),
-                         fontColor,
-                         QQuickText::TextStyle::Normal,
-                         QColor(),
-                         QColor(),
-                         QColor(fontColor),
-                         QColor(fontColor.lightnessF() > 0.5 ? fontColor.darker(200) : fontColor.lighter(200)),
-                         selectionStart,
-                         selectionEnd);
+        if (!block.text().isEmpty()) {
+            n->addTextLayout(QPointF(blockPosition.x(), blockPosition.y() + m_overflowArea - m_contentY),
+                             block.layout(),
+                             fontColor,
+                             QQuickText::TextStyle::Normal,
+                             QColor(),
+                             QColor(),
+                             fontColor,
+                             fontColor.lightnessF() > 0.5 ? fontColor.darker(200) : fontColor.lighter(200),
+                             selectionStart,
+                             selectionEnd);
+        }
+
+        if (selectionStart >= 0 && !hasEndSelection) {
+            // If the selection exceeds the current block, adds a rectangle at
+            // the end to indicate that the paragraph separator is included
+            // in the selection.
+            const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
+            n->addRectangleNode(
+                        QRectF(QPointF(blockPosition.x() + lastLine.x() + lastLine.naturalTextWidth(),
+                                       blockPosition.y() + m_overflowArea - m_contentY + lastLine.y()),
+                               QSizeF(10, lastLine.height())),
+                        fontColor);
+        }
     }
 
-    if (this->hasFocus() && !m_blinking && !hasSelection) {
+    if (this->hasFocus() && (hasSelection || !m_blinking)) {
         n->setCursor(caretRectangle(), fontColor);
     }
 

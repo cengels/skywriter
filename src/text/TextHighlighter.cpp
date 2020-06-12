@@ -27,8 +27,8 @@ TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(par
 void TextHighlighter::highlightBlock(const QString& text)
 {
     highlightHeadings();
-    highlightComments(text);
     highlightSceneBreaks(text);
+    highlightComments(text);
 }
 
 void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
@@ -75,6 +75,10 @@ void TextHighlighter::highlightComments(const QString& text)
 
     const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
     const QColor commentColor = colors::decreaseEmphasis(fontColor);
+
+    if (startIndex == -1) {
+        unsetCurrentBlockStateFlag(format::EndsWithUnclosedComment);
+    }
 
     while (startIndex >= 0) {
         int endIndex = text.indexOf(symbols::closing_comment, startIndex);

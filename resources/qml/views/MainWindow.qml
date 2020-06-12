@@ -473,6 +473,25 @@ ApplicationWindow {
                         }
                     }
 
+                    property double previousContentHeight: 0
+                    onContentHeightChanged: {
+                        // activeFocus makes sure the text area does not adjust its scroll
+                        // until the text area has fully initialized
+                        if (textArea.activeFocus) {
+                            // "restore" the previous scroll position
+                            let newScroll = verticalScrollbar.position / contentHeight * previousContentHeight;
+
+                            if (Settings.Application.keepScrollWhenTyping) {
+                                // ... and add the difference of old and new content height
+                                newScroll += (contentHeight - previousContentHeight) / contentHeight;
+                            }
+
+                            verticalScrollbar.position = newScroll;
+                        }
+
+                        previousContentHeight = contentHeight;
+                    }
+
                     Component.onCompleted: {
                         if (Settings.Document.lastFile != null) {
                             actions.loadDocument(fromLocalFileString(Settings.Document.lastFile));

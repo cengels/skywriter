@@ -51,6 +51,11 @@ Column {
         }
     }
 
-    readonly property Text textDelegate: Text { text: title }
+    readonly property Sky.Text textDelegate: Sky.Text {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        text: title
+    }
+
     children: [textDelegate, delegate]
 }

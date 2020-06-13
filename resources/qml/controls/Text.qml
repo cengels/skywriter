@@ -9,4 +9,5 @@ Text {
     linkColor: palette.link
     textFormat: Text.RichText
     lineHeight: 0.8
+    bottomPadding: 4
 }

@@ -5,12 +5,29 @@ import "." as Sky
 
 Item {
     id: root
-    implicitHeight: 300
-    implicitWidth: 400
     property real hue: 0.0
+    property real saturation: 1.0
+    property real brightness: 1.0
     property real alpha: 1.0
-    property color color: Qt.hsva(hue, point.x, 1.0 - point.y, alpha)
-    property point point: Qt.point(1.0, 0.0)
+    readonly property color color: Qt.hsva(hue, saturation, brightness, alpha)
+    function setColor(newColor) {
+        if (color === newColor) {
+            return;
+        }
+
+        if (hue !== newColor.hsvHue) {
+            hue = newColor.hsvHue;
+        }
+        if (saturation !== newColor.hsvSaturation) {
+            saturation = newColor.hsvSaturation;
+        }
+        if (brightness !== newColor.hsvValue) {
+            brightness = newColor.hsvValue;
+        }
+        if (alpha !== newColor.a) {
+            alpha = newColor.a;
+        }
+    }
 
     Rectangle {
         id: horizontalGradient
@@ -43,14 +60,19 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onPositionChanged: root.point = Qt.point(clamp(mouseX / width, 0.0, 1.0), clamp(mouseY / height, 0.0, 1.0))
-        onPressed: root.point = Qt.point(clamp(mouseX / width, 0.0, 1.0), clamp(mouseY / height, 0.0, 1.0))
+        onPositionChanged: updateColor()
+        onPressed: updateColor()
+
+        function updateColor() {
+            root.saturation = clamp(mouseX / width, 0.0, 1.0);
+            root.brightness = 1.0 - clamp(mouseY / height, 0.0, 1.0);
+        }
     }
 
     Rectangle {
         id: handle
-        x: root.point.x * root.width - width / 2
-        y: root.point.y * root.height - height / 2
+        x: root.saturation * root.width - width / 2
+        y: (1.0 - root.brightness) * root.height - height / 2
         z: 99
         height: 24
         width: 24

@@ -17,6 +17,17 @@ QUrl QmlHelper::fromLocalFileString(const QString& url) const
     return QUrl::fromLocalFile(url);
 }
 
+bool QmlHelper::isNumeric(const QString string) const
+{
+    for (const QChar character : string) {
+        if (!character.isNumber() && character != '.') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 template<typename T>
 T QmlHelper::clamp(const T value, const T min, const T max) const
 {

@@ -9,7 +9,7 @@ Sky.AbstractColorSlider {
     property color color: Qt.hsla(hue, 1.0, 0.5, 1.0)
     //! A desaturated variant of the color for display in a material UI.
     property color displayColor: Qt.hsla(hue, 0.7, 0.5, 1.0)
-    handleColor: root.color
+    handleColor: root.displayColor
 
     gradient: Gradient {
         orientation: Gradient.Horizontal

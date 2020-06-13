@@ -16,6 +16,7 @@ class QmlHelper : public QObject
     Q_INVOKABLE QUrl fromLocalFileString(const QString& url) const;
     template<typename T>
     T clamp(const T value, const T min, const T max) const;
+    Q_INVOKABLE bool isNumeric(const QString string) const;
 
 };
 

@@ -7,44 +7,137 @@ import "." as Sky
 
 Dialog {
     id: root
-    width: 500
-    height: 400
+    padding: 20
+    margins: 10
     title: "Pick a color"
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     //! Will be shown to the user underneath the main color picker.
     property var suggestedColors: []
     property color initialColor: '#FF0000'
-    property color color: '#FF0000'
+    readonly property alias color: colorFlow.color
 
     onVisibleChanged: {
         if (visible) {
-            color = initialColor;
+            colorFlow.setColor(initialColor);
         }
     }
 
-    contentItem: ColumnLayout {
+    contentItem: GridLayout {
         id: column
-        spacing: 5
+        rowSpacing: 20
+        columnSpacing: 5
+        columns: 3
+
         Sky.ColorFlow {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            // Prevents the handle from being clipped by the title rectangle
-            Layout.topMargin: 6
-            hue: hueSlider.hue
+            id: colorFlow
+            height: 240
+            width: 400
+            Layout.rowSpan: 5
             alpha: alphaSlider.value
+            onHueChanged: {
+                if (hueSlider.hue !== hue) {
+                    hueSlider.hue = hue;
+                }
+            }
+        }
+
+        Sky.Text {
+            text: "RGB"
+            horizontalAlignment: Qt.AlignCenter
+            Layout.fillWidth: true
+            Layout.column: 1
+            Layout.columnSpan: 2
+            Layout.leftMargin: 20
+            Layout.row: 0
+        }
+
+        Sky.Text {
+            text: "R"
+            Layout.leftMargin: 20
+            Layout.column: 1
+            Layout.row: 1
+        }
+
+        Sky.NumberField {
+            implicitWidth: 60
+            Layout.column: 2
+            Layout.row: 1
+            min: 0
+            max: 255
+            text: Math.round(root.color.r * 255)
+            onEditAccepted: colorFlow.setColor(Qt.rgba(value / 255, root.color.g, root.color.b, root.color.a));
+        }
+
+        Sky.Text {
+            text: "G"
+            Layout.leftMargin: 20
+            Layout.column: 1
+            Layout.row: 2
+        }
+
+        Sky.NumberField {
+            implicitWidth: 60
+            Layout.column: 2
+            Layout.row: 2
+            min: 0
+            max: 255
+            text: Math.round(root.color.g * 255)
+            onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, value / 255, root.color.b, root.color.a));
+        }
+
+        Sky.Text {
+            text: "B"
+            Layout.leftMargin: 20
+            Layout.column: 1
+            Layout.row: 3
+        }
+
+        Sky.NumberField {
+            implicitWidth: 60
+            Layout.column: 2
+            Layout.row: 3
+            min: 0
+            max: 255
+            text: Math.round(root.color.b * 255)
+            onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, root.color.g, value / 255, root.color.a));
+        }
+
+        Sky.Text {
+            text: "A"
+            Layout.leftMargin: 20
+            Layout.column: 1
+            Layout.row: 4
+        }
+
+        Sky.NumberField {
+            implicitWidth: 60
+            Layout.column: 2
+            Layout.row: 4
+            min: 0
+            max: 255
+            text: Math.round(root.color.a * 255)
+            onEditAccepted: if (alphaSlider.value * 255 !== value) alphaSlider.value = value / 255
         }
 
         Sky.HueSlider {
             id: hueSlider
             Layout.fillWidth: true
+            Layout.columnSpan: 3
+            hue: initialColor.hslHue
+            onHueChanged: {
+                if (colorFlow.hue !== hue) {
+                    colorFlow.hue = hue;
+                }
+            }
         }
         Sky.ColorSlider {
             id: alphaSlider
             Layout.fillWidth: true
+            Layout.columnSpan: 3
             fromColor: 'transparent'
             toColor: hueSlider.displayColor
-            value: 1.0
+            value: initialColor.a
         }
     }
 }

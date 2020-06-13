@@ -8,8 +8,8 @@ import "." as Sky
 
 Column {
     id: root
-    width: 25
-    height: 25
+    width: 27
+    height: 27
     Layout.alignment: Qt.AlignBottom
     Layout.bottomMargin: 3
     Layout.topMargin: 3
@@ -36,8 +36,8 @@ Column {
             height: delegate.height * 0.75
             radius: width * 0.5
             color: root.color
-            border.color: color === palette.dark ? Qt.hsla(color.hslHue, color.hslSaturation, color.hslLightness  - 0.1, color.a) : "#00000000"
-            border.width: color === palette.dark ? 1 : 0
+            border.color: palette.highlight
+            border.width: 2
         }
 
         background: Rectangle {
@@ -55,7 +55,7 @@ Column {
     readonly property Text textDelegate: Text { text: title }
 
     readonly property Sky.ColorPickerDialog dialog: Sky.ColorPickerDialog {
-        initialColor: color
+        initialColor: root.color
     }
 
     children: [textDelegate, delegate, dialog]

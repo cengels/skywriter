@@ -14,6 +14,8 @@ class QmlHelper : public QObject
 
     Q_INVOKABLE QString toLocalFileString(const QUrl& url) const;
     Q_INVOKABLE QUrl fromLocalFileString(const QString& url) const;
+    template<typename T>
+    T clamp(const T value, const T min, const T max) const;
 
 };
 

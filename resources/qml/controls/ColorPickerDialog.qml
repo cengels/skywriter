@@ -7,8 +7,8 @@ import "." as Sky
 
 Dialog {
     id: root
-    width: 400
-    height: 300
+    width: 500
+    height: 400
     title: "Pick a color"
     standardButtons: Dialog.Ok | Dialog.Cancel
 
@@ -23,18 +23,28 @@ Dialog {
         }
     }
 
-    contentItem: Column {
+    contentItem: ColumnLayout {
         id: column
         spacing: 5
+        Sky.ColorFlow {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            // Prevents the handle from being clipped by the title rectangle
+            Layout.topMargin: 6
+            hue: hueSlider.hue
+            alpha: alphaSlider.value
+        }
+
         Sky.HueSlider {
             id: hueSlider
-            anchors.left: parent.left; anchors.right: parent.right
-            onColorChanged: console.log(color)
+            Layout.fillWidth: true
         }
         Sky.ColorSlider {
-            anchors.left: parent.left; anchors.right: parent.right
+            id: alphaSlider
+            Layout.fillWidth: true
             fromColor: 'transparent'
             toColor: hueSlider.displayColor
+            value: 1.0
         }
     }
 }

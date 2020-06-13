@@ -16,3 +16,9 @@ QUrl QmlHelper::fromLocalFileString(const QString& url) const
 {
     return QUrl::fromLocalFile(url);
 }
+
+template<typename T>
+T QmlHelper::clamp(const T value, const T min, const T max) const
+{
+    return qMin(max, qMax(min, value));
+}

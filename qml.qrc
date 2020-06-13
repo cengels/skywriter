@@ -41,6 +41,7 @@
         <file alias="ColorSlider.qml">resources/qml/controls/ColorSlider.qml</file>
         <file alias="AbstractColorSlider.qml">resources/qml/controls/AbstractColorSlider.qml</file>
         <file alias="HueSlider.qml">resources/qml/controls/HueSlider.qml</file>
+        <file alias="ColorFlow.qml">resources/qml/controls/ColorFlow.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

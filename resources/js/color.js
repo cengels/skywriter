@@ -63,3 +63,7 @@ function adjustContrast(sourceColor, comparisonColor) {
 function isDark(color) {
     return color.hslLightness < 0.5;
 }
+
+function adjustAlpha(color, alpha) {
+    return Qt.rgba(color.r, color.g, color.b, alpha);
+}

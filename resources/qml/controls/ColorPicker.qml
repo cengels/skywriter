@@ -44,14 +44,20 @@ Column {
             width: delegate.width
             height: delegate.height
             radius: width * 0.5
-            color: "#000000"
+            color: "black"
             opacity: 0.35
             visible: delegate.hovered
         }
+
+        onPressed: dialog.open()
     }
 
     readonly property Text textDelegate: Text { text: title }
 
-    children: [textDelegate, delegate]
+    readonly property Sky.ColorPickerDialog dialog: Sky.ColorPickerDialog {
+        initialColor: color
+    }
+
+    children: [textDelegate, delegate, dialog]
 }
 

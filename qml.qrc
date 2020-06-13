@@ -17,6 +17,7 @@
     <qresource prefix="/images">
         <file alias="air.ico">resources/images/air.ico</file>
         <file alias="air.png">resources/images/air.png</file>
+        <file alias="checkered.svg">resources/images/checkered.svg</file>
     </qresource>
     <qresource prefix="/qml/controls">
         <file alias="MenuBar.qml">resources/qml/controls/MenuBar.qml</file>
@@ -36,6 +37,10 @@
         <file alias="MenuItem.qml">resources/qml/controls/MenuItem.qml</file>
         <file alias="ComboBox.qml">resources/qml/controls/ComboBox.qml</file>
         <file alias="ColorPicker.qml">resources/qml/controls/ColorPicker.qml</file>
+        <file alias="ColorPickerDialog.qml">resources/qml/controls/ColorPickerDialog.qml</file>
+        <file alias="ColorSlider.qml">resources/qml/controls/ColorSlider.qml</file>
+        <file alias="AbstractColorSlider.qml">resources/qml/controls/AbstractColorSlider.qml</file>
+        <file alias="HueSlider.qml">resources/qml/controls/HueSlider.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

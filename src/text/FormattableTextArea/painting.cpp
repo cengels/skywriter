@@ -131,7 +131,7 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             // in the selection.
             const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
             n->addRectangleNode(
-                        QRectF(QPointF(blockPosition.x() + lastLine.x() + lastLine.naturalTextWidth(),
+                        QRectF(QPointF(blockPosition.x() + lastLine.naturalTextRect().x() + lastLine.naturalTextWidth(),
                                        blockPosition.y() + m_overflowArea - m_contentY + lastLine.y()),
                                QSizeF(10, lastLine.height())),
                         fontColor);

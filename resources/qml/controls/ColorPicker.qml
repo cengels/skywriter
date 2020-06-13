@@ -16,39 +16,14 @@ Column {
     smooth: true
     property string title: ""
     property color color: "#000000"
+    // Fun fact: If this is an alias instead of a new property, the program
+    // crashes on startup.
+    property var suggestedColors: []
 
-    readonly property Button delegate: Button {
-        id: delegate
+    readonly property Sky.ColorButton delegate: Sky.ColorButton {
         height: root.height
         width: root.width
-        hoverEnabled: true
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onPressed: mouse.accepted = false
-        }
-
-        contentItem: Rectangle {
-            id: circle
-            width: delegate.width * 0.75
-            height: delegate.height * 0.75
-            radius: width * 0.5
-            color: root.color
-            border.color: palette.highlight
-            border.width: 2
-        }
-
-        background: Rectangle {
-            width: delegate.width
-            height: delegate.height
-            radius: width * 0.5
-            color: "black"
-            opacity: 0.35
-            visible: delegate.hovered
-        }
-
+        color: root.color
         onPressed: dialog.open()
     }
 
@@ -56,6 +31,7 @@ Column {
 
     readonly property Sky.ColorPickerDialog dialog: Sky.ColorPickerDialog {
         initialColor: root.color
+        suggestedColors: root.suggestedColors
     }
 
     children: [textDelegate, delegate, dialog]

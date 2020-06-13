@@ -34,10 +34,14 @@ Dialog {
             height: 240
             width: 400
             Layout.rowSpan: 5
-            alpha: alphaSlider.value
             onHueChanged: {
                 if (hueSlider.hue !== hue) {
                     hueSlider.hue = hue;
+                }
+            }
+            onAlphaChanged: {
+                if (alphaSlider.value !== alpha) {
+                    alphaSlider.value = alpha;
                 }
             }
         }
@@ -138,6 +142,28 @@ Dialog {
             fromColor: 'transparent'
             toColor: hueSlider.displayColor
             value: initialColor.a
+            onValueChanged: {
+                if (colorFlow.alpha !== value) {
+                    colorFlow.alpha = value;
+                }
+            }
+        }
+
+        ListView {
+            id: otherColors
+            Layout.fillWidth: true
+            Layout.columnSpan: 3
+            height: 28
+            spacing: 5
+            orientation: Qt.Horizontal
+            model: root.suggestedColors
+
+            delegate: Sky.ColorButton {
+                height: 28
+                width: 28
+                color: modelData
+                onClicked: colorFlow.setColor(modelData);
+            }
         }
     }
 }

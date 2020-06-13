@@ -15,6 +15,7 @@ Sky.Dialog {
     minimumHeight: 270
     standardButtons: Dialog.Ok | Dialog.Cancel
     property Theme theme: Theme {}
+    property var suggestedColors: [theme.fontColor, theme.documentBackground, theme.windowBackground, theme.uiBackground, theme.uiColor]
 
     onAccepted: ThemeManager.saveChanges(theme)
 
@@ -66,6 +67,8 @@ Sky.Dialog {
 
                         Sky.ColorPicker {
                             color: theme.fontColor
+                            suggestedColors: root.suggestedColors
+
 //                            onColorChanged: console.log(color)
                         }
                     }

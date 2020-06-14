@@ -157,7 +157,7 @@ Dialog {
             Sky.TextField {
                 implicitWidth: 250
                 horizontalAlignment: Qt.AlignHCenter
-                text: root.color.toString()
+                text: otherColors.hoveredColor != null ? otherColors.hoveredColor.toString() : root.color.toString()
                 onEditingFinished: {
                     if (isValidHex(text)) {
                         colorFlow.setColor(colorFromHex(text));
@@ -172,11 +172,19 @@ Dialog {
                 spacing: 5
                 orientation: Qt.Horizontal
                 model: root.suggestedColors
+                property var hoveredColor
 
                 delegate: Sky.ColorButton {
                     height: 28
                     width: 28
                     color: modelData
+                    onHoveredChanged: {
+                        if (hovered) {
+                            otherColors.hoveredColor = modelData;
+                        } else {
+                            otherColors.hoveredColor = undefined;
+                        }
+                    }
                     onClicked: colorFlow.setColor(modelData);
                 }
             }

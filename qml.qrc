@@ -46,6 +46,7 @@
         <file alias="NumberField.qml">resources/qml/controls/NumberField.qml</file>
         <file alias="ColorButton.qml">resources/qml/controls/ColorButton.qml</file>
         <file alias="Heading.qml">resources/qml/controls/Heading.qml</file>
+        <file alias="PopupDialog.qml">resources/qml/controls/PopupDialog.qml</file>
     </qresource>
     <qresource prefix="/qml/types">
         <file alias="Model.qml">resources/qml/types/Model.qml</file>

@@ -18,7 +18,7 @@ QtQuick.TextField {
         radius: height / 2
         width: root.width
         height: root.height
-        color: root.activeFocus ? palette.highlight : palette.base
+        color: root.activeFocus ? palette.highlight : palette.alternateBase
 
         Behavior on color {
             ColorAnimation { duration: 100 }

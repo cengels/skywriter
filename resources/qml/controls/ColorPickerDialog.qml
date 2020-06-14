@@ -5,15 +5,10 @@ import QtQuick.Window 2.14
 import QtGraphicalEffects 1.14
 import "." as Sky
 
-Dialog {
+Sky.PopupDialog {
     id: root
-    padding: 20
-    margins: 10
-    title: "Pick a color"
+    title: qsTr("Pick a color")
     standardButtons: Dialog.Ok | Dialog.Cancel
-    footer: DialogButtonBox {
-        delegate: Sky.Button {}
-    }
 
     //! Will be shown to the user underneath the main color picker.
     property var suggestedColors: []
@@ -58,7 +53,7 @@ Dialog {
             columnSpacing: 15
             columns: 2
 
-            Sky.Text { text: "R" }
+            Sky.Text { text: qsTr("R") }
 
             Sky.NumberField {
                 implicitWidth: 60
@@ -68,7 +63,7 @@ Dialog {
                 onEditAccepted: colorFlow.setColor(Qt.rgba(value / 255, root.color.g, root.color.b, root.color.a));
             }
 
-            Sky.Text { text: "G" }
+            Sky.Text { text: qsTr("G") }
 
             Sky.NumberField {
                 implicitWidth: 60
@@ -78,7 +73,7 @@ Dialog {
                 onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, value / 255, root.color.b, root.color.a));
             }
 
-            Sky.Text { text: "B" }
+            Sky.Text { text: qsTr("B") }
 
             Sky.NumberField {
                 implicitWidth: 60
@@ -88,7 +83,7 @@ Dialog {
                 onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, root.color.g, value / 255, root.color.a));
             }
 
-            Sky.Text {  text: "A" }
+            Sky.Text {  text: qsTr("A") }
 
             Sky.NumberField {
                 implicitWidth: 60

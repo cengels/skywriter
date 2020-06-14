@@ -5,7 +5,7 @@ Button {
     background: Rectangle {
         implicitWidth: 100
         color: palette.button
-        radius: 5
+        radius: 10
     }
 
     onHoveredChanged: background.color = hovered ? palette.highlight : palette.button

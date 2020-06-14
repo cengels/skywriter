@@ -31,7 +31,7 @@ Sky.Dialog {
                 anchors.fill: parent
 
                 Sky.Section {
-                    title: "Heading"
+                    title: qsTr("General")
 
                     GridLayout {
                         anchors.fill: parent
@@ -39,13 +39,13 @@ Sky.Dialog {
 
                         Sky.Field {
                             Layout.columnSpan: 3
-                            title: "Name"
+                            title: qsTr("Name")
                             text: theme.name
                             onTextChanged: theme.name = text
                         }
 
                         Sky.ComboBox {
-                            title: "Font"
+                            title: qsTr("Font")
                             items: Qt.fontFamilies()
                             editable: true
                             currentValue: theme.fontFamily

@@ -24,7 +24,8 @@ const QPalette& colors::palette()
         skywriter_palette.setColor(QPalette::ColorRole::Light, QColor { "#ACACAC" });
         skywriter_palette.setColor(QPalette::ColorRole::Link, QColor { "#A8A8A9" });
         skywriter_palette.setColor(QPalette::ColorRole::LinkVisited, QColor { "#A8A8A9" });
-        skywriter_palette.setColor(QPalette::ColorRole::Mid, QColor { "#584C8D" });
+        skywriter_palette.setColor(QPalette::ColorRole::Mid, QColor { "#4b407d" });
+        skywriter_palette.setColor(QPalette::ColorRole::Midlight, QColor { "#584C8D" });
         skywriter_palette.setColor(QPalette::ColorRole::Shadow, QColor { "#1a1a1a" });
         skywriter_palette.setColor(QPalette::ColorRole::Text, QColor { "#b6b5bd" });
         skywriter_palette.setColor(QPalette::ColorRole::ToolTipBase, QColor { "#403668" });

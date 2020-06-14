@@ -28,13 +28,18 @@ Button {
         border.width: 2
     }
 
-    background: Rectangle {
-        width: root.width
-        height: root.height
-        radius: width * 0.5
-        color: "black"
-        opacity: 0.35
-        visible: root.hovered
+    background: DropShadow {
+        anchors.fill: circle
+        source: circle
+        radius: 8
+        samples: 16.0
+        spread: 0.4
+        color: "#77000000"
+        opacity: root.hovered ? 1.0 : 0.0
+
+        Behavior on opacity {
+            OpacityAnimator { duration: 50 }
+        }
     }
 }
 

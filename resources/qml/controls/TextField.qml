@@ -18,9 +18,7 @@ QtQuick.TextField {
         radius: height / 2
         width: root.width
         height: root.height
-        readonly property color darkBackground: Qt.darker(palette.base, 1.07)
-//        readonly property color darkerBackground: Qt.darker(palette.base, 1.2)
-        color: root.activeFocus ? darkBackground : palette.base
+        color: root.activeFocus ? palette.highlight : palette.base
 
         Behavior on color {
             ColorAnimation { duration: 100 }

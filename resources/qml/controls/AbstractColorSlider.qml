@@ -29,7 +29,6 @@ Slider {
             layer.enabled: true
             layer.effect: Sky.CornerRadius { radius: rectangle.radius }
         }
-
     }
 
     handle: Rectangle {
@@ -40,7 +39,15 @@ Slider {
         width: height
         radius: height / 2
         border.width: 2
-        border.color: palette.highlightedText
+        border.color: mouseArea.containsMouse || root.pressed ? palette.brightText : palette.highlightedText
+
+        MouseArea {
+            id: mouseArea
+            cursorShape: Qt.PointingHandCursor
+            anchors.fill: handle
+            hoverEnabled: true
+            onPressed: mouse.accepted = false
+        }
     }
 
     DropShadow {

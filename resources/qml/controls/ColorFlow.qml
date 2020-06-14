@@ -79,7 +79,15 @@ Item {
         radius: height / 2
         color: root.color
         border.width: 2
-        border.color: palette.highlightedText
+        border.color: handleMouseArea.containsMouse || mouseArea.pressed ? palette.brightText : palette.highlightedText
+
+        MouseArea {
+            id: handleMouseArea
+            cursorShape: Qt.PointingHandCursor
+            anchors.fill: handle
+            hoverEnabled: true
+            onPressed: mouse.accepted = false
+        }
     }
 
     DropShadow {

@@ -11,6 +11,9 @@ Dialog {
     margins: 10
     title: "Pick a color"
     standardButtons: Dialog.Ok | Dialog.Cancel
+    footer: DialogButtonBox {
+        delegate: Sky.Button {}
+    }
 
     //! Will be shown to the user underneath the main color picker.
     property var suggestedColors: []
@@ -26,8 +29,8 @@ Dialog {
     contentItem: GridLayout {
         id: column
         rowSpacing: 20
-        columnSpacing: 5
-        columns: 3
+        columnSpacing: 20
+        columns: 2
 
         Sky.ColorFlow {
             id: colorFlow
@@ -46,88 +49,60 @@ Dialog {
             }
         }
 
-        Sky.Text {
-            text: "RGB"
-            horizontalAlignment: Qt.AlignCenter
-            Layout.fillWidth: true
+        GridLayout {
+            id: rgba
             Layout.column: 1
-            Layout.columnSpan: 2
-            Layout.leftMargin: 20
-            Layout.row: 0
-        }
+            // Layout.alignment doesn't work here for some reason
+            Layout.topMargin: (colorFlow.height - height) / 2
+            rowSpacing: 10
+            columnSpacing: 15
+            columns: 2
 
-        Sky.Text {
-            text: "R"
-            Layout.leftMargin: 20
-            Layout.column: 1
-            Layout.row: 1
-        }
+            Sky.Text { text: "R" }
 
-        Sky.NumberField {
-            implicitWidth: 60
-            Layout.column: 2
-            Layout.row: 1
-            min: 0
-            max: 255
-            text: Math.round(root.color.r * 255)
-            onEditAccepted: colorFlow.setColor(Qt.rgba(value / 255, root.color.g, root.color.b, root.color.a));
-        }
+            Sky.NumberField {
+                implicitWidth: 60
+                min: 0
+                max: 255
+                text: Math.round(root.color.r * 255)
+                onEditAccepted: colorFlow.setColor(Qt.rgba(value / 255, root.color.g, root.color.b, root.color.a));
+            }
 
-        Sky.Text {
-            text: "G"
-            Layout.leftMargin: 20
-            Layout.column: 1
-            Layout.row: 2
-        }
+            Sky.Text { text: "G" }
 
-        Sky.NumberField {
-            implicitWidth: 60
-            Layout.column: 2
-            Layout.row: 2
-            min: 0
-            max: 255
-            text: Math.round(root.color.g * 255)
-            onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, value / 255, root.color.b, root.color.a));
-        }
+            Sky.NumberField {
+                implicitWidth: 60
+                min: 0
+                max: 255
+                text: Math.round(root.color.g * 255)
+                onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, value / 255, root.color.b, root.color.a));
+            }
 
-        Sky.Text {
-            text: "B"
-            Layout.leftMargin: 20
-            Layout.column: 1
-            Layout.row: 3
-        }
+            Sky.Text { text: "B" }
 
-        Sky.NumberField {
-            implicitWidth: 60
-            Layout.column: 2
-            Layout.row: 3
-            min: 0
-            max: 255
-            text: Math.round(root.color.b * 255)
-            onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, root.color.g, value / 255, root.color.a));
-        }
+            Sky.NumberField {
+                implicitWidth: 60
+                min: 0
+                max: 255
+                text: Math.round(root.color.b * 255)
+                onEditAccepted: colorFlow.setColor(Qt.rgba(root.color.r, root.color.g, value / 255, root.color.a));
+            }
 
-        Sky.Text {
-            text: "A"
-            Layout.leftMargin: 20
-            Layout.column: 1
-            Layout.row: 4
-        }
+            Sky.Text {  text: "A" }
 
-        Sky.NumberField {
-            implicitWidth: 60
-            Layout.column: 2
-            Layout.row: 4
-            min: 0
-            max: 255
-            text: Math.round(root.color.a * 255)
-            onEditAccepted: if (alphaSlider.value * 255 !== value) alphaSlider.value = value / 255
+            Sky.NumberField {
+                implicitWidth: 60
+                min: 0
+                max: 255
+                text: Math.round(root.color.a * 255)
+                onEditAccepted: if (alphaSlider.value * 255 !== value) alphaSlider.value = value / 255
+            }
         }
 
         Sky.HueSlider {
             id: hueSlider
             Layout.fillWidth: true
-            Layout.columnSpan: 3
+            Layout.columnSpan: 2
             hue: initialColor.hslHue
             onHueChanged: {
                 if (colorFlow.hue !== hue) {
@@ -138,7 +113,7 @@ Dialog {
         Sky.ColorSlider {
             id: alphaSlider
             Layout.fillWidth: true
-            Layout.columnSpan: 3
+            Layout.columnSpan: 2
             fromColor: 'transparent'
             toColor: hueSlider.displayColor
             value: initialColor.a
@@ -150,7 +125,7 @@ Dialog {
         }
 
         Row {
-            Layout.columnSpan: 3
+            Layout.columnSpan: 2
             Layout.alignment: Qt.AlignCenter
             spacing: 40
 

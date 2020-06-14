@@ -4,6 +4,9 @@ import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import QtGraphicalEffects 1.14
 import "." as Sky
+import "../dialog" as Sky
+import "../forms" as Sky
+import "../text" as Sky
 
 Sky.PopupDialog {
     id: root

@@ -1,6 +1,7 @@
 import QtQuick 2.14
 
 import '.' as Sky
+import './text' as Sky
 import Skywriter.Theming 1.0
 
 Sky.ThemePreview {

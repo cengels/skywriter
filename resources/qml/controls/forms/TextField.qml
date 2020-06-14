@@ -1,12 +1,11 @@
 import QtQuick 2.14
-import QtQuick.Controls 2.14 as QtQuick
+import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import QtGraphicalEffects 1.14
-import "." as Sky
-import "../types" as Types
+import "../../utility" as Utility
 
-QtQuick.TextField {
+TextField {
     id: root
     selectByMouse: true
     leftPadding: 10
@@ -42,7 +41,7 @@ QtQuick.TextField {
     signal validate(var event)
     signal editAccepted();
 
-    Types.ValidationEvent {
+    Utility.ValidationEvent {
         id: validationEvent
     }
 

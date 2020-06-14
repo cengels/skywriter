@@ -1,5 +1,5 @@
 import QtQuick 2.14
-import "./" as Sky
+import "." as Sky
 
 Sky.Text {
     linkColor: palette.link

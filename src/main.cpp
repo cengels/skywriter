@@ -35,9 +35,9 @@ namespace {
 
         registerSingleton<ProgressTracker>("Skywriter.Progress", 1, 0, "ProgressTracker");
 
-        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
-        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
-        qmlRegisterSingletonType(QUrl("qrc:///qml/types/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
 
         ThemeManager::instance()->setParent(&app);
         ErrorManager::instance()->setParent(&app);

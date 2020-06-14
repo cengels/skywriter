@@ -2,7 +2,7 @@ import QtQuick 2.14
 import QtQuick.Window 2.14
 import QtQuick.Layouts 1.14
 
-import '.' as Sky
+import '../effects' as Sky
 import Skywriter.Theming 1.0
 
 Rectangle {

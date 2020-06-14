@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import "." as Sky
-import "../../js/color.js" as Color
+import "qrc:/js/color.js" as Color
 
 Sky.AbstractColorSlider {
     id: root

@@ -10,8 +10,10 @@ import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Events 1.0
 import Skywriter.Errors 1.0
-import "../controls" as Controls
-import "../types" as Sky
+import "../controls" as Sky
+import "../controls/dialog" as Sky
+import "../controls/menu" as Sky
+import "../utility" as Sky
 import "." as View
 import "qrc:/js/color.js" as Color
 
@@ -126,7 +128,7 @@ ApplicationWindow {
         ProgressTracker.load();
     }
 
-    Controls.MessageDialog {
+    Sky.MessageDialog {
         id: errorDialog
         title: qsTr("Error")
     }
@@ -137,7 +139,7 @@ ApplicationWindow {
 
     menuBar: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : menuBar.implicitHeight
-        Controls.MenuBar {
+        Sky.MenuBar {
             id: menuBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             y: collapsed ? -height : 0
@@ -154,84 +156,84 @@ ApplicationWindow {
                 }
             }
 
-            Controls.Menu {
+            Sky.Menu {
                 title: qsTr("File")
-                Controls.MenuItem { action: actions.newDocument }
-                Controls.MenuItem { action: actions.open }
+                Sky.MenuItem { action: actions.newDocument }
+                Sky.MenuItem { action: actions.open }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.save }
-                Controls.MenuItem { action: actions.saveAs }
-                Controls.MenuItem { action: actions.rename }
+                Sky.MenuItem { action: actions.save }
+                Sky.MenuItem { action: actions.saveAs }
+                Sky.MenuItem { action: actions.rename }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.fullscreen }
-                Controls.MenuItem {
+                Sky.MenuItem { action: actions.fullscreen }
+                Sky.MenuItem {
                     text: qsTr("Preferences...")
                 }
-                Controls.MenuItem { action: actions.quit }
+                Sky.MenuItem { action: actions.quit }
             }
-            Controls.Menu {
+            Sky.Menu {
                 title: qsTr("Edit")
-                Controls.MenuItem { action: actions.undo }
-                Controls.MenuItem { action: actions.redo }
+                Sky.MenuItem { action: actions.undo }
+                Sky.MenuItem { action: actions.redo }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.cut }
-                Controls.MenuItem { action: actions.copy }
-                Controls.MenuItem { action: actions.paste }
-                Controls.MenuItem { action: actions.pasteUnformatted }
-                Controls.MenuItem { action: actions.pasteUntracked }
-                Controls.MenuItem { action: actions.deleteSelected }
-                Controls.MenuItem { action: actions.deleteUntracked }
+                Sky.MenuItem { action: actions.cut }
+                Sky.MenuItem { action: actions.copy }
+                Sky.MenuItem { action: actions.paste }
+                Sky.MenuItem { action: actions.pasteUnformatted }
+                Sky.MenuItem { action: actions.pasteUntracked }
+                Sky.MenuItem { action: actions.deleteSelected }
+                Sky.MenuItem { action: actions.deleteUntracked }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.selectWord }
-                Controls.MenuItem { action: actions.selectParagraph }
-                Controls.MenuItem { action: actions.selectAll }
+                Sky.MenuItem { action: actions.selectWord }
+                Sky.MenuItem { action: actions.selectParagraph }
+                Sky.MenuItem { action: actions.selectAll }
                 MenuSeparator {}
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("Find")
                 }
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("Find and Replace")
                 }
             }
 
-            Controls.Menu {
+            Sky.Menu {
                 id: formattingMenu
 
                 title: qsTr("Formatting")
-                Controls.MenuItem { action: actions.bold }
-                Controls.MenuItem { action: actions.italics }
-                Controls.MenuItem { action: actions.strikethrough }
+                Sky.MenuItem { action: actions.bold }
+                Sky.MenuItem { action: actions.italics }
+                Sky.MenuItem { action: actions.strikethrough }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.noHeading }
-                Controls.MenuItem { action: actions.heading1 }
-                Controls.MenuItem { action: actions.heading2 }
-                Controls.MenuItem { action: actions.heading3 }
-                Controls.MenuItem { action: actions.heading4 }
-                Controls.MenuItem { action: actions.heading5 }
-                Controls.MenuItem { action: actions.heading6 }
+                Sky.MenuItem { action: actions.noHeading }
+                Sky.MenuItem { action: actions.heading1 }
+                Sky.MenuItem { action: actions.heading2 }
+                Sky.MenuItem { action: actions.heading3 }
+                Sky.MenuItem { action: actions.heading4 }
+                Sky.MenuItem { action: actions.heading5 }
+                Sky.MenuItem { action: actions.heading6 }
                 MenuSeparator {}
-                Controls.MenuItem { action: actions.sceneBreak }
+                Sky.MenuItem { action: actions.sceneBreak }
             }
-            Controls.Menu {
+            Sky.Menu {
                 title: qsTr("Tools")
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("Appearance...")
                     onTriggered: {
                         appearance.oldThemeIndex = ThemeManager.activeThemeIndex;
                         appearance.show();
                     }
                 }
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("Progress...")
                 }
             }
-            Controls.Menu {
+            Sky.Menu {
                 title: qsTr("Help")
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("About Skywriter...")
                     onTriggered: aboutSkywriter.show()
                 }
-                Controls.MenuItem {
+                Sky.MenuItem {
                     text: qsTr("About Qt...")
                     onTriggered: aboutQt.show()
                 }
@@ -549,7 +551,7 @@ ApplicationWindow {
         // Simply detaching it as footer is also not possible, as this will
         // cause an ugly snap when the window is fullscreened (and therefore
         // grows).
-        Controls.StatsBar {
+        Sky.StatsBar {
             id: statsBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             document: textArea

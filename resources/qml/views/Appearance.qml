@@ -1,10 +1,11 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
-import QtQuick.Window 2.14
 import "../controls" as Sky
-import "../types" as SkyT
-import "../views" as SkyV
+import "../controls/dialog" as Sky
+import "../controls/forms" as Sky
+import "../controls/text" as Sky
+import "../views" as Sky
 import Skywriter.Theming 1.0
 import Skywriter.Settings 1.0 as Settings
 
@@ -18,7 +19,7 @@ Sky.Dialog {
     minimumHeight: 270
     standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
 
-    readonly property SkyV.ThemeEdit themeEdit: SkyV.ThemeEdit { }
+    readonly property Sky.ThemeEdit themeEdit: Sky.ThemeEdit { }
     property int oldThemeIndex;
 
     Component.onCompleted: oldThemeIndex = ThemeManager.activeThemeIndex

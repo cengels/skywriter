@@ -7,7 +7,8 @@ import Qt.labs.platform 1.1 as Platform
 import Skywriter.Text 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Progress 1.0
-import "../controls" as Controls
+import "../controls/dialog" as Sky
+import "../controls/forms" as Sky
 
 QtObject {
     id: root
@@ -114,20 +115,20 @@ QtObject {
         }
     }
 
-    readonly property Controls.MessageDialog unsavedDialog: Controls.MessageDialog {
+    readonly property Sky.MessageDialog unsavedDialog: Sky.MessageDialog {
         text: qsTr("You have unsaved changes. Do you want to save your changes before quitting?")
         buttons: [
-            Controls.Button {
+            Sky.Button {
                 text: qsTr("Save")
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             },
 
-            Controls.Button {
+            Sky.Button {
                 text: qsTr("Don't Save")
                 DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
             },
 
-            Controls.Button {
+            Sky.Button {
                 text: qsTr("Cancel")
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             }

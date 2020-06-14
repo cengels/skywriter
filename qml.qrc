@@ -20,44 +20,56 @@
         <file alias="checkered.svg">resources/images/checkered.svg</file>
     </qresource>
     <qresource prefix="/qml/controls">
-        <file alias="MenuBar.qml">resources/qml/controls/MenuBar.qml</file>
-        <file alias="Menu.qml">resources/qml/controls/Menu.qml</file>
-        <file alias="Dialog.qml">resources/qml/controls/Dialog.qml</file>
-        <file alias="Text.qml">resources/qml/controls/Text.qml</file>
-        <file alias="LinkText.qml">resources/qml/controls/LinkText.qml</file>
-        <file alias="Button.qml">resources/qml/controls/Button.qml</file>
         <file alias="StatsBar.qml">resources/qml/controls/StatsBar.qml</file>
-        <file alias="MessageDialog.qml">resources/qml/controls/MessageDialog.qml</file>
         <file alias="ThemePreview.qml">resources/qml/controls/ThemePreview.qml</file>
-        <file alias="CornerRadius.qml">resources/qml/controls/CornerRadius.qml</file>
         <file alias="FullThemePreview.qml">resources/qml/controls/FullThemePreview.qml</file>
-        <file alias="LoremIpsum.qml">resources/qml/controls/LoremIpsum.qml</file>
-        <file alias="Section.qml">resources/qml/controls/Section.qml</file>
-        <file alias="Field.qml">resources/qml/controls/Field.qml</file>
-        <file alias="MenuItem.qml">resources/qml/controls/MenuItem.qml</file>
-        <file alias="ComboBox.qml">resources/qml/controls/ComboBox.qml</file>
-        <file alias="ColorPicker.qml">resources/qml/controls/ColorPicker.qml</file>
-        <file alias="ColorPickerDialog.qml">resources/qml/controls/ColorPickerDialog.qml</file>
-        <file alias="ColorSlider.qml">resources/qml/controls/ColorSlider.qml</file>
-        <file alias="AbstractColorSlider.qml">resources/qml/controls/AbstractColorSlider.qml</file>
-        <file alias="HueSlider.qml">resources/qml/controls/HueSlider.qml</file>
-        <file alias="ColorFlow.qml">resources/qml/controls/ColorFlow.qml</file>
-        <file alias="TextField.qml">resources/qml/controls/TextField.qml</file>
-        <file alias="NumberField.qml">resources/qml/controls/NumberField.qml</file>
-        <file alias="ColorButton.qml">resources/qml/controls/ColorButton.qml</file>
-        <file alias="Heading.qml">resources/qml/controls/Heading.qml</file>
-        <file alias="PopupDialog.qml">resources/qml/controls/PopupDialog.qml</file>
     </qresource>
-    <qresource prefix="/qml/types">
-        <file alias="Model.qml">resources/qml/types/Model.qml</file>
-        <file alias="Settings.qml">resources/qml/types/Settings.qml</file>
-        <file alias="Actions.qml">resources/qml/types/Actions.qml</file>
-        <file alias="ValidationEvent.qml">resources/qml/types/ValidationEvent.qml</file>
+    <qresource prefix="/qml/controls/text">
+        <file alias="Text.qml">resources/qml/controls/text/Text.qml</file>
+        <file alias="LinkText.qml">resources/qml/controls/text/LinkText.qml</file>
+        <file alias="LoremIpsum.qml">resources/qml/controls/text/LoremIpsum.qml</file>
+        <file alias="Heading.qml">resources/qml/controls/text/Heading.qml</file>
     </qresource>
-    <qresource prefix="/qml/types/settings">
-        <file alias="ApplicationSettings.qml">resources/qml/types/settings/ApplicationSettings.qml</file>
-        <file alias="DocumentSettings.qml">resources/qml/types/settings/DocumentSettings.qml</file>
-        <file alias="WindowSettings.qml">resources/qml/types/settings/WindowSettings.qml</file>
+    <qresource prefix="/qml/controls/forms">
+        <file alias="Button.qml">resources/qml/controls/forms/Button.qml</file>
+        <file alias="Section.qml">resources/qml/controls/forms/Section.qml</file>
+        <file alias="Field.qml">resources/qml/controls/forms/Field.qml</file>
+        <file alias="ComboBox.qml">resources/qml/controls/forms/ComboBox.qml</file>
+        <file alias="TextField.qml">resources/qml/controls/forms/TextField.qml</file>
+        <file alias="NumberField.qml">resources/qml/controls/forms/NumberField.qml</file>
+    </qresource>
+    <qresource prefix="/qml/controls/dialog">
+        <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>
+        <file alias="PopupDialog.qml">resources/qml/controls/dialog/PopupDialog.qml</file>
+        <file alias="MessageDialog.qml">resources/qml/controls/dialog/MessageDialog.qml</file>
+    </qresource>
+    <qresource prefix="/qml/controls/color">
+        <file alias="AbstractColorSlider.qml">resources/qml/controls/color/AbstractColorSlider.qml</file>
+        <file alias="ColorButton.qml">resources/qml/controls/color/ColorButton.qml</file>
+        <file alias="ColorFlow.qml">resources/qml/controls/color/ColorFlow.qml</file>
+        <file alias="ColorPicker.qml">resources/qml/controls/color/ColorPicker.qml</file>
+        <file alias="ColorPickerDialog.qml">resources/qml/controls/color/ColorPickerDialog.qml</file>
+        <file alias="ColorSlider.qml">resources/qml/controls/color/ColorSlider.qml</file>
+        <file alias="HueSlider.qml">resources/qml/controls/color/HueSlider.qml</file>
+    </qresource>
+    <qresource prefix="/qml/controls/menu">
+        <file alias="Menu.qml">resources/qml/controls/menu/Menu.qml</file>
+        <file alias="MenuBar.qml">resources/qml/controls/menu/MenuBar.qml</file>
+        <file alias="MenuItem.qml">resources/qml/controls/menu/MenuItem.qml</file>
+    </qresource>
+    <qresource prefix="/qml/effects">
+        <file alias="CornerRadius.qml">resources/qml/effects/CornerRadius.qml</file>
+    </qresource>
+    <qresource prefix="/qml/utility">
+        <file alias="Model.qml">resources/qml/utility/Model.qml</file>
+        <file alias="Settings.qml">resources/qml/utility/Settings.qml</file>
+        <file alias="Actions.qml">resources/qml/utility/Actions.qml</file>
+        <file alias="ValidationEvent.qml">resources/qml/utility/ValidationEvent.qml</file>
+    </qresource>
+    <qresource prefix="/qml/utility/settings">
+        <file alias="ApplicationSettings.qml">resources/qml/utility/settings/ApplicationSettings.qml</file>
+        <file alias="DocumentSettings.qml">resources/qml/utility/settings/DocumentSettings.qml</file>
+        <file alias="WindowSettings.qml">resources/qml/utility/settings/WindowSettings.qml</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="color.js">resources/js/color.js</file>

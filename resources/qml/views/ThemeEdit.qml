@@ -2,10 +2,10 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
-import "../controls" as Sky
-import "../controls/dialog" as Sky
-import "../controls/forms" as Sky
-import "../controls/color" as Sky
+import "qrc:/qml/controls" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/qml/controls/forms" as Sky
+import "qrc:/qml/controls/color" as Sky
 import Skywriter.Theming 1.0
 
 Sky.Dialog {

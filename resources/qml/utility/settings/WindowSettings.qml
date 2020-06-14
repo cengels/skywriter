@@ -1,5 +1,5 @@
 pragma Singleton
-import ".." as Sky
+import "qrc:/qml/utility" as Sky
 
 Sky.Settings {
     id: windowSettings

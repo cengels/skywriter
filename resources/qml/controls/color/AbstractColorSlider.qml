@@ -1,7 +1,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtGraphicalEffects 1.14
-import "../../effects" as Sky
+import "qrc:/qml/effects" as Sky
 
 Slider {
     id: root

@@ -1,8 +1,8 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14 as QtQuickControls
 import QtGraphicalEffects 1.14
-import "../text" as Sky
-import "../forms" as Sky
+import "qrc:/qml/controls/text" as Sky
+import "qrc:/qml/controls/forms" as Sky
 
 QtQuickControls.Dialog {
     id: root

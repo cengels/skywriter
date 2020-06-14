@@ -2,8 +2,8 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
-import "../controls/dialog" as Sky
-import "../controls/text" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/qml/controls/text" as Sky
 
 Sky.Dialog {
     title: qsTr("About Qt")

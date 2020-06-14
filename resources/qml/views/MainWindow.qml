@@ -10,11 +10,11 @@ import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Events 1.0
 import Skywriter.Errors 1.0
-import "../controls" as Sky
-import "../controls/dialog" as Sky
-import "../controls/menu" as Sky
-import "../utility" as Sky
-import "." as View
+import "qrc:/qml/controls" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/qml/controls/menu" as Sky
+import "qrc:/qml/utility" as Sky
+import "qrc:/qml/views" as View
 import "qrc:/js/color.js" as Color
 
 ApplicationWindow {

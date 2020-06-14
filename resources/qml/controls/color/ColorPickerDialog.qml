@@ -3,10 +3,10 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import QtGraphicalEffects 1.14
-import "." as Sky
-import "../dialog" as Sky
-import "../forms" as Sky
-import "../text" as Sky
+import "qrc:/qml/controls/color" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/qml/controls/forms" as Sky
+import "qrc:/qml/controls/text" as Sky
 
 Sky.PopupDialog {
     id: root

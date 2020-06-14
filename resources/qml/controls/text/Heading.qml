@@ -1,4 +1,4 @@
-import "." as Sky
+import "qrc:/qml/controls/text" as Sky
 
 Sky.Text {
     property int level: 2

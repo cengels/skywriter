@@ -1,7 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-
-import '.' as Sky
+import 'qrc:/qml/controls/text' as Sky
 
 Sky.Text {
     property int textIndent: 0

@@ -7,8 +7,8 @@ import Qt.labs.platform 1.1 as Platform
 import Skywriter.Text 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Progress 1.0
-import "../controls/dialog" as Sky
-import "../controls/forms" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/qml/controls/forms" as Sky
 
 QtObject {
     id: root

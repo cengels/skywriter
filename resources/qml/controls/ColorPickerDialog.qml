@@ -149,20 +149,36 @@ Dialog {
             }
         }
 
-        ListView {
-            id: otherColors
-            Layout.fillWidth: true
+        Row {
             Layout.columnSpan: 3
-            height: 28
-            spacing: 5
-            orientation: Qt.Horizontal
-            model: root.suggestedColors
+            Layout.alignment: Qt.AlignCenter
+            spacing: 40
 
-            delegate: Sky.ColorButton {
+            Sky.TextField {
+                implicitWidth: 250
+                horizontalAlignment: Qt.AlignHCenter
+                text: root.color.toString()
+                onEditingFinished: {
+                    if (isValidHex(text)) {
+                        colorFlow.setColor(colorFromHex(text));
+                    }
+                }
+            }
+
+            ListView {
+                id: otherColors
+                implicitWidth: contentWidth
                 height: 28
-                width: 28
-                color: modelData
-                onClicked: colorFlow.setColor(modelData);
+                spacing: 5
+                orientation: Qt.Horizontal
+                model: root.suggestedColors
+
+                delegate: Sky.ColorButton {
+                    height: 28
+                    width: 28
+                    color: modelData
+                    onClicked: colorFlow.setColor(modelData);
+                }
             }
         }
     }

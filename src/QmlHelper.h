@@ -1,6 +1,7 @@
 #ifndef QMLHELPER_H
 #define QMLHELPER_H
 
+#include <QColor>
 #include <QObject>
 #include <QUrl>
 
@@ -15,8 +16,10 @@ class QmlHelper : public QObject
     Q_INVOKABLE QString toLocalFileString(const QUrl& url) const;
     Q_INVOKABLE QUrl fromLocalFileString(const QString& url) const;
     template<typename T>
-    T clamp(const T value, const T min, const T max) const;
-    Q_INVOKABLE bool isNumeric(const QString string) const;
+    T clamp(const T& value, const T& min, const T& max) const;
+    Q_INVOKABLE bool isNumeric(const QString& string) const;
+    Q_INVOKABLE bool isValidHex(const QString& string) const;
+    Q_INVOKABLE QColor colorFromHex(const QString& string) const;
 
 };
 

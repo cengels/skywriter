@@ -68,8 +68,7 @@ Sky.Dialog {
                         Sky.ColorPicker {
                             color: theme.fontColor
                             suggestedColors: root.suggestedColors
-
-//                            onColorChanged: console.log(color)
+                            onUserColorChanged: theme.fontColor = userColor
                         }
                     }
                 }

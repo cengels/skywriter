@@ -139,6 +139,8 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
     }
 
     if (this->hasFocus() && (hasSelection || !m_blinking)) {
+        // Should be slanted if in italics mode but doesn't seem to be possible
+        // with QQuickTextNode.
         n->setCursor(caretRectangle(), fontColor);
     }
 

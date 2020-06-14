@@ -53,11 +53,17 @@ Sky.Dialog {
                 Rectangle {
                     anchors.fill: parent
                     radius: 5
+                    opacity: mouseArea.containsMouse || rootDelegate.selected ? 1 : 0
                     color: rootDelegate.selected
-                           ? palette.highlight
-                           : mouseArea.containsMouse
-                             ? palette.alternateBase
-                             : 'transparent'
+                           ? palette.button
+                           : palette.base
+
+                    Behavior on color {
+                        ColorAnimation { duration: 100 }
+                    }
+                    Behavior on opacity {
+                        OpacityAnimator { duration: 100 }
+                    }
                 }
 
                 ColumnLayout {
@@ -93,6 +99,7 @@ Sky.Dialog {
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
+                    cursorShape: rootDelegate.selected ? Qt.ArrowCursor : Qt.PointingHandCursor
                     onClicked: {
                         ThemeManager.activeThemeIndex = index;
                     }

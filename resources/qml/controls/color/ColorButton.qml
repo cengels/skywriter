@@ -20,7 +20,7 @@ Button {
         height: root.height * 0.75
         radius: width * 0.5
         color: root.color
-        border.color: palette.highlight
+        border.color: palette.base
         border.width: 2
     }
 

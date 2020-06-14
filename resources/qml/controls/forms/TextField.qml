@@ -17,7 +17,7 @@ TextField {
         radius: height / 2
         width: root.width
         height: root.height
-        color: root.activeFocus ? palette.highlight : palette.alternateBase
+        color: root.activeFocus ? palette.base : palette.alternateBase
 
         Behavior on color {
             ColorAnimation { duration: 100 }
@@ -31,8 +31,11 @@ TextField {
         radius: 4.0
         samples: 8
         z: -1
-        color: "#70000000"
+        color: root.activeFocus ? palette.highlight : "#70000000"
         source: rectangle
+        Behavior on color {
+            ColorAnimation { duration: 100 }
+        }
         Behavior on opacity {
             OpacityAnimator { duration: 100 }
         }

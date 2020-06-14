@@ -14,8 +14,10 @@ Item {
     ColumnLayout {
         anchors.fill: parent
 
-        Sky.Text {
+        Sky.Heading {
+            Layout.leftMargin: 6
             text: title
+            level: 2
             Layout.fillWidth: true
             font.pointSize: 13
         }

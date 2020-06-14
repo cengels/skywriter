@@ -13,13 +13,13 @@ const QPalette& colors::palette()
         // This is necessary because custom style palettes cannot be defined
         // in qtquickcontrols2.conf.
 
-        skywriter_palette.setColor(QPalette::ColorRole::Base, QColor { "#403668" });
-        skywriter_palette.setColor(QPalette::ColorRole::AlternateBase, QColor { "#443a6e" });
+        skywriter_palette.setColor(QPalette::ColorRole::Base, QColor { "#32285E" });
+        skywriter_palette.setColor(QPalette::ColorRole::AlternateBase, QColor { "#2B2250" });
         skywriter_palette.setColor(QPalette::ColorRole::BrightText, QColor { "#CACACA" });
-        skywriter_palette.setColor(QPalette::ColorRole::Button, QColor { "#403668" });
+        skywriter_palette.setColor(QPalette::ColorRole::Button, QColor { "#4D3DAD" }); // accent color
         skywriter_palette.setColor(QPalette::ColorRole::ButtonText, QColor { "#A8A8A9" });
         skywriter_palette.setColor(QPalette::ColorRole::Dark, QColor { "#473C77" });
-        skywriter_palette.setColor(QPalette::ColorRole::Highlight, QColor { "#3B3261" });
+        skywriter_palette.setColor(QPalette::ColorRole::Highlight, QColor { "#5f4bbd" });
         skywriter_palette.setColor(QPalette::ColorRole::HighlightedText, QColor { "#FCFCFC" });
         skywriter_palette.setColor(QPalette::ColorRole::Light, QColor { "#ACACAC" });
         skywriter_palette.setColor(QPalette::ColorRole::Link, QColor { "#A8A8A9" });
@@ -30,7 +30,7 @@ const QPalette& colors::palette()
         skywriter_palette.setColor(QPalette::ColorRole::Text, QColor { "#b6b5bd" });
         skywriter_palette.setColor(QPalette::ColorRole::ToolTipBase, QColor { "#403668" });
         skywriter_palette.setColor(QPalette::ColorRole::ToolTipText, QColor { "#CACACA" });
-        skywriter_palette.setColor(QPalette::ColorRole::Window, QColor { "#473C77" });
+        skywriter_palette.setColor(QPalette::ColorRole::Window, QColor { "#372D65" });
         skywriter_palette.setColor(QPalette::ColorRole::WindowText, QColor { "#A8A8A9" });
         palette_initialized = true;
     }

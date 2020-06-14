@@ -37,7 +37,12 @@ Window {
 
         footer: DialogButtonBox {
             alignment: dialog.buttonAlignment
-            delegate: Sky.Button { }
+            delegate: Sky.Button {
+                prominence: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
+                            || DialogButtonBox.buttonRole === DialogButtonBox.YesRole
+                            || DialogButtonBox.buttonRole === DialogButtonBox.ApplyRole ? Sky.Button.Primary
+                                                                                        : Sky.Button.Secondary
+            }
 
             contentChildren: dialog.buttons != null ? dialog.buttons : {}
             standardButtons: dialog.standardButtons

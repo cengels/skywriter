@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/effects" as Sky
 
 Button {
@@ -13,7 +14,17 @@ Button {
         Secondary
     }
 
-    scale: pressed ? 0.85 : 1.0
+    scale: down ? 0.85 : 1.0
+
+    contentItem: Text {
+        text: root.text
+        font: root.font
+        opacity: enabled ? 1.0 : 0.3
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+        color: prominence === 0 ? palette.text : palette.buttonText;
+    }
 
     background: Rectangle {
         id: background

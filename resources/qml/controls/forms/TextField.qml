@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import QtGraphicalEffects 1.14
 import "qrc:/qml/utility" as Utility
+import "qrc:/js/color.js" as Color
 
 TextField {
     id: root
@@ -17,27 +18,16 @@ TextField {
         radius: height / 2
         width: root.width
         height: root.height
-        color: root.activeFocus ? palette.base : palette.alternateBase
+        color: root.activeFocus ? palette.alternateBase : palette.base
+        border.width: 1
+        border.color: root.activeFocus ? Color.adjustAlpha(palette.highlight, 0.65) : (root.hovered ? palette.alternateBase : palette.base)
 
         Behavior on color {
             ColorAnimation { duration: 100 }
         }
-    }
 
-    DropShadow {
-        anchors.fill: rectangle
-        cached: true
-        opacity: root.hovered ? 1.0 : 0.0
-        radius: 4.0
-        samples: 8
-        z: -1
-        color: root.activeFocus ? palette.highlight : "#70000000"
-        source: rectangle
-        Behavior on color {
+        Behavior on border.color {
             ColorAnimation { duration: 100 }
-        }
-        Behavior on opacity {
-            OpacityAnimator { duration: 100 }
         }
     }
 

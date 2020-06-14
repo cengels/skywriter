@@ -18,6 +18,7 @@
         <file alias="air.ico">resources/images/air.ico</file>
         <file alias="air.png">resources/images/air.png</file>
         <file alias="checkered.svg">resources/images/checkered.svg</file>
+        <file alias="arrow-down.svg">resources/images/arrow-down.svg</file>
     </qresource>
     <qresource prefix="/qml/controls">
         <file alias="StatsBar.qml">resources/qml/controls/StatsBar.qml</file>

@@ -21,7 +21,12 @@ QtQuickControls.Dialog {
 
     footer: QtQuickControls.DialogButtonBox {
         background: null
-        delegate: Sky.Button {}
+        delegate: Sky.Button {
+            prominence: QtQuickControls.DialogButtonBox.buttonRole === QtQuickControls.DialogButtonBox.AcceptRole
+                        || QtQuickControls.DialogButtonBox.buttonRole === QtQuickControls.DialogButtonBox.YesRole
+                        || QtQuickControls.DialogButtonBox.buttonRole === QtQuickControls.DialogButtonBox.ApplyRole ? Sky.Button.Primary
+                                                                                    : Sky.Button.Secondary
+        }
     }
 
     background: Item {

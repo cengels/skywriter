@@ -138,6 +138,8 @@ class FormattableTextArea : public QQuickItem
         void paste();
         //! Removes the selected text.
         void remove();
+        //! Cuts the selected text.
+        void cut();
 
         void undo();
         void redo();

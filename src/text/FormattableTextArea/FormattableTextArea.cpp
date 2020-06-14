@@ -411,6 +411,12 @@ void FormattableTextArea::remove()
     }
 }
 
+void FormattableTextArea::cut()
+{
+    copy();
+    remove();
+}
+
 void FormattableTextArea::undo()
 {
     bool hadSelection = m_textCursor.hasSelection();

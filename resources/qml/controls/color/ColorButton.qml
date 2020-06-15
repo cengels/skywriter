@@ -7,6 +7,12 @@ Button {
     property color color: "white"
     hoverEnabled: true
 
+    scale: down ? 0.7 : 1.0
+
+    Behavior on scale {
+        ScaleAnimator { easing.type: Easing.InOutSine; duration: 100 }
+    }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent

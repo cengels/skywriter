@@ -42,8 +42,8 @@ QtObject {
 
     readonly property FileDialog openDialog: FileDialog {
         title: qsTr("Open...")
-        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*)"]
-        selectedNameFilter: "All files (*)"
+        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)"]
+        selectedNameFilter: "Markdown files (*.md)"
         selectExisting: true
         folder: textArea.fileExists
                 ? textArea.directoryUrl

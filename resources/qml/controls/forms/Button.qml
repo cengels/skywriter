@@ -16,6 +16,10 @@ Button {
 
     scale: down ? 0.85 : 1.0
 
+    Behavior on scale {
+        ScaleAnimator { easing.type: Easing.InOutSine; duration: 100 }
+    }
+
     contentItem: Text {
         text: root.text
         font: root.font
@@ -64,10 +68,6 @@ Button {
         Behavior on border.color {
             ColorAnimation { duration: 200 }
         }
-    }
-
-    Behavior on scale {
-        ScaleAnimator { easing.type: Easing.InOutSine; duration: 100 }
     }
 
     MouseArea {

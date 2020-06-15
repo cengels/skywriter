@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import "qrc:/qml/controls" as Sky
@@ -32,47 +33,93 @@ Sky.Dialog {
 
             Column {
                 anchors.fill: parent
+                spacing: 15
 
                 Sky.Section {
                     title: qsTr("General")
+                    columns: 3
 
-                    GridLayout {
-                        anchors.fill: parent
-                        columns: 3
+                    Sky.Field {
+                        Layout.columnSpan: 3
+                        title: qsTr("Name")
 
-                        Sky.Field {
-                            Layout.columnSpan: 3
-                            title: qsTr("Name")
+                        field: Sky.TextField {
                             text: theme.name
                             onTextChanged: theme.name = text
                         }
+                    }
 
-                        Sky.ComboBox {
-                            title: qsTr("Font")
-                            items: Qt.fontFamilies()
-                            editable: true
-                            currentValue: theme.fontFamily
-                            onCurrentValueChanged: theme.fontFamily = currentValue
-                        }
+                    Sky.ComboBox {
+                        title: qsTr("Font")
+                        items: Qt.fontFamilies()
+                        editable: true
+                        currentValue: theme.fontFamily
+                        onCurrentValueChanged: theme.fontFamily = currentValue
+                    }
 
-                        Sky.ComboBox {
-                            Layout.fillWidth: false
-                            width: 75
-                            items: [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 42, 48, 72]
-                            editable: true
-                            currentValue: theme.fontSize
-                            onAccepted: theme.fontSize = text
-                            validator: IntValidator {
-                                bottom: 6
-                                top: 200
-                            }
+                    Sky.ComboBox {
+                        Layout.fillWidth: false
+                        width: 75
+                        items: [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 42, 48, 72]
+                        editable: true
+                        currentValue: theme.fontSize
+                        onAccepted: theme.fontSize = text
+                        validator: IntValidator {
+                            bottom: 6
+                            top: 200
                         }
+                    }
 
-                        Sky.ColorPicker {
-                            color: theme.fontColor
-                            suggestedColors: root.suggestedColors
-                            onUserColorChanged: theme.fontColor = userColor
+                    Sky.ColorPicker {
+                        color: theme.fontColor
+                        suggestedColors: root.suggestedColors
+                        onUserColorChanged: theme.fontColor = userColor
+                    }
+                }
+
+                Sky.Section {
+                    title: qsTr("Document")
+                    columns: 2
+
+                    readonly property FileDialog imageDialog: FileDialog {
+                        id: imageDialog
+                        title: qsTr("Select image...")
+                        nameFilters: ["Image files (*.jpg *.png *.bmp *.gif *.jpeg)"]
+                        selectedNameFilter: "Image files (*.jpg *.png *.bmp *.gif *.jpeg)"
+                        selectExisting: true
+                        folder: shortcuts.pictures
+                        onAccepted: {
+                            theme.backgroundImage = imageDialog.fileUrl
                         }
+                    }
+
+                    Sky.SectionLabel {
+                        text: qsTr("Window background")
+                    }
+
+                    Sky.ColorPicker {
+                        color: theme.windowBackground
+                        suggestedColors: root.suggestedColors
+                        onUserColorChanged: theme.windowBackground = userColor
+                    }
+
+                    Sky.SectionLabel {
+                        text: qsTr("Background image")
+                    }
+
+                    Sky.Button {
+                        text: theme.backgroundImage != null && theme.backgroundImage !== '' ? theme.backgroundImage : qsTr("No image")
+                        onClicked: imageDialog.open()
+                    }
+
+                    Sky.SectionLabel {
+                        text: qsTr("Document background")
+                    }
+
+                    Sky.ColorPicker {
+                        color: theme.documentBackground
+                        suggestedColors: root.suggestedColors
+                        onUserColorChanged: theme.documentBackground = userColor
                     }
                 }
             }

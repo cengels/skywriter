@@ -145,6 +145,7 @@ Sky.PopupDialog {
                 spacing: 5
                 orientation: Qt.Horizontal
                 model: root.suggestedColors
+                interactive: false
                 property var hoveredColor
 
                 delegate: Sky.ColorButton {

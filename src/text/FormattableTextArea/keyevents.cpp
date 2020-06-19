@@ -34,35 +34,22 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             break;
         case Qt::Key_Back:
         case Qt::Key_Backspace:
-            if (m_textCursor.hasSelection()) {
-                remove();
-            } else if (!ctrl) {
-                m_textCursor.deletePreviousChar();
-                updateWordCount();
-                emit textChanged();
-            } else {
-                m_textCursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
-                m_textCursor.removeSelectedText();
-                updateWordCount();
-                emit textChanged();
+            if (!m_textCursor.atStart() && !m_textCursor.hasSelection()) {
+                m_textCursor.movePosition(ctrl ? QTextCursor::PreviousWord : QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
             }
+
+            remove();
+
             updateActive();
-            emit caretPositionChanged();
             event->accept();
             break;
         case Qt::Key_Delete:
-            if (m_textCursor.hasSelection()) {
-                remove();
-            } else if (!ctrl) {
-                m_textCursor.deleteChar();
-                updateWordCount();
-                emit textChanged();
-            } else {
-                m_textCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-                m_textCursor.removeSelectedText();
-                updateWordCount();
-                emit textChanged();
+            if (!m_textCursor.atEnd() && !m_textCursor.hasSelection()) {
+                m_textCursor.movePosition(ctrl ? QTextCursor::NextWord : QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
             }
+
+            remove();
+
             updateActive();
             event->accept();
             break;
@@ -91,13 +78,13 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             if (!text.isEmpty()) {
                 const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
                 const QString replacedText = m_replacer.replace(text, previousCharacter);
+                const int position = m_textCursor.position();
                 m_textCursor.insertText(replacedText);
                 moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
 
                 if (symbols::isWordSeparator(previousCharacter)) {
                     updateWordCount();
                 }
-
 
                 if (m_textCursor.block().text().isEmpty()) {
                     m_textCursor.joinPreviousEditBlock();
@@ -107,6 +94,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 
                 event->accept();
                 emit textChanged();
+                emit textInserted(position, replacedText);
             } else {
                 event->ignore();
             }

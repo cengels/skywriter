@@ -31,6 +31,7 @@
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
     , m_document(nullptr)
+    , m_documentStructure(QVector<DocumentSegment*>())
     , m_highlighter(nullptr)
     , m_replacer(StringReplacer())
     , m_textCursor(QTextCursor())
@@ -91,6 +92,61 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     connect(this, &FormattableTextArea::selectedTextChanged, this, &FormattableTextArea::updateSelectedCounts);
 
+    connect(this, &FormattableTextArea::textInserted, this, [&] (const int at, const QString text) {
+        DocumentSegment* targetSegment = nullptr;
+
+        for (DocumentSegment* segment : m_documentStructure) {
+            if (targetSegment) {
+                segment->setPosition(segment->position() + text.length());
+                continue;
+            }
+
+            if (at >= segment->position()) {
+                targetSegment = segment;
+            }
+        }
+
+        emit targetSegment->textChanged();
+    });
+
+    connect(this, &FormattableTextArea::textRemoved, this, [&] (const int at, const QString text) {
+        int textEnd = at + text.length();
+        int length = m_documentStructure.length();
+        DocumentSegment* targetSegment = nullptr;
+
+        for (int i = 0; i < length; i++) {
+            DocumentSegment* segment = m_documentStructure.at(i);
+
+            if (targetSegment) {
+                segment->setPosition(segment->position() - text.length());
+                continue;
+            }
+
+            if (i == length - 1) {
+                targetSegment = segment;
+                break;
+            }
+
+            DocumentSegment* next = m_documentStructure.at(i + 1);
+
+            if (at >= segment->position()) {
+                if (textEnd < next->position()) {
+                    targetSegment = segment;
+                } else {
+                    // Text was removed from more than one DocumentSegment.
+                    // This means that a DocumentSegment boundary was removed,
+                    // i.e. the number of DocumentSegments is not the same
+                    // as before. Must reinstantiate the entire structure.
+
+                    updateDocumentStructure();
+                    return;
+                }
+            }
+        }
+
+        emit targetSegment->textChanged();
+    });
+
     newDocument();
 }
 
@@ -138,6 +194,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
     }
 
     clearUndoStack();
+    updateDocumentStructure();
 
     emit documentChanged();
     emit modifiedChanged();
@@ -147,11 +204,6 @@ void FormattableTextArea::newDocument(QTextDocument* document)
 
 void FormattableTextArea::handleTextChange()
 {
-    // Calling m_highlighter.rehighlight() for some reason sends text change events
-    if (!m_highlighter->refreshing()) {
-        emit textChanged();
-    }
-
     emit contentHeightChanged();
 
     // TODO: Fix this. For some reason, using edit blocks here doesn't work.
@@ -377,22 +429,27 @@ void FormattableTextArea::paste()
     }
 
     bool hadSelection = m_textCursor.hasSelection();
+    int previousPosition = m_textCursor.selectionStart();
+    QString insertedString;
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasHtml()) {
-        int previousPosition = m_textCursor.hasSelection() ? m_textCursor.selectionStart() : m_textCursor.position();
         m_textCursor.insertHtml(mimeData->html());
         int newPosition = m_textCursor.position();
         m_textCursor.setPosition(previousPosition);
         m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
+        insertedString = m_textCursor.selectedText();
         format::normalize(m_textCursor, ThemeManager::instance()->activeTheme(), m_sceneBreak);
         m_textCursor.clearSelection();
     } else if (mimeData->hasText()) {
+        insertedString = mimeData->text();
         m_textCursor.insertText(mimeData->text());
     }
 
     updateActive();
     emit caretPositionChanged();
+    emit textChanged();
+    emit textInserted(previousPosition, insertedString);
 
     if (hadSelection) {
         emit selectedTextChanged();
@@ -404,9 +461,13 @@ void FormattableTextArea::paste()
 void FormattableTextArea::remove()
 {
     if (m_textCursor.hasSelection()) {
+        int position = m_textCursor.selectionStart();
+        QString text = m_textCursor.selectedText();
         m_textCursor.removeSelectedText();
         emit selectedTextChanged();
         emit textChanged();
+        emit textRemoved(position, text);
+        emit caretPositionChanged();
         updateWordCount();
     }
 }
@@ -430,6 +491,7 @@ void FormattableTextArea::undo()
     }
 
     this->updateWordCount();
+    updateDocumentStructure();
 }
 
 void FormattableTextArea::redo()
@@ -445,6 +507,53 @@ void FormattableTextArea::redo()
     }
 
     this->updateWordCount();
+    updateDocumentStructure();
+}
+
+void FormattableTextArea::updateDocumentStructure()
+{
+    for (DocumentSegment* segment : m_documentStructure) {
+        delete segment;
+    }
+
+    m_documentStructure.clear();
+
+    if (!m_document) {
+        emit documentStructureChanged();
+
+        return;
+    }
+
+    m_documentStructure.append(new DocumentSegment(0, 1, this));
+
+    QTextBlock previous = QTextBlock();
+    QTextBlock previousHeading = QTextBlock();
+    QTextBlock block = m_document->firstBlock();
+
+    while (block.isValid()) {
+        if (block.blockFormat().headingLevel() > 0 && previous.isValid() && previous.blockFormat().headingLevel() == 0) {
+            int depth;
+            DocumentSegment* const previousSegment = m_documentStructure.last();
+
+            if (!previousHeading.isValid() || previousHeading.blockFormat().headingLevel() == block.blockFormat().headingLevel()) {
+                depth = previousSegment->depth();
+            } else {
+                depth = previousSegment->depth() + 1;
+            }
+
+            m_documentStructure.append(new DocumentSegment(block.position(), depth, this));
+
+            if (previousSegment) {
+                emit previousSegment->textChanged();
+            }
+        }
+
+        previous = block;
+        block = block.next();
+    }
+
+    emit m_documentStructure.last()->textChanged();
+    emit documentStructureChanged();
 }
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)

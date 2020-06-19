@@ -14,6 +14,16 @@
 #include "FormattableTextArea.h"
 #include "../../numbers.h"
 
+QTextDocument* FormattableTextArea::document() const
+{
+    return m_document;
+}
+
+const QVector<DocumentSegment*>& FormattableTextArea::documentStructure() const
+{
+    return m_documentStructure;
+}
+
 void FormattableTextArea::setContentY(double contentY)
 {
     m_contentY = contentY;

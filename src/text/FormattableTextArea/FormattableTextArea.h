@@ -15,10 +15,12 @@
 #include "../TextIterator.h"
 #include "../MarkdownParser.h"
 #include "../StringReplacer.h"
+#include "../DocumentSegment.h"
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QQuickTextDocument;
+class DocumentSegment;
 QT_END_NAMESPACE
 
 class FormattableTextArea : public QQuickItem
@@ -35,6 +37,9 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged)
     Q_PROPERTY(QUrl directoryUrl READ directoryUrl NOTIFY directoryUrlChanged)
     Q_PROPERTY(bool fileExists READ fileExists NOTIFY fileExistsChanged)
+
+    Q_PROPERTY(QTextDocument* document READ document NOTIFY documentChanged)
+    Q_PROPERTY(QVector<DocumentSegment*> documentStructure READ documentStructure NOTIFY documentStructureChanged)
 
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
@@ -81,6 +86,9 @@ class FormattableTextArea : public QQuickItem
         void mousePressEvent(QMouseEvent* event) override;
         void mouseMoveEvent(QMouseEvent* event) override;
         void mouseReleaseEvent(QMouseEvent* event) override;
+
+        QTextDocument* document() const;
+        const QVector<DocumentSegment*>& documentStructure() const;
 
         void setContentY(double contentY);
 
@@ -166,11 +174,14 @@ class FormattableTextArea : public QQuickItem
 
     Q_SIGNALS:
         void documentChanged();
+        void documentStructureChanged();
 
         void contentYChanged();
         void caretPositionChanged();
 
         void textChanged();
+        void textInserted(const int at, const QString text);
+        void textRemoved(const int at, const QString text);
         void fileUrlChanged();
         void directoryUrlChanged();
         void fileExistsChanged();
@@ -212,7 +223,8 @@ class FormattableTextArea : public QQuickItem
 
         int hitTest(const QPointF& point) const;
         void newDocument(QTextDocument* document = new QTextDocument());
-        QTextDocument *m_document;
+        QTextDocument* m_document;
+        QVector<DocumentSegment*> m_documentStructure;
         TextHighlighter* m_highlighter;
         StringReplacer m_replacer;
 
@@ -233,6 +245,8 @@ class FormattableTextArea : public QQuickItem
         //! This includes ensuring the caret blinking timer is reset.
         void updateActive();
         void expandSelection();
+
+        void updateDocumentStructure();
 
         int m_characterCount;
         int m_selectedCharacterCount;

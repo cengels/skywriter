@@ -33,6 +33,7 @@ SOURCES += \
         src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
+        src/text/DocumentSegment.cpp \
         src/text/MarkdownParser.cpp \
         src/text/Replacement.cpp \
         src/text/StringReplacer.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     src/numbers.h \
     src/persistence.h \
     src/progress/ProgressItem.h \
+    src/text/DocumentSegment.h \
     src/text/FormattableTextArea/FormattableTextArea.h \
     src/text/MarkdownParser.h \
     src/text/Replacement.h \

@@ -21,6 +21,7 @@ ApplicationWindow {
     id: mainWindow
     title: textArea.fileName + (textArea.modified ? "*" : "") + "  •  Skywriter"
     visible: true
+    color: ThemeManager.activeTheme.windowBackground
 
     readonly property int windowSizeSubtraction: 250
     readonly property int defaultWidth: Screen.width - windowSizeSubtraction
@@ -246,17 +247,12 @@ ApplicationWindow {
         anchors.fill: container
         source: ThemeManager.activeTheme.backgroundImage
         fillMode: ThemeManager.activeTheme.fillMode
-    }
-
-    Rectangle {
-        id: backgroundRectangle
-        anchors.fill: container
-        color: ThemeManager.activeTheme.windowBackground
+        visible: ThemeManager.activeTheme.backgroundImage !== ''
     }
 
     Control {
         id: container
-        background: ThemeManager.activeTheme.backgroundImage === '' ? backgroundRectangle : backgroundImage
+        background: backgroundImage
         anchors.fill: parent
 
         ScrollBar {

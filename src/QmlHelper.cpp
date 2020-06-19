@@ -17,6 +17,11 @@ QUrl QmlHelper::fromLocalFileString(const QString& url) const
     return QUrl::fromLocalFile(url);
 }
 
+QString QmlHelper::fileName(const QUrl& url) const
+{
+    return url.fileName();
+}
+
 bool QmlHelper::isNumeric(const QString& string) const
 {
     for (const QChar character : string) {

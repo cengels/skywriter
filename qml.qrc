@@ -39,6 +39,8 @@
         <file alias="TextField.qml">resources/qml/controls/forms/TextField.qml</file>
         <file alias="NumberField.qml">resources/qml/controls/forms/NumberField.qml</file>
         <file alias="SectionLabel.qml">resources/qml/controls/forms/SectionLabel.qml</file>
+        <file alias="Form.qml">resources/qml/controls/forms/Form.qml</file>
+        <file alias="IconButton.qml">resources/qml/controls/forms/IconButton.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/dialog">
         <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>
@@ -75,5 +77,11 @@
     </qresource>
     <qresource prefix="/js">
         <file alias="color.js">resources/js/color.js</file>
+    </qresource>
+    <qresource prefix="/qml/shapes">
+        <file alias="CloseIcon.qml">resources/qml/shapes/CloseIcon.qml</file>
+        <file alias="Shape.qml">resources/qml/shapes/Shape.qml</file>
+        <file alias="ShapeCircle.qml">resources/qml/shapes/ShapeCircle.qml</file>
+        <file alias="ShapeCross.qml">resources/qml/shapes/ShapeCross.qml</file>
     </qresource>
 </RCC>

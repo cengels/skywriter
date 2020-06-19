@@ -21,4 +21,9 @@ Column {
     property Item field: Item {}
 
     children: [textDelegate, field]
+
+    Component.onCompleted: {
+        field.anchors.left = root.left;
+        field.anchors.right = root.right;
+    }
 }

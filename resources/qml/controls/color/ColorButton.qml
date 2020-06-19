@@ -40,7 +40,7 @@ Button {
         opacity: root.hovered ? 1.0 : 0.0
 
         Behavior on opacity {
-            OpacityAnimator { duration: 50 }
+            OpacityAnimator { duration: 100 }
         }
     }
 }

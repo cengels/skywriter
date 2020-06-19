@@ -8,10 +8,13 @@ import "qrc:/js/color.js" as Color
 
 TextField {
     id: root
+    Layout.fillWidth: true
     selectByMouse: true
     leftPadding: 10
     rightPadding: 10
     hoverEnabled: true
+    property bool markValid: false
+    property bool valid: acceptableInput
 
     background: Rectangle {
         id: rectangle
@@ -20,14 +23,32 @@ TextField {
         height: root.height
         color: root.activeFocus ? palette.alternateBase : palette.base
         border.width: 1
-        border.color: root.activeFocus ? Color.adjustAlpha(palette.highlight, 0.65) : (root.hovered ? palette.alternateBase : palette.base)
+        border.color: {
+            if (root.valid && root.markValid) {
+                return "#4caf50";
+            }
+
+            if (!root.valid) {
+                return "#ef5350";
+            }
+
+            if (root.activeFocus) {
+                return Color.adjustAlpha(palette.highlight, 0.65);
+            }
+
+            if (root.hovered) {
+                return palette.alternateBase;
+            }
+
+            return palette.base;
+        }
 
         Behavior on color {
             ColorAnimation { duration: 100 }
         }
 
         Behavior on border.color {
-            ColorAnimation { duration: 100 }
+            ColorAnimation { duration: 150 }
         }
     }
 

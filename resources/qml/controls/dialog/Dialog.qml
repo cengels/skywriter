@@ -16,6 +16,7 @@ Window {
     property int standardButtons: 0
     property list<Sky.Button> buttons
     property var buttonAlignment: Qt.AlignRight | Qt.AlignVCenter
+    property bool canAccept: true
     default property var content
 
     signal accepted
@@ -38,10 +39,11 @@ Window {
         footer: DialogButtonBox {
             alignment: dialog.buttonAlignment
             delegate: Sky.Button {
-                prominence: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
-                            || DialogButtonBox.buttonRole === DialogButtonBox.YesRole
-                            || DialogButtonBox.buttonRole === DialogButtonBox.ApplyRole ? Sky.Button.Primary
-                                                                                        : Sky.Button.Secondary
+                readonly property bool isAcceptRole: DialogButtonBox.buttonRole === DialogButtonBox.AcceptRole
+                                                     || DialogButtonBox.buttonRole === DialogButtonBox.YesRole
+                                                     || DialogButtonBox.buttonRole === DialogButtonBox.ApplyRole
+                prominence: isAcceptRole ? Sky.Button.Primary : Sky.Button.Secondary
+                enabled: isAcceptRole ? dialog.canAccept : true
             }
 
             contentChildren: dialog.buttons != null ? dialog.buttons : {}

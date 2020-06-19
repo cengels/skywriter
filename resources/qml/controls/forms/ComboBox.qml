@@ -2,7 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
-import "qrc:/qml/controls/text" as Sky
+import "qrc:/qml/controls/forms" as Sky
 import "qrc:/js/color.js" as Color
 
 Column {
@@ -104,14 +104,11 @@ Column {
         }
     }
 
-    readonly property Sky.Text textDelegate: Sky.Text {
-        color: Qt.darker(palette.text, 1.25)
+    readonly property Sky.SectionLabel textDelegate: Sky.SectionLabel {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.leftMargin: delegate.height / 2
         text: title
-        font.pointSize: 10.5
-        font.letterSpacing: 2
     }
 
     children: [textDelegate, delegate]

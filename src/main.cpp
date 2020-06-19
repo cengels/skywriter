@@ -66,6 +66,11 @@ int main(int argc, char *argv[])
 
     QQuickStyle::setFallbackStyle("Fusion");
 
+    // enables anti-aliasing for shapes
+    QSurfaceFormat format;
+    format.setSamples(8);
+    QSurfaceFormat::setDefaultFormat(format);
+
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QFont font("Baloo 2", 11);
     font.setStyleStrategy(QFont::PreferAntialias);

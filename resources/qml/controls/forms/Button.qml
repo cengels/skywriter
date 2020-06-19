@@ -20,10 +20,14 @@ Button {
         ScaleAnimator { easing.type: Easing.InOutSine; duration: 100 }
     }
 
+    function ifEnabled(color, elseColor = "#3b3463") {
+        return root.enabled ? color : elseColor;
+    }
+
     contentItem: Text {
         text: root.text
         font: root.font
-        opacity: enabled ? 1.0 : 0.3
+        opacity: enabled ? 1.0 : 0.7
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
@@ -32,7 +36,8 @@ Button {
 
     background: Rectangle {
         id: background
-        readonly property color normalColor: prominence === 0 ? palette.base : palette.button
+
+        readonly property color normalColor: ifEnabled(prominence === 0 ? palette.base : palette.button)
         readonly property color hoverColor: switch (prominence) {
                                             case 0: return palette.alternateBase;
                                             case 2: return palette.button;

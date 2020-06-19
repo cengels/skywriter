@@ -9,5 +9,5 @@ Sky.Text {
     Layout.fillWidth: true
     color: Qt.darker(palette.text, 1.25)
     font.pointSize: 10.5
-    font.letterSpacing: 2
+    font.letterSpacing: 1
 }

@@ -49,7 +49,7 @@ QString DocumentSegment::text() const
     const QString& text = doc->toPlainText();
 
     const DocumentSegment* nextSegment = next();
-    int endPosition = nextSegment && nextSegment->isValid() ? nextSegment->position() : -1;
+    int endPosition = nextSegment && nextSegment->isValid() ? nextSegment->position() - m_position : -1;
 
     return text.mid(m_position, endPosition);
 }
@@ -186,5 +186,13 @@ void DocumentSegment::updateWords()
         m_words = i;
 
         emit wordsChanged();
+
+        if (!parent()) {
+            return;
+        }
+
+        FormattableTextArea* textArea = qobject_cast<FormattableTextArea*>(parent());
+
+        textArea->updateWordCount();
     });
 }

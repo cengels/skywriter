@@ -82,10 +82,6 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 m_textCursor.insertText(replacedText);
                 moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
 
-                if (symbols::isWordSeparator(previousCharacter)) {
-                    updateWordCount();
-                }
-
                 if (m_textCursor.block().text().isEmpty()) {
                     m_textCursor.joinPreviousEditBlock();
                     m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());

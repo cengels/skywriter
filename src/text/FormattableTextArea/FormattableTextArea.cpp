@@ -100,12 +100,20 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
                 continue;
             }
 
-            if (at >= segment->position()) {
+            const DocumentSegment* next = segment->next();
+
+            if (next == nullptr || (at >= segment->position() && at < next->position())) {
                 targetSegment = segment;
             }
         }
 
         emit targetSegment->textChanged();
+
+        if (at == 0
+                || symbols::isWordSeparator(m_document->toPlainText().at(at - 1))
+                || (text.size() > 1 && symbols::containsWordSeparator(text))) {
+            targetSegment->updateWords();
+        }
     });
 
     connect(this, &FormattableTextArea::textRemoved, this, [&] (const int at, const QString text) {
@@ -131,7 +139,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
             if (at >= segment->position()) {
                 if (textEnd < next->position()) {
                     targetSegment = segment;
-                } else {
+                } else if (targetSegment) {
                     // Text was removed from more than one DocumentSegment.
                     // This means that a DocumentSegment boundary was removed,
                     // i.e. the number of DocumentSegments is not the same
@@ -144,6 +152,10 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
         }
 
         emit targetSegment->textChanged();
+
+        if (symbols::isWordSeparator(m_document->toPlainText().at(at - 1)) || symbols::containsWordSeparator(text)) {
+            targetSegment->updateWords();
+        }
     });
 
     newDocument();
@@ -323,7 +335,6 @@ void FormattableTextArea::load(const QUrl &fileUrl)
 
             doc->setModified(false);
             newDocument(doc);
-            this->updateWordCount();
             emit loaded();
         }
 
@@ -453,8 +464,6 @@ void FormattableTextArea::paste()
     if (hadSelection) {
         emit selectedTextChanged();
     }
-
-    this->updateWordCount();
 }
 
 void FormattableTextArea::remove()
@@ -467,7 +476,6 @@ void FormattableTextArea::remove()
         emit textChanged();
         emit textRemoved(position, text);
         emit caretPositionChanged();
-        updateWordCount();
     }
 }
 
@@ -489,7 +497,6 @@ void FormattableTextArea::undo()
         emit selectedTextChanged();
     }
 
-    this->updateWordCount();
     updateDocumentStructure();
 }
 
@@ -505,7 +512,6 @@ void FormattableTextArea::redo()
         emit selectedTextChanged();
     }
 
-    this->updateWordCount();
     updateDocumentStructure();
 }
 
@@ -550,6 +556,7 @@ void FormattableTextArea::updateDocumentStructure()
 
             if (previousSegment) {
                 emit previousSegment->textChanged();
+                previousSegment->updateWords();
             }
         }
 
@@ -558,6 +565,7 @@ void FormattableTextArea::updateDocumentStructure()
     }
 
     emit m_documentStructure.last()->textChanged();
+    m_documentStructure.last()->updateWords();
     emit documentStructureChanged();
 }
 

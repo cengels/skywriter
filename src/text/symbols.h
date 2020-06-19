@@ -38,6 +38,8 @@ namespace symbols {
     const QSet<QChar> smart_replacement_prefixes { space, newline, paragraph_separator, carriage_return };
     //! Checks if the given character is a word separator.
     bool isWordSeparator(const QChar& character);
+    //! Checks if the string contains a word separator.
+    bool containsWordSeparator(const QString& string);
     //! Removes unprintable characters from the string.
     QString sanitize(const QString& string);
 }

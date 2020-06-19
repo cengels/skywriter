@@ -55,6 +55,8 @@ class DocumentSegment : public QObject
         //! bounds of the document.
         bool isValid() const;
 
+        void updateWords();
+
     Q_SIGNALS:
         void positionChanged();
         void textChanged();
@@ -66,7 +68,6 @@ class DocumentSegment : public QObject
         int m_words;
 
         int index() const;
-        void updateWords();
 };
 
 #endif // DOCUMENTSEGMENT_H

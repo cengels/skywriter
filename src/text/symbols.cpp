@@ -17,3 +17,14 @@ QString symbols::sanitize(const QString& string)
 
     return newString;
 }
+
+bool symbols::containsWordSeparator(const QString& string)
+{
+    for (const QChar& character : string) {
+        if (isWordSeparator(character)) {
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -39,7 +39,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_overflowArea(0.0)
     , m_fileUrl()
     , m_loading(false)
-    , m_counting(false)
     , m_characterCount(0)
     , m_selectedCharacterCount(0)
     , m_wordCount(0)
@@ -332,7 +331,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit lastModifiedChanged();
     }
 
-    m_loading = m_counting;
+    m_loading = false;
 
     if (!m_loading)
         emit loadingChanged();
@@ -531,7 +530,12 @@ void FormattableTextArea::updateDocumentStructure()
     QTextBlock block = m_document->firstBlock();
 
     while (block.isValid()) {
-        if (block.blockFormat().headingLevel() > 0 && previous.isValid() && previous.blockFormat().headingLevel() == 0) {
+        bool isHeading = block.blockFormat().headingLevel() > 0;
+        bool isSubheading = previous.blockFormat().headingLevel() == block.blockFormat().headingLevel() - 1
+                            // uneven headings are considered subheadings
+                            && block.blockFormat().headingLevel() % 2 == 0;
+
+        if (isHeading && previous.isValid() && !isSubheading) {
             int depth;
             DocumentSegment* const previousSegment = m_documentStructure.last();
 
@@ -542,6 +546,7 @@ void FormattableTextArea::updateDocumentStructure()
             }
 
             m_documentStructure.append(new DocumentSegment(block.position(), depth, this));
+            previousHeading = block;
 
             if (previousSegment) {
                 emit previousSegment->textChanged();

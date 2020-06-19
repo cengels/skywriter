@@ -77,38 +77,18 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::updateWordCount()
 {
-    m_counting = true;
+    int words = 0;
 
-    QtConcurrent::run([=] {
-        if (!m_document) {
-            return;
-        }
+    for (const DocumentSegment* segment : m_documentStructure) {
+        words += segment->words();
+    }
 
-        TextIterator textIterator = this->wordIterator();
-        int i = 0;
+    if (words != this->m_wordCount) {
+        m_wordCount = words;
+        emit wordCountChanged(!m_loading);
+    }
 
-        while (!textIterator.atEnd()) {
-            if (!textIterator.current().isEmpty()) {
-                i++;
-            }
-
-            textIterator++;
-        };
-
-        if (i != this->m_wordCount) {
-            m_wordCount = i;
-            emit wordCountChanged(!m_loading);
-        }
-
-        this->updatePageCount();
-
-        m_counting = false;
-
-        if (m_loading) {
-            m_loading = false;
-            emit loadingChanged();
-        }
-    });
+    this->updatePageCount();
 }
 
 void FormattableTextArea::updateSelectedWordCount()

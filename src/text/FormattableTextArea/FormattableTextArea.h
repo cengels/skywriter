@@ -132,6 +132,8 @@ class FormattableTextArea : public QQuickItem
         TextIterator wordIterator() const;
         TextIterator selectedWordIterator() const;
 
+        void updateWordCount();
+
     public Q_SLOTS:
         //! Resets the text area by detaching the document and clearing the
         //! loaded file.
@@ -234,7 +236,6 @@ class FormattableTextArea : public QQuickItem
 
         QUrl m_fileUrl;
         bool m_loading;
-        bool m_counting;
 
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);
@@ -259,7 +260,6 @@ class FormattableTextArea : public QQuickItem
         void updateCounts();
         void updateSelectedCounts();
         void updateCharacterCount();
-        void updateWordCount();
         void updateSelectedWordCount();
         void updateParagraphCount();
         void updatePageCount();

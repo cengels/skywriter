@@ -11,6 +11,9 @@ class DocumentSegment : public QObject
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QString text READ text NOTIFY textChanged)
     Q_PROPERTY(int words READ words NOTIFY wordsChanged)
+    Q_PROPERTY(QString heading READ heading CONSTANT)
+    Q_PROPERTY(QString subheading READ subheading CONSTANT)
+    Q_PROPERTY(int depth READ depth CONSTANT)
 
     public:
         explicit DocumentSegment(QObject* parent = nullptr);
@@ -22,17 +25,10 @@ class DocumentSegment : public QObject
         int position() const;
         void setPosition(int position);
 
-        //! Gets the number of words of the text within this DocumentSegment.
-        int words() const;
         //! Gets the text contained in this DocumentSegment.
         QString text() const;
-
-        DocumentSegment* next() const;
-        DocumentSegment* previous() const;
-
-    public Q_SLOTS:
-        //! Gets the QTextDocument this DocumentSegment corresponds to.
-        QTextDocument* document() const;
+        //! Gets the number of words of the text within this DocumentSegment.
+        int words() const;
 
         //! Gets the heading of this DocumentSegment. A new DocumentSegment
         //! begins at a new heading, so each DocumentSegment must, by definition,
@@ -47,6 +43,13 @@ class DocumentSegment : public QObject
         //! correspond to the heading level as headings and subheadings are
         //! combined.
         int depth() const;
+
+        DocumentSegment* next() const;
+        DocumentSegment* previous() const;
+
+        //! Gets the QTextDocument this DocumentSegment corresponds to.
+        QTextDocument* document() const;
+
         //! Returns a value indicating whether the DocumentSegment is valid.
         //! A DocumentSegment is valid if its position and depth is within
         //! bounds of the document.

@@ -55,14 +55,14 @@ Button {
         Rectangle {
             // This rectangle is used to animate the button fill.
             anchors.centerIn: parent
-            height: Math.max(parent.height, parent.width)
+            height: Math.max(parent.height + parent.height / 2, parent.width + parent.width / 2)
             width: height
             radius: height / 2
             color: background.hoverColor
             scale: hovered ? 1.0 : 0.0
 
             Behavior on scale {
-                ScaleAnimator { easing.type: Easing.InOutSine; duration: 200 }
+                ScaleAnimator { easing.type: Easing.InOutSine; duration: 300 }
             }
         }
 

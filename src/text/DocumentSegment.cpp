@@ -122,7 +122,7 @@ QString DocumentSegment::subheading() const
 {
     QTextBlock block = document()->findBlock(m_position).next();
 
-    if (block.blockFormat().headingLevel() == 0) {
+    if (block.blockFormat().headingLevel() == 0 || block.blockFormat().headingLevel() % 2 != 0) {
         return "";
     }
 

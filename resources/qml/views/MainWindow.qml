@@ -11,8 +11,10 @@ import Skywriter.Theming 1.0
 import Skywriter.Events 1.0
 import Skywriter.Errors 1.0
 import "qrc:/qml/controls" as Sky
+import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/menu" as Sky
+import "qrc:/qml/controls/forms" as Sky
 import "qrc:/qml/utility" as Sky
 import "qrc:/qml/views" as View
 import "qrc:/js/color.js" as Color
@@ -316,7 +318,7 @@ ApplicationWindow {
                 const relativeCaretPosition = verticalCaretCenter / textArea.contentHeight;
                 const verticalScrollViewCenter = textArea.contentY + scrollView.height / 2;
                 const relativeScrollViewCenter = verticalScrollViewCenter / textArea.contentHeight;
-                verticalScrollbar.position = relativeCaretPosition - relativeScrollViewCenter;
+                verticalScrollbar.position += relativeCaretPosition - relativeScrollViewCenter;
             }
 
             Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
@@ -582,6 +584,90 @@ ApplicationWindow {
                         type: Easing.InOutSine
                         amplitude: 1.0
                         period: 0.4
+                    }
+                }
+            }
+        }
+    }
+
+    Drawer {
+        id: documentStructureDrawer
+        y: menuBar.collapsed ? 0 : menuBar.height
+        width: 0.2 * mainWindow.width
+        height: mainWindow.height - y - (statsBar.collapsed ? 0 : statsBar.height)
+        modal: false
+
+        background: Rectangle { color: Qt.darker(ThemeManager.activeTheme.uiBackground, 1.1) }
+
+        Connections {
+            target: Mouse
+            onWindowPositionChanged: {
+                if (!documentStructureDrawer.opened
+                        && Mouse.windowPosition.y >= documentStructureDrawer.y
+                        && Mouse.windowPosition.x < edgeTolerance) {
+                    documentStructureDrawer.open();
+                } else if (documentStructureDrawer.opened
+                        && (Mouse.windowPosition.y < documentStructureDrawer.y
+                        || Mouse.windowPosition.x > documentStructureDrawer.width)) {
+                    documentStructureDrawer.close();
+                }
+            }
+        }
+
+        ListView {
+            id: listView
+            anchors.fill: parent
+            anchors.margins: 12
+            interactive: false
+            model: textArea.documentStructure
+            spacing: 12
+            ScrollBar.vertical: ScrollBar {}
+            delegate: Control {
+                width: listView.width - leftPadding
+                height: button.height
+                leftPadding: (modelData.depth - 1) * 20
+
+                Sky.Button {
+                    id: button
+                    x: parent.leftPadding
+                    width: parent.width
+                    height: column.implicitHeight + 20
+                    onClicked: {
+                        textArea.caretPosition = modelData.position;
+                        verticalScrollbar.centerOnCaret();
+                    }
+
+                    Column {
+                        id: column
+                        anchors.fill: parent
+                        anchors.margins: 10
+
+                        Row {
+                            Sky.Text {
+                                id: headingLabel
+                                font.pointSize: 13
+                                width: column.width * 0.75
+                                text: modelData.heading === '' ? qsTr('No heading') : modelData.heading
+
+                            }
+                            Sky.Text {
+                                font.pointSize: 9
+                                color: Qt.darker(palette.text, 1.3)
+                                width: column.width * 0.25
+                                height: headingLabel.height
+                                horizontalAlignment: Qt.AlignRight
+                                verticalAlignment: Qt.AlignBottom
+                                text: modelData.words + " words"
+                            }
+                        }
+
+                        Sky.Text {
+                            color: Qt.darker(palette.text, 1.15)
+                            font.pointSize: 10.5
+                            width: parent.width
+                            visible: modelData.subheading !== ''
+                            text: modelData.subheading
+                        }
                     }
                 }
             }

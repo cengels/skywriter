@@ -45,6 +45,7 @@ namespace {
         qmlRegisterType<Theme>("Skywriter.Theming", 1, 0, "Theme");
         qmlRegisterSingletonInstance("Skywriter.Errors", 1, 0, "ErrorManager", ErrorManager::instance());
         qRegisterMetaType<QEvent*>("QEvent*");
+        qRegisterMetaType<QVector<DocumentSegment*>>("QVector<DocumentSegment*>");
     }
 }
 

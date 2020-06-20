@@ -76,21 +76,42 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             const QString text = symbols::sanitize(event->text());
 
             if (!text.isEmpty()) {
-                const QChar& previousCharacter = m_document->characterAt(m_textCursor.position() - 1);
-                const QString replacedText = m_replacer.replace(text, previousCharacter);
-                const int position = m_textCursor.position();
-                m_textCursor.insertText(replacedText);
-                moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
+                const int selectionStart = m_textCursor.selectionStart();
+                const int selectionEnd = m_textCursor.selectionEnd();
+                const QChar& previousCharacter = m_document->characterAt(selectionStart - 1);
+                const QChar& nextCharacter = m_document->characterAt(selectionEnd);
+
+                if (hadSelection && m_replacer.isSmartReplacement(text) && symbols::isWordSeparator(previousCharacter) && symbols::isWordSeparator(nextCharacter)) {
+                    const QString start = m_replacer.replace(text, previousCharacter);
+                    const QString end = m_replacer.replace(text);
+
+                    m_textCursor.beginEditBlock();
+                    m_textCursor.setPosition(selectionStart);
+                    m_textCursor.insertText(start);
+                    m_textCursor.setPosition(selectionEnd + start.size());
+                    m_textCursor.insertText(end);
+                    m_textCursor.setPosition(selectionStart + start.size());
+                    m_textCursor.setPosition(selectionEnd + start.size(), QTextCursor::KeepAnchor);
+                    m_textCursor.endEditBlock();
+
+                    emit textChanged();
+                    emit textInserted(selectionStart, start);
+                    emit textInserted(selectionEnd + start.size(), end);
+                } else {
+                    const QString replacedText = m_replacer.replace(text, previousCharacter);
+                    m_textCursor.insertText(replacedText);
+                    moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
+
+                    emit textChanged();
+                    emit textInserted(selectionStart, replacedText);
+                }
 
                 if (m_textCursor.block().text().isEmpty()) {
                     m_textCursor.joinPreviousEditBlock();
                     m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
                     m_textCursor.endEditBlock();
                 }
-
                 event->accept();
-                emit textChanged();
-                emit textInserted(position, replacedText);
             } else {
                 event->ignore();
             }

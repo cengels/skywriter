@@ -19,6 +19,7 @@ class StringReplacer
         //! Replaces the given character(s) with replaceWithStart if it appears
         //! before a word, and with replaceWithEnd if it appears after a word.
         void setSmartReplacement(const QChar& target, const QChar& replaceWithStart, const QChar& replaceWithEnd);
+        bool isSmartReplacement(const QString& string) const;
 
         //! Clears all replacements from this StringReplacer.
         void clear();

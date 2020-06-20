@@ -7,9 +7,7 @@ namespace {
     const QString& getReplacement(const Replacement& replacement, const QString& before = "")
     {
         if (replacement.isSmartReplacement()) {
-            const QChar& previousChar = before.isEmpty() ? ' ' : before.at(before.length() - 1);
-
-            if (symbols::smart_replacement_prefixes.contains(previousChar)) {
+            if (!before.isEmpty() && symbols::smart_replacement_prefixes.contains(before.at(before.length() - 1))) {
                 return replacement.openingSymbol();
             }
 
@@ -42,6 +40,15 @@ void StringReplacer::setSmartReplacement(const QChar& target, const QChar& repla
     m_replacements.insert(target, Replacement(replaceWithStart, replaceWithEnd));
 }
 
+bool StringReplacer::isSmartReplacement(const QString& string) const
+{
+    if (m_replacements.contains(string)) {
+        return m_replacements.value(string).isSmartReplacement();
+    }
+
+    return false;
+}
+
 void StringReplacer::clear()
 {
     m_replacements.clear();
@@ -49,15 +56,15 @@ void StringReplacer::clear()
 
 QString StringReplacer::replace(const QString& source, const QString& before) const
 {
-    QHashIterator<const QString, Replacement> i(m_replacements);
-
     if (m_replacements.contains(source)) {
         // If the entire source string matches, replace it directly.
 
         return getReplacement(m_replacements.value(source), before);
     }
 
+    QHashIterator<const QString, Replacement> i(m_replacements);
     QString result(source);
+
     while (i.hasNext()) {
         i.next();
 

@@ -160,6 +160,7 @@ ApplicationWindow {
             }
 
             Sky.Menu {
+                id: fileMenu
                 title: qsTr("File")
                 Sky.MenuItem { action: actions.newDocument }
                 Sky.MenuItem { action: actions.open }
@@ -603,8 +604,9 @@ ApplicationWindow {
             target: Mouse
             onWindowPositionChanged: {
                 if (!documentStructureDrawer.opened
-                        && Mouse.windowPosition.y >= documentStructureDrawer.y
-                        && Mouse.windowPosition.x < edgeTolerance) {
+                        && Mouse.windowPosition.y >= documentStructureDrawer.y + edgeTolerance
+                        && Mouse.windowPosition.x < edgeTolerance
+                        && !fileMenu.opened) {
                     documentStructureDrawer.open();
                 } else if (documentStructureDrawer.opened
                         && (Mouse.windowPosition.y < documentStructureDrawer.y

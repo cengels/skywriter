@@ -471,7 +471,18 @@ void FormattableTextArea::remove()
     if (m_textCursor.hasSelection()) {
         int position = m_textCursor.selectionStart();
         QString text = m_textCursor.selectedText();
-        m_textCursor.removeSelectedText();
+
+        if (text.size() == 1) {
+            // This distinction is made because removeSelectedText() immediately
+            // adds a new undo state, which is undesired for small changes
+            // that add or remove only one character.
+            m_textCursor.clearSelection();
+            m_textCursor.setPosition(position);
+            m_textCursor.deleteChar();
+        } else {
+            m_textCursor.removeSelectedText();
+        }
+
         emit selectedTextChanged();
         emit textChanged();
         emit textRemoved(position, text);

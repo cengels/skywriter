@@ -541,23 +541,26 @@ void FormattableTextArea::updateDocumentStructure()
                             // uneven headings are considered subheadings
                             && block.blockFormat().headingLevel() % 2 == 0;
 
-        if (isHeading && previous.isValid() && !isSubheading) {
-            int depth;
-            DocumentSegment* const previousSegment = m_documentStructure.last();
+        if (isHeading && !isSubheading) {
+            if (previous.isValid()) {
+                int depth;
+                DocumentSegment* const previousSegment = m_documentStructure.last();
 
-            if (!previousHeading.isValid() || previousHeading.blockFormat().headingLevel() == block.blockFormat().headingLevel()) {
-                depth = previousSegment->depth();
-            } else {
-                depth = previousSegment->depth() + 1;
+                if (!previousHeading.isValid() || previousHeading.blockFormat().headingLevel() == block.blockFormat().headingLevel()) {
+                    depth = previousSegment->depth();
+                } else {
+                    depth = previousSegment->depth() + 1;
+                }
+
+                m_documentStructure.append(new DocumentSegment(block.position(), depth, this));
+
+                if (previousSegment) {
+                    emit previousSegment->textChanged();
+                    previousSegment->updateWords();
+                }
             }
 
-            m_documentStructure.append(new DocumentSegment(block.position(), depth, this));
             previousHeading = block;
-
-            if (previousSegment) {
-                emit previousSegment->textChanged();
-                previousSegment->updateWords();
-            }
         }
 
         previous = block;

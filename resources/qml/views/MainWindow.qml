@@ -646,14 +646,15 @@ ApplicationWindow {
                             Sky.Text {
                                 id: headingLabel
                                 font.pointSize: 13
-                                width: column.width * 0.75
+                                width: column.width - segmentWordCount.width
                                 text: modelData.heading === '' ? qsTr('No heading') : modelData.heading
 
                             }
                             Sky.Text {
+                                id: segmentWordCount
                                 font.pointSize: 9
                                 color: Qt.darker(palette.text, 1.3)
-                                width: column.width * 0.25
+                                width: 75
                                 height: headingLabel.height
                                 horizontalAlignment: Qt.AlignRight
                                 verticalAlignment: Qt.AlignBottom

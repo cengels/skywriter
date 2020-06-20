@@ -8,16 +8,12 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_words(0)
-{
-}
+    m_words(0) { }
 
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_words(0)
-{
-}
+    m_words(0) { }
 
 int DocumentSegment::position() const
 {
@@ -28,7 +24,6 @@ void DocumentSegment::setPosition(int position)
 {
     m_position = position;
 
-    qDebug() << "setPosition(" << position << ")";
     emit positionChanged();
 }
 

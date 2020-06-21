@@ -78,6 +78,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
         if (this->width() > 0) {
             this->m_document->setTextWidth(this->width());
+            emit contentWidthChanged();
+            emit contentHeightChanged();
         }
     });
 

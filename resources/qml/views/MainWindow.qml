@@ -90,12 +90,15 @@ ApplicationWindow {
                 : Settings.Window.visibility;
 
     property int previousWidth
+    property int previousHeight
 
     onWidthChanged: {
         // See verticalScrollbar. This works because QML calls this function
         // last, after all bindings and layouts are updated.
         previousWidth = width;
     }
+
+    onHeightChanged: previousHeight = height
 
     property bool forceClose: false;
 
@@ -283,6 +286,7 @@ ApplicationWindow {
 
             function adjustPosition() {
                 if (mainWindow.width !== previousWidth
+                        || mainWindow.height !== previousHeight
                         || lastTheme !== ThemeManager.activeTheme.name
                         || fixPositionNext) {
                     // scroll position changed because window width was changed

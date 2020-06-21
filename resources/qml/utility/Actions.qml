@@ -42,6 +42,7 @@ QtObject {
 
     readonly property FileDialog openDialog: FileDialog {
         title: qsTr("Open...")
+        modality: Qt.ApplicationModal
         nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)"]
         selectedNameFilter: "Markdown files (*.md)"
         selectExisting: true
@@ -65,6 +66,7 @@ QtObject {
 
     readonly property FileDialog saveDialog: FileDialog {
         title: qsTr("Save As...")
+        modality: Qt.ApplicationModal
         defaultSuffix: "md"
         nameFilters: openDialog.nameFilters
         selectedNameFilter: "All files (*)"
@@ -93,6 +95,7 @@ QtObject {
 
     readonly property FileDialog renameDialog: FileDialog {
         title: qsTr("Rename...")
+        modality: Qt.ApplicationModal
         defaultSuffix: saveDialog.defaultSuffix
         nameFilters: saveDialog.nameFilters
         selectedNameFilter: saveDialog.selectedNameFilter
@@ -117,19 +120,23 @@ QtObject {
 
     readonly property Sky.MessageDialog unsavedDialog: Sky.MessageDialog {
         text: qsTr("You have unsaved changes. Do you want to save your changes before quitting?")
+        modality: Qt.ApplicationModal
         buttons: [
             Sky.Button {
                 text: qsTr("Save")
+                prominence: Sky.Button.Primary
                 DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
             },
 
             Sky.Button {
                 text: qsTr("Don't Save")
+                prominence: Sky.Button.Destructive
                 DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
             },
 
             Sky.Button {
                 text: qsTr("Cancel")
+                prominence: Sky.Button.Secondary
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
             }
         ]

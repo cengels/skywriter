@@ -7,11 +7,13 @@ Button {
     id: root
     implicitWidth: 100
     property int prominence: 0
+    property bool outline: prominence >= 2
 
     enum ButtonProminence {
         Normal,
         Primary,
-        Secondary
+        Secondary,
+        Destructive
     }
 
     scale: down ? 0.85 : 1.0
@@ -37,16 +39,19 @@ Button {
     background: Rectangle {
         id: background
 
-        readonly property color normalColor: ifEnabled(prominence === 0 ? palette.base : palette.button)
+        readonly property color normalColor: switch (prominence) {
+                                                case 0: return ifEnabled(palette.base);
+                                                case 3: return ifEnabled("#ef5350");
+                                                default: return ifEnabled(palette.button);
+                                            }
         readonly property color hoverColor: switch (prominence) {
-                                            case 0: return palette.alternateBase;
-                                            case 2: return palette.button;
-                                            case 1: default: return palette.highlight;
+                                                case 0: return palette.alternateBase;
+                                                case 1: default: return palette.highlight;
                                             }
         anchors.fill: parent
-        border.width: prominence === 2 ? 2 : 0
-        border.color: hovered ? hoverColor : normalColor
-        color: prominence === 2 ? "transparent" : normalColor
+        border.width: root.outline ? 2 : 0
+        border.color: hovered && !root.outline ? hoverColor : normalColor
+        color: root.outline ? "transparent" : normalColor
 
         layer.enabled: true
         layer.effect: Sky.CornerRadius { radius: 10 }
@@ -58,7 +63,7 @@ Button {
             height: Math.max(parent.height + parent.height / 2, parent.width + parent.width / 2)
             width: height
             radius: height / 2
-            color: background.hoverColor
+            color: root.outline ? background.normalColor : background.hoverColor
             scale: hovered ? 1.0 : 0.0
 
             Behavior on scale {

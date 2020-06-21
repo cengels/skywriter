@@ -78,7 +78,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
         if (this->width() > 0) {
             this->m_document->setTextWidth(this->width());
-            update();
         }
     });
 
@@ -110,7 +109,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
         emit targetSegment->textChanged();
 
         if (at == 0
-                || symbols::isWordSeparator(m_document->toPlainText().at(at - 1))
+                || symbols::isWordSeparator(m_document->characterAt(at - 1))
                 || (text.size() > 1 && symbols::containsWordSeparator(text))) {
             targetSegment->updateWords();
         }
@@ -153,7 +152,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
         emit targetSegment->textChanged();
 
-        if (symbols::isWordSeparator(m_document->toPlainText().at(at - 1)) || symbols::containsWordSeparator(text)) {
+        if (symbols::isWordSeparator(m_document->characterAt(at - 1)) || symbols::containsWordSeparator(text)) {
             targetSegment->updateWords();
         }
     });
@@ -185,6 +184,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         connect(m_document, &QTextDocument::contentsChanged, this, &FormattableTextArea::handleTextChange);
         connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
         connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
+        connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::update, this, &FormattableTextArea::update);
 
         if (m_highlighter) {
             m_highlighter->setDocument(m_document);

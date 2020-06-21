@@ -66,6 +66,13 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
 {
     Q_UNUSED(updatePaintNodeData)
 
+    // This may seem like a call without effect, but without it setting the
+    // document's text width (when resizing the text area horizontally) results
+    // in one paint with an invalid layout, i.e. one frame without any text.
+    // It appears this call actually forces a layout pass or something along
+    // those lines.
+    m_document->documentLayout()->documentSize();
+
     QQuickTextNode* n = static_cast<QQuickTextNode*>(oldNode);
     if (!n)
         n = new QQuickTextNode(this);

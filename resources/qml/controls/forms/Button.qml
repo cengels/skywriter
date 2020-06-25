@@ -8,6 +8,7 @@ Button {
     implicitWidth: 100
     property int prominence: 0
     property bool outline: prominence >= 2
+    property bool useTheme: false
 
     enum ButtonProminence {
         Normal,

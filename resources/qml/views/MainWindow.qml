@@ -555,7 +555,8 @@ ApplicationWindow {
         }
     }
 
-    property Pane searchBar: searchBar
+    readonly property Pane searchBar: searchBar
+    readonly property Pane replaceBar: replaceBar
 
     footer: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : statsBar.implicitHeight
@@ -564,7 +565,7 @@ ApplicationWindow {
             id: searchBar
             anchors.left: parent.left
             anchors.right: parent.right
-            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (collapsed ? 0 : height)
+            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (replaceBar.collapsed ? 0 : replaceBar.height) - (collapsed ? 0 : height)
             horizontalPadding: 10
             onCollapsedChanged: {
                 if (collapsed) {
@@ -619,6 +620,8 @@ ApplicationWindow {
                             textArea.jumpToNext();
                         }
                     }
+
+                    KeyNavigation.tab: replaceBar.collapsed ? null : replaceString
                 }
 
                 Sky.IconButton {
@@ -684,6 +687,38 @@ ApplicationWindow {
                     color: ThemeManager.activeTheme.uiColor
 
                     Behavior on opacity { OpacityAnimator { } }
+                }
+            }
+        }
+
+        Sky.CollapsiblePane {
+            id: replaceBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (collapsed ? 0 : height)
+            horizontalPadding: 10
+
+            Row {
+                anchors.fill: parent
+                spacing: 15
+
+                Sky.TextField {
+                    id: replaceString
+                    width: Math.max(300, searchBar.width * 0.3)
+                    height: statsBar.implicitHeight + 2
+                    font.pointSize: 10
+                    placeholderText: qsTr("Replace with...")
+                }
+
+                Sky.Button {
+                    id: replaceNext
+                    text: qsTr("Replace next")
+                    enabled: textArea.searchResultCount > 0 && replaceString.text !== ''
+                }
+
+                Sky.Button {
+                    text: qsTr("Replace all")
+                    enabled: replaceNext.enabled
                 }
             }
         }

@@ -389,12 +389,24 @@ QtObject {
     readonly property Action find: Action {
         text: qsTr("Find")
         shortcut: StandardKey.Find
-        onTriggered: mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed
+        onTriggered: {
+            mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed;
+
+            if (mainWindow.searchBar.collapsed && !mainWindow.replaceBar.collapsed) {
+                mainWindow.replaceBar.collapsed = true;
+            }
+        }
     }
 
     readonly property Action findReplace: Action {
         text: qsTr("Find and replace")
         shortcut: StandardKey.Replace
-        onTriggered: mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed
+        onTriggered: {
+            mainWindow.replaceBar.collapsed = !mainWindow.replaceBar.collapsed;
+
+            if (mainWindow.searchBar.collapsed && !mainWindow.replaceBar.collapsed) {
+                mainWindow.searchBar.collapsed = false;
+            }
+        }
     }
 }

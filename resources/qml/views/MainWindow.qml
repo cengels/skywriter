@@ -316,6 +316,10 @@ ApplicationWindow {
                     visibleEndY -= searchBar.height;
                 }
 
+                if (!replaceBar.collapsed) {
+                    visibleEndY -= replaceBar.height;
+                }
+
                 if (!statsBar.collapsed && mainWindow.visibility === Window.FullScreen) {
                     visibleEndY -= statsBar.height;
                 }
@@ -713,12 +717,21 @@ ApplicationWindow {
                 Sky.Button {
                     id: replaceNext
                     text: qsTr("Replace next")
-                    enabled: textArea.searchResultCount > 0 && replaceString.text !== ''
+                    enabled: textArea.searchResultCount > 0
+                    onReleased: {
+                        textArea.replaceNext(replaceString.text);
+                        // Calling find again so that the ranges are updated
+                        // to accommodate the replacement.
+                        // If the performance of this isn't good enough,
+                        // replace it with a proper implementation in replaceNext().
+                        searchBar.find();
+                    }
                 }
 
                 Sky.Button {
                     text: qsTr("Replace all")
                     enabled: replaceNext.enabled
+                    onReleased: textArea.replaceAll(replaceString.text)
                 }
             }
         }

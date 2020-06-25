@@ -196,6 +196,8 @@ class FormattableTextArea : public QQuickItem
         //! Jumps to the previous occurrence of the string passed as part of the find() function.
         void jumpToPrevious();
         void clearMatches();
+        void replaceNext(const QString& text);
+        void replaceAll(const QString& text);
 
         QRectF caretRectangle() const;
 

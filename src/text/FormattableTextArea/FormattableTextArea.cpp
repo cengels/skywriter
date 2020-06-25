@@ -716,6 +716,71 @@ void FormattableTextArea::clearMatches()
     find("");
 }
 
+void FormattableTextArea::replaceNext(const QString& text)
+{
+    if (searchResults().isEmpty()) {
+        return;
+    }
+
+    bool found = false;
+
+    for (const Range<int>& range : searchResults()) {
+        if (m_textCursor.selectionStart() <= range.from() || m_textCursor.selectionEnd() == range.from()) {
+            QString previousSelection = m_textCursor.selectedText();
+            m_textCursor.setPosition(range.from());
+            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
+            found = true;
+
+            m_searchResults.removeOne(range);
+
+            break;
+        }
+    }
+
+    if (!found) {
+        m_textCursor.movePosition(QTextCursor::Start);
+        replaceNext(text);
+    }
+
+    m_textCursor.insertText(text);
+    m_textCursor.setPosition(m_textCursor.position() - text.size(), QTextCursor::KeepAnchor);
+
+    updateActive();
+    emit textChanged();
+    emit selectedTextChanged();
+    emit caretPositionChanged();
+    emit searchResultsChanged();
+    emit searchResultCountChanged();
+}
+
+void FormattableTextArea::replaceAll(const QString& text)
+{
+    if (searchResults().isEmpty()) {
+        return;
+    }
+
+    QTextCursor cursor(m_document);
+
+    cursor.beginEditBlock();
+
+    // Must add the difference to all future ranges.
+    int difference = 0;
+
+    for (const Range<int>& range : searchResults()) {
+        cursor.setPosition(range.from() + difference);
+        cursor.setPosition(range.until() + difference, QTextCursor::KeepAnchor);
+        difference += text.size() - range.length();
+        cursor.insertText(text);
+    }
+
+    cursor.endEditBlock();
+
+    updateActive();
+    emit textChanged();
+
+    clearMatches();
+}
+
 void FormattableTextArea::updateDocumentStructure()
 {
     for (DocumentSegment* segment : m_documentStructure) {

@@ -15,6 +15,7 @@ TextField {
     hoverEnabled: true
     property bool markValid: false
     property bool valid: acceptableInput
+    verticalAlignment: Qt.AlignVCenter
 
     background: Rectangle {
         id: rectangle

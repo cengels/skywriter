@@ -195,12 +195,8 @@ ApplicationWindow {
                 Sky.MenuItem { action: actions.selectParagraph }
                 Sky.MenuItem { action: actions.selectAll }
                 MenuSeparator {}
-                Sky.MenuItem {
-                    text: qsTr("Find")
-                }
-                Sky.MenuItem {
-                    text: qsTr("Find and Replace")
-                }
+                Sky.MenuItem { action: actions.find }
+                Sky.MenuItem { action: actions.findReplace }
             }
 
             Sky.Menu {
@@ -462,7 +458,6 @@ ApplicationWindow {
                     clip: true
 
                     // User-configurable properties
-                    firstLineIndent: ThemeManager.activeTheme.firstLineIndent
                     sceneBreak: Settings.Document.sceneBreak
 
                     Keys.onPressed: {
@@ -547,8 +542,105 @@ ApplicationWindow {
         }
     }
 
+    property Pane searchBar: searchBar
+
     footer: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : statsBar.implicitHeight
+
+        Sky.CollapsiblePane {
+            id: searchBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            horizontalPadding: 10
+            onCollapsedChanged: {
+                if (!collapsed) {
+                    searchString.forceActiveFocus();
+                }
+            }
+
+            function find() {
+                let flags = FormattableTextArea.SearchOption.None;
+
+                if (useRegEx.checked) {
+                    flags |= FormattableTextArea.SearchOption.RegEx;
+                }
+
+                if (caseSensitive.checked) {
+                    flags |= FormattableTextArea.SearchOption.CaseSensitive;
+                }
+
+                if (inSelection.checked) {
+                    flags |= FormattableTextArea.SearchOption.InSelection;
+                }
+
+                if (wholeWords.checked) {
+                    flags |= FormattableTextArea.SearchOption.WholeWords;
+                }
+
+                console.log(flags);
+
+                textArea.find(searchString.text, flags);
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                spacing: 10
+
+                Sky.TextField {
+                    id: searchString
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: Math.max(300, searchBar.width * 0.3)
+                    Layout.preferredHeight: statsBar.implicitHeight + 2
+                    font.pointSize: 10
+                    placeholderText: qsTr("Find")
+                    onTextChanged: searchBar.find()
+                }
+
+                Sky.Switch {
+                    id: caseSensitive
+                    text: qsTr("Case-sensitive")
+                    tooltip: qsTr("Any characters that are uppercase in the searched text must also be uppercase in the found text.")
+                    useTheme: true
+                    onToggled: searchBar.find()
+                }
+
+                Sky.Switch {
+                    id: wholeWords
+                    text: qsTr("Whole words")
+                    tooltip: qsTr("Match only whole words, i.e. don't match if the found text is only part of a word.")
+                    useTheme: true
+                    onToggled: searchBar.find()
+                }
+
+                Sky.Switch {
+                    id: inSelection
+                    text: qsTr("In selection")
+                    tooltip: qsTr("Search the current selection only.")
+                    enabled: textArea.selectedText !== ""
+                    useTheme: true
+                    onToggled: searchBar.find()
+                }
+
+                Sky.Switch {
+                    id: useRegEx
+                    text: qsTr("Regular expression")
+                    tooltip: qsTr("Use a Perl regular expression to match text. Note that this is considerably slower than matching text directly.")
+                    useTheme: true
+                    onToggled: searchBar.find()
+                }
+
+                Sky.Text {
+                    Layout.fillWidth: true
+                    text: textArea.searchResultCount + " results found"
+                    opacity: searchString.text !== '' ? 1.0 : 0.0
+                    font.pointSize: 10
+                    color: ThemeManager.activeTheme.uiColor
+
+                    Behavior on opacity { OpacityAnimator { } }
+                }
+            }
+        }
+
         // The StatsBar is wrapped in an Item because otherwise it would not be
         // possible to manipulate the y property (as a footer element).
         // Simply detaching it as footer is also not possible, as this will
@@ -558,40 +650,8 @@ ApplicationWindow {
             id: statsBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             document: textArea
-            y: collapsed ? 0 : -height
-            opacity: collapsed ? 0.0 : 1.0
-
-            property bool collapsed: mainWindow.visibility === Window.FullScreen
+            collapsed: mainWindow.visibility === Window.FullScreen
                 && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
-
-            background: Rectangle {
-                color: ThemeManager.activeTheme.uiBackground
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.ArrowCursor
-                }
-            }
-
-            Behavior on y {
-                animation: NumberAnimation {
-                    easing {
-                        type: Easing.InOutSine
-                        amplitude: 1.0
-                        period: 0.5
-                    }
-                }
-            }
-
-            Behavior on opacity {
-                animation: NumberAnimation {
-                    easing {
-                        type: Easing.InOutSine
-                        amplitude: 1.0
-                        period: 0.4
-                    }
-                }
-            }
         }
     }
 
@@ -599,7 +659,7 @@ ApplicationWindow {
         id: documentStructureDrawer
         y: menuBar.collapsed ? 0 : menuBar.height
         width: 0.2 * mainWindow.width
-        height: mainWindow.height - y - (statsBar.collapsed ? 0 : statsBar.height)
+        height: mainWindow.height - y - (statsBar.collapsed ? 0 : statsBar.height) + (searchBar.collapsed ? 0 : searchBar.y)
         modal: false
 
         background: Rectangle { color: Qt.darker(ThemeManager.activeTheme.uiBackground, 1.1) }
@@ -609,11 +669,13 @@ ApplicationWindow {
             onWindowPositionChanged: {
                 if (!documentStructureDrawer.opened
                         && Mouse.windowPosition.y >= documentStructureDrawer.y + edgeTolerance
+                        && Mouse.windowPosition.y < documentStructureDrawer.y + documentStructureDrawer.height
                         && Mouse.windowPosition.x < edgeTolerance
                         && !fileMenu.opened) {
                     documentStructureDrawer.open();
                 } else if (documentStructureDrawer.opened
                         && (Mouse.windowPosition.y < documentStructureDrawer.y
+                        || Mouse.windowPosition.y >= documentStructureDrawer.y + documentStructureDrawer.height
                         || Mouse.windowPosition.x > documentStructureDrawer.width)) {
                     documentStructureDrawer.close();
                 }

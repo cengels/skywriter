@@ -27,6 +27,7 @@
 #include "../../ErrorManager.h"
 #include "../../persistence.h"
 #include "../symbols.h"
+#include "../UserData.h"
 
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
@@ -47,11 +48,11 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_selectedParagraphCount(0)
     , m_pageCount(0)
     , m_selectedPageCount(0)
-    , m_firstLineIndent(0.0)
     , m_underline(false)
     , m_sceneBreak()
     , m_caretTimer(this)
     , m_blinking(false)
+    , m_searchResults(QVector<Range<int>>())
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_selectionMode(SelectionMode::NoSelection)
@@ -283,7 +284,7 @@ void FormattableTextArea::applyHeading(int level)
     } else {
         const HeadingFormat& format = ThemeManager::instance()->activeTheme()->headingFormat(level);
         m_textCursor.setBlockFormat(format.blockFormat());
-        m_highlighter->refresh();
+//        m_highlighter->refresh();
     }
 
     updateActive();
@@ -526,6 +527,119 @@ void FormattableTextArea::redo()
     }
 
     updateDocumentStructure();
+}
+
+void FormattableTextArea::selectWord()
+{
+    m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
+    emit caretPositionChanged();
+    emit selectedTextChanged();
+    update();
+}
+
+void FormattableTextArea::selectParagraph()
+{
+    m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+    emit caretPositionChanged();
+    emit selectedTextChanged();
+    update();
+}
+
+void FormattableTextArea::selectAll()
+{
+    m_textCursor.select(QTextCursor::SelectionType::Document);
+    emit caretPositionChanged();
+    emit selectedTextChanged();
+    update();
+}
+
+void FormattableTextArea::find(const QString& searchString, const SearchOptions options)
+{
+    QTextBlock block = m_document->firstBlock();
+
+    while (block.isValid()) {
+        if (block.userData()) {
+            UserData* userData = static_cast<UserData*>(block.userData());
+
+            if (!userData->searchMatches().isEmpty()) {
+                block.setUserState((block.userState() == -1 ? 0 : block.userState()) | format::BlockState::NeedsUpdate);
+            }
+
+            userData->searchMatches().clear();
+        } else {
+            block.setUserData(new UserData());
+        }
+
+        block = block.next();
+    }
+
+    const int previousSearchResultsCount = searchResultCount();
+    m_searchResults.clear();
+
+    if (searchString.isEmpty()) {
+        emit searchResultsChanged();
+
+        if (previousSearchResultsCount != searchResultCount()) {
+            emit searchResultCountChanged();
+        }
+
+        return;
+    }
+
+    QTextDocument::FindFlags flags = 0x0;
+    QTextCursor cursor(m_document);
+    bool stopOnSelection = false;
+
+    if (options.testFlag(SearchOption::WholeWords)) {
+        flags.setFlag(QTextDocument::FindFlag::FindWholeWords);
+    }
+
+    if (options.testFlag(SearchOption::CaseSensitive)) {
+        flags.setFlag(QTextDocument::FindFlag::FindCaseSensitively);
+    }
+
+    if (options.testFlag(SearchOption::InSelection) && m_textCursor.hasSelection()) {
+        cursor.setPosition(m_textCursor.selectionStart());
+        stopOnSelection = true;
+    }
+
+    const bool useRegEx = options.testFlag(SearchOption::RegEx);
+    QRegularExpression regEx = useRegEx ? QRegularExpression(searchString) : QRegularExpression();
+
+    while (!cursor.isNull()) {
+        if (useRegEx) {
+            cursor = m_document->find(regEx, cursor, flags);
+        } else {
+            cursor = m_document->find(searchString, cursor, flags);
+        }
+
+        if (!cursor.isNull() && (!stopOnSelection || cursor.selectionEnd() <= m_textCursor.selectionEnd())) {
+            const Range<int> range = Range<int>(cursor.selectionStart(), cursor.selectionEnd());
+            m_searchResults.append(range);
+
+            QTextBlock searchBlock = m_document->findBlock(cursor.selectionStart());
+            bool currentBlockContainsEnd = false;
+
+            do {
+                currentBlockContainsEnd = searchBlock.contains(cursor.selectionEnd());
+                const int end = currentBlockContainsEnd ? range.until() - searchBlock.position() : searchBlock.length();
+                const Range<int> blockRange = Range<int>(range.from() - searchBlock.position(), end);
+
+                static_cast<UserData*>(searchBlock.userData())->searchMatches().append(blockRange);
+                searchBlock.setUserState(searchBlock.userState() | format::BlockState::NeedsUpdate);
+
+                searchBlock = searchBlock.next();
+            } while (!currentBlockContainsEnd);
+        }
+    }
+
+    emit searchResultsChanged();
+
+    if (previousSearchResultsCount != searchResultCount()) {
+        emit searchResultCountChanged();
+    }
+
+    m_highlighter->refresh();
 }
 
 void FormattableTextArea::updateDocumentStructure()

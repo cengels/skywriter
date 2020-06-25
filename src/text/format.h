@@ -24,11 +24,16 @@ namespace format {
     bool isSceneBreak(QTextCursor& textCursor);
 
     enum BlockState {
-        None = 0,
-        EndsWithUnclosedComment = 1,
-        Heading = 2,
-        SceneBreak = 4
+        None = 0x0,
+        NeedsUpdate = 0x1,
+        EndsWithUnclosedComment = 0x2,
+        Heading = 0x4,
+        SceneBreak = 0x8
     };
+
+    Q_DECLARE_FLAGS(BlockStates, BlockState);
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(format::BlockStates);
 
 #endif // FORMAT_H

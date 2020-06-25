@@ -67,3 +67,11 @@ function isDark(color) {
 function adjustAlpha(color, alpha) {
     return Qt.rgba(color.r, color.g, color.b, alpha);
 }
+
+function saturate(color, factor = 1.2) {
+    return Qt.hsla(color.hslHue, color.hslSaturation * factor, color.hslLightness, color.a);
+}
+
+function desaturate(color, factor = 1.2) {
+    return Qt.hsla(color.hslHue, color.hslSaturation / factor, color.hslLightness, color.a);
+}

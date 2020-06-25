@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QSyntaxHighlighter>
+#include <QRegularExpression>
 
 #include "format.h"
+#include "FormattableTextArea/FormattableTextArea.h"
 
 class TextHighlighter : public QSyntaxHighlighter
 {
@@ -15,7 +17,7 @@ class TextHighlighter : public QSyntaxHighlighter
         TextHighlighter(QTextDocument *parent);
 
         const QString& sceneBreak() const;
-        void setSceneBreak(const QString sceneBreakString);
+        void setSceneBreak(const QString& sceneBreakString);
 
         bool refreshing() const;
 
@@ -34,9 +36,10 @@ class TextHighlighter : public QSyntaxHighlighter
         bool checkPreviousBlockStateFlag(format::BlockState state) const;
         bool checkCurrentBlockStateFlag(format::BlockState state) const;
 
-        void highlightComments(const QString &text);
+        void highlightComments(const QString& text);
         void highlightHeadings();
-        void highlightSceneBreaks(const QString &text);
+        void highlightSceneBreaks(const QString& text);
+        void highlightMatches();
 
         void setBlockFormat(const QTextCharFormat& format);
 

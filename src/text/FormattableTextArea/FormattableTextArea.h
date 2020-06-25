@@ -16,11 +16,13 @@
 #include "../MarkdownParser.h"
 #include "../StringReplacer.h"
 #include "../DocumentSegment.h"
+#include "../../Range.h"
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QQuickTextDocument;
 class DocumentSegment;
+class TextHighlighter;
 QT_END_NAMESPACE
 
 class FormattableTextArea : public QQuickItem
@@ -64,12 +66,13 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
     Q_PROPERTY(double overflowArea MEMBER m_overflowArea NOTIFY overflowAreaChanged)
 
-    Q_PROPERTY(double firstLineIndent MEMBER m_firstLineIndent NOTIFY firstLineIndentChanged)
+    Q_PROPERTY(QVector<Range<int>> searchResults READ searchResults MEMBER m_searchResults NOTIFY searchResultsChanged)
+    Q_PROPERTY(int searchResultCount READ searchResultCount NOTIFY searchResultCountChanged)
 
     //! If true, emphasized text segments (enclosed in asterisks or underscores)
     //! will be underlined rather than italicized.
-    Q_PROPERTY(bool underline MEMBER m_underline NOTIFY underlineChanged);
-    Q_PROPERTY(QString sceneBreak MEMBER m_sceneBreak NOTIFY sceneBreakChanged);
+    Q_PROPERTY(bool underline MEMBER m_underline NOTIFY underlineChanged)
+    Q_PROPERTY(QString sceneBreak MEMBER m_sceneBreak NOTIFY sceneBreakChanged)
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
@@ -79,6 +82,17 @@ class FormattableTextArea : public QQuickItem
             WordSelection,
             BlockSelection
         };
+
+        enum class SearchOption {
+            None = 0x0,
+            RegEx = 0x1,
+            CaseSensitive = 0x2,
+            InSelection = 0x4,
+            WholeWords = 0x8
+        };
+        Q_ENUM(SearchOption)
+        Q_DECLARE_FLAGS(SearchOptions, SearchOption)
+        Q_FLAG(SearchOptions)
 
         QSGNode* updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData) override;
         bool event(QEvent* event) override;
@@ -104,6 +118,9 @@ class FormattableTextArea : public QQuickItem
         bool canRedo() const;
         bool canPaste() const;
         QString selectedText() const;
+
+        const QVector<Range<int>>& searchResults() const;
+        int searchResultCount() const;
 
         int characterCount() const;
         int paragraphCount() const;
@@ -172,6 +189,8 @@ class FormattableTextArea : public QQuickItem
         void selectParagraph();
         void selectAll();
 
+        void find(const QString& searchString, const SearchOptions options = SearchOption::None);
+
         QRectF caretRectangle() const;
 
     Q_SIGNALS:
@@ -198,6 +217,9 @@ class FormattableTextArea : public QQuickItem
         void modifiedChanged();
         void lastModifiedChanged();
         void loadingChanged();
+
+        void searchResultsChanged();
+        void searchResultCountChanged();
 
         void characterCountChanged();
         void paragraphCountChanged();
@@ -264,7 +286,8 @@ class FormattableTextArea : public QQuickItem
         void updateParagraphCount();
         void updatePageCount();
 
-        int m_firstLineIndent;
+        QVector<Range<int>> m_searchResults;
+
         bool m_underline;
         QString m_sceneBreak;
 
@@ -275,5 +298,7 @@ class FormattableTextArea : public QQuickItem
         QMouseEvent m_lastMouseDownEvent;
         SelectionMode m_selectionMode;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(FormattableTextArea::SearchOptions)
 
 #endif // FORMATTABLETEXTAREA_H

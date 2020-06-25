@@ -24,6 +24,7 @@
         <file alias="StatsBar.qml">resources/qml/controls/StatsBar.qml</file>
         <file alias="ThemePreview.qml">resources/qml/controls/ThemePreview.qml</file>
         <file alias="FullThemePreview.qml">resources/qml/controls/FullThemePreview.qml</file>
+        <file alias="CollapsiblePane.qml">resources/qml/controls/CollapsiblePane.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/text">
         <file alias="Text.qml">resources/qml/controls/text/Text.qml</file>
@@ -41,6 +42,7 @@
         <file alias="SectionLabel.qml">resources/qml/controls/forms/SectionLabel.qml</file>
         <file alias="Form.qml">resources/qml/controls/forms/Form.qml</file>
         <file alias="IconButton.qml">resources/qml/controls/forms/IconButton.qml</file>
+        <file alias="Switch.qml">resources/qml/controls/forms/Switch.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/dialog">
         <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>

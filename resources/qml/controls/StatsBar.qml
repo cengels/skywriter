@@ -4,8 +4,9 @@ import QtQuick.Layouts 1.14
 import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
+import "qrc:/qml/controls" as Sky
 
-Pane {
+Sky.CollapsiblePane {
     horizontalPadding: 7
     verticalPadding: 2
     property FormattableTextArea document;

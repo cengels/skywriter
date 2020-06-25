@@ -30,6 +30,7 @@ SOURCES += \
         src/ErrorManager.cpp \
         src/Mouse.cpp \
         src/QmlHelper.cpp \
+        src/Range.cpp \
         src/numbers.cpp \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
         src/text/MarkdownParser.cpp \
         src/text/Replacement.cpp \
         src/text/StringReplacer.cpp \
+        src/text/UserData.cpp \
         src/text/symbols.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
@@ -77,6 +79,7 @@ HEADERS += \
     src/ErrorManager.h \
     src/Mouse.h \
     src/QmlHelper.h \
+    src/Range.h \
     src/numbers.h \
     src/persistence.h \
     src/progress/ProgressItem.h \
@@ -87,6 +90,7 @@ HEADERS += \
     src/text/StringReplacer.h \
     src/text/TextHighlighter.h \
     src/text/TextIterator.h \
+    src/text/UserData.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
     src/text/symbols.h \

@@ -97,6 +97,16 @@ QString FormattableTextArea::selectedText() const
     return m_textCursor.selectedText();
 }
 
+const QVector<Range<int>>& FormattableTextArea::searchResults() const
+{
+    return m_searchResults;
+}
+
+int FormattableTextArea::searchResultCount() const
+{
+    return m_searchResults.size();
+}
+
 QUrl FormattableTextArea::fileUrl() const
 {
     return m_fileUrl;
@@ -167,30 +177,6 @@ double FormattableTextArea::contentWidth() const
 double FormattableTextArea::contentHeight() const
 {
     return m_document ? m_document->size().height() + m_overflowArea * 2 : -1;
-}
-
-void FormattableTextArea::selectWord()
-{
-    m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
-}
-
-void FormattableTextArea::selectParagraph()
-{
-    m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
-}
-
-void FormattableTextArea::selectAll()
-{
-    m_textCursor.select(QTextCursor::SelectionType::Document);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
 }
 
 QRectF FormattableTextArea::caretRectangle() const

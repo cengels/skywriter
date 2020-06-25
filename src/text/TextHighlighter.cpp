@@ -1,3 +1,4 @@
+#include <QTextDocument>
 #include <QSyntaxHighlighter>
 #include <QDebug>
 
@@ -6,9 +7,20 @@
 #include "../theming/ThemeManager.h"
 #include "../colors.h"
 #include "format.h"
+#include "UserData.h"
+#include "FormattableTextArea/FormattableTextArea.h"
 
 namespace {
     QMetaObject::Connection connection;
+
+    QTextCharFormat searchMatchFormat = QTextCharFormat();
+    void updateSearchMatchFormat() {
+        const QColor fontColor = ThemeManager::instance()->activeTheme()->fontColor();
+
+        const QColor highlight = QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 25);
+
+        searchMatchFormat.setBackground(highlight);
+    }
 }
 
 TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent),
@@ -18,10 +30,12 @@ TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(par
     connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [&]() {
         disconnect(connection);
-        connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::rehighlight);
+        connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
 
         this->refresh();
     });
+
+    updateSearchMatchFormat();
 }
 
 void TextHighlighter::highlightBlock(const QString& text)
@@ -29,6 +43,11 @@ void TextHighlighter::highlightBlock(const QString& text)
     highlightHeadings();
     highlightSceneBreaks(text);
     highlightComments(text);
+    highlightMatches();
+
+    if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
+        unsetCurrentBlockStateFlag(format::BlockState::NeedsUpdate);
+    }
 }
 
 void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
@@ -106,12 +125,21 @@ void TextHighlighter::highlightHeadings()
     }
 }
 
-void TextHighlighter::highlightSceneBreaks(const QString &text)
+void TextHighlighter::highlightSceneBreaks(const QString& text)
 {
     if (text == m_sceneBreakString) {
         QTextCharFormat charFormat;
         charFormat.setFontPointSize(ThemeManager::instance()->activeTheme()->fontSize() * 1.25);
         setBlockFormat(charFormat);
+    }
+}
+
+void TextHighlighter::highlightMatches()
+{
+    if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
+        for (const Range<int>& range : static_cast<UserData*>(currentBlockUserData())->searchMatches()) {
+            setFormat(range.from(), range.length(), searchMatchFormat);
+        }
     }
 }
 
@@ -123,6 +151,7 @@ void TextHighlighter::setBlockFormat(const QTextCharFormat& format)
 void TextHighlighter::refresh()
 {
     this->m_refreshing = true;
+    updateSearchMatchFormat();
     this->rehighlight();
     this->m_refreshing = false;
 }
@@ -132,7 +161,7 @@ const QString& TextHighlighter::sceneBreak() const
     return m_sceneBreakString;
 }
 
-void TextHighlighter::setSceneBreak(const QString sceneBreakString)
+void TextHighlighter::setSceneBreak(const QString& sceneBreakString)
 {
     m_sceneBreakString = sceneBreakString;
 }

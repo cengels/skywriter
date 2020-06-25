@@ -385,4 +385,16 @@ QtObject {
         shortcut: "Ctrl+#"
         onTriggered: textArea.insertSceneBreak()
     }
+
+    readonly property Action find: Action {
+        text: qsTr("Find")
+        shortcut: StandardKey.Find
+        onTriggered: mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed
+    }
+
+    readonly property Action findReplace: Action {
+        text: qsTr("Find and replace")
+        shortcut: StandardKey.Replace
+        onTriggered: mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed
+    }
 }

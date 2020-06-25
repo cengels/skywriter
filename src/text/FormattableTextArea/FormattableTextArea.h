@@ -189,7 +189,13 @@ class FormattableTextArea : public QQuickItem
         void selectParagraph();
         void selectAll();
 
+        //! Finds all occurrences of the given string with the specified search options.
         void find(const QString& searchString, const SearchOptions options = SearchOption::None);
+        //! Jumps to the next occurrence of the string passed as part of the find() function.
+        void jumpToNext();
+        //! Jumps to the previous occurrence of the string passed as part of the find() function.
+        void jumpToPrevious();
+        void clearMatches();
 
         QRectF caretRectangle() const;
 

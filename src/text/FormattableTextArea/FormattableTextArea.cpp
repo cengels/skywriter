@@ -583,6 +583,8 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
             emit searchResultCountChanged();
         }
 
+        m_highlighter->refresh();
+
         return;
     }
 
@@ -640,6 +642,78 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
     }
 
     m_highlighter->refresh();
+}
+
+void FormattableTextArea::jumpToNext()
+{
+    if (searchResults().isEmpty()) {
+        return;
+    }
+
+    bool found = false;
+
+    for (const Range<int>& range : searchResults()) {
+        if (m_textCursor.selectionStart() < range.from() || m_textCursor.selectionEnd() == range.from()) {
+            QString previousSelection = m_textCursor.selectedText();
+            m_textCursor.setPosition(range.from());
+            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
+            updateActive();
+            found = true;
+
+            emit caretPositionChanged();
+
+            if (previousSelection != m_textCursor.selectedText()) {
+                emit selectedTextChanged();
+            }
+
+            return;
+        }
+    }
+
+    if (!found) {
+        m_textCursor.movePosition(QTextCursor::Start);
+        jumpToNext();
+    }
+}
+
+void FormattableTextArea::jumpToPrevious()
+{
+    if (searchResults().isEmpty()) {
+        return;
+    }
+
+    bool found = false;
+    QVectorIterator<Range<int>> iterator(searchResults());
+    iterator.toBack();
+
+    while (iterator.hasPrevious()) {
+        const Range<int>& range = iterator.previous();
+        if (m_textCursor.selectionStart() >= range.until()) {
+            QString previousSelection = m_textCursor.selectedText();
+            m_textCursor.setPosition(range.from());
+            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
+            updateActive();
+            found = true;
+
+            emit caretPositionChanged();
+
+            if (previousSelection != m_textCursor.selectedText()) {
+                emit selectedTextChanged();
+            }
+
+            return;
+        }
+    }
+
+    if (!found) {
+        m_textCursor.movePosition(QTextCursor::End);
+        jumpToPrevious();
+    }
+}
+
+void FormattableTextArea::clearMatches()
+{
+    find("");
 }
 
 void FormattableTextArea::updateDocumentStructure()

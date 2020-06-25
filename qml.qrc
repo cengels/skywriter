@@ -85,5 +85,7 @@
         <file alias="Shape.qml">resources/qml/shapes/Shape.qml</file>
         <file alias="ShapeCircle.qml">resources/qml/shapes/ShapeCircle.qml</file>
         <file alias="ShapeCross.qml">resources/qml/shapes/ShapeCross.qml</file>
+        <file alias="ArrowRight.qml">resources/qml/shapes/ArrowRight.qml</file>
+        <file alias="ArrowLeft.qml">resources/qml/shapes/ArrowLeft.qml</file>
     </qresource>
 </RCC>

@@ -17,6 +17,7 @@ import "qrc:/qml/controls/menu" as Sky
 import "qrc:/qml/controls/forms" as Sky
 import "qrc:/qml/utility" as Sky
 import "qrc:/qml/views" as View
+import "qrc:/qml/shapes" as Shapes
 import "qrc:/js/color.js" as Color
 
 ApplicationWindow {
@@ -304,8 +305,20 @@ ApplicationWindow {
 
             function scrollToCaret() {
                 const caretPosition = textArea.caretRectangle().y + textArea.contentY;
-                const visibleStartY = textArea.contentY;
-                const visibleEndY = textArea.contentY + scrollView.height;
+                let visibleStartY = textArea.contentY;
+                let visibleEndY = textArea.contentY + scrollView.height;
+
+                if (!menuBar.collapsed && mainWindow.visibility === Window.FullScreen) {
+                    visibleStartY += menuBar.y;
+                }
+
+                if (!searchBar.collapsed) {
+                    visibleEndY -= searchBar.height;
+                }
+
+                if (!statsBar.collapsed && mainWindow.visibility === Window.FullScreen) {
+                    visibleEndY -= statsBar.height;
+                }
 
                 if (caretPosition < visibleStartY) {
                     verticalScrollbar.position = caretPosition / textArea.contentHeight;
@@ -532,7 +545,7 @@ ApplicationWindow {
                         progressAtLastSave = ProgressTracker.progressToday;
                     }
 
-                    onTextChanged: {
+                    onCaretPositionChanged: {
                         if (!loading) {
                             verticalScrollbar.scrollToCaret();
                         }
@@ -551,10 +564,18 @@ ApplicationWindow {
             id: searchBar
             anchors.left: parent.left
             anchors.right: parent.right
+            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (collapsed ? 0 : height)
             horizontalPadding: 10
             onCollapsedChanged: {
-                if (!collapsed) {
+                if (collapsed) {
+                    textArea.clearMatches();
+                } else {
                     searchString.forceActiveFocus();
+
+                    if (searchString.text !== '') {
+                        searchString.selectAll();
+                        find();
+                    }
                 }
             }
 
@@ -577,14 +598,12 @@ ApplicationWindow {
                     flags |= FormattableTextArea.SearchOption.WholeWords;
                 }
 
-                console.log(flags);
-
                 textArea.find(searchString.text, flags);
             }
 
             RowLayout {
                 anchors.fill: parent
-                spacing: 10
+                spacing: 15
 
                 Sky.TextField {
                     id: searchString
@@ -593,7 +612,35 @@ ApplicationWindow {
                     Layout.preferredHeight: statsBar.implicitHeight + 2
                     font.pointSize: 10
                     placeholderText: qsTr("Find")
-                    onTextChanged: searchBar.find()
+                    onTextChanged: {
+                        searchBar.find();
+
+                        if (Settings.Application.searchImmediately) {
+                            textArea.jumpToNext();
+                        }
+                    }
+                }
+
+                Sky.IconButton {
+                    width: 24
+                    height: 24
+                    useTheme: true
+                    shape: Shapes.ArrowLeft {}
+                    enabled: textArea.searchResultCount > 0
+                    // If the user clicks twice in quick succession,
+                    // the second click will be captured by onDoubleClicked.
+                    // onClicked will not see it. Therefore, using onReleased
+                    // here.
+                    onReleased: textArea.jumpToPrevious()
+                }
+
+                Sky.IconButton {
+                    width: 24
+                    height: 24
+                    useTheme: true
+                    shape: Shapes.ArrowRight {}
+                    enabled: textArea.searchResultCount > 0
+                    onReleased: textArea.jumpToNext()
                 }
 
                 Sky.Switch {
@@ -650,7 +697,7 @@ ApplicationWindow {
             id: statsBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
             document: textArea
-            collapsed: mainWindow.visibility === Window.FullScreen
+            collapsed: searchBar.collapsed && mainWindow.visibility === Window.FullScreen
                 && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
         }
     }

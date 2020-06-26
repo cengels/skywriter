@@ -93,17 +93,10 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.setPosition(selectionStart + start.size());
                     m_textCursor.setPosition(selectionEnd + start.size(), QTextCursor::KeepAnchor);
                     m_textCursor.endEditBlock();
-
-                    emit textChanged();
-                    emit textInserted(selectionStart, start);
-                    emit textInserted(selectionEnd + start.size(), end);
                 } else {
                     const QString replacedText = m_replacer.replace(text, previousCharacter);
                     m_textCursor.insertText(replacedText);
                     moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
-
-                    emit textChanged();
-                    emit textInserted(selectionStart, replacedText);
                 }
 
                 if (m_textCursor.block().text().isEmpty()) {

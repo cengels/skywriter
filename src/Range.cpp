@@ -49,9 +49,29 @@ bool Range<T>::operator!=(const Range<T>& range) const
 }
 
 template<typename T>
-Range<T> Range<T>::offset(const T& offset) const
+void Range<T>::operator+=(const T& offset)
+{
+    m_from += offset;
+    m_until += offset;
+}
+
+template<typename T>
+void Range<T>::operator-=(const T& offset)
+{
+    m_from -= offset;
+    m_until -= offset;
+}
+
+template<typename T>
+Range<T> Range<T>::operator+(const T& offset) const
 {
     return Range(from() + offset, until() + offset);
+}
+
+template<typename T>
+Range<T> Range<T>::operator-(const T& offset) const
+{
+    return Range(from() - offset, until() - offset);
 }
 
 template struct Range<int>;

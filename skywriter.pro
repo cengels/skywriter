@@ -35,6 +35,9 @@ SOURCES += \
         src/persistence.cpp \
         src/progress/ProgressItem.cpp \
         src/text/DocumentSegment.cpp \
+        src/text/FormattableTextArea/actions.cpp \
+        src/text/FormattableTextArea/documentstructure.cpp \
+        src/text/FormattableTextArea/find.cpp \
         src/text/MarkdownParser.cpp \
         src/text/Replacement.cpp \
         src/text/StringReplacer.cpp \

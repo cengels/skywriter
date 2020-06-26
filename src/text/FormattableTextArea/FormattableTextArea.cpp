@@ -1,33 +1,13 @@
-#include <QFile>
-#include <QFileInfo>
-#include <QFileSelector>
-#include <QDateTime>
-#include <QQmlFile>
-#include <QQmlFileSelector>
-#include <QQuickTextDocument>
-#include <QTextCharFormat>
-#include <QTextCodec>
-#include <QTextDocument>
-#include <QTextObject>
-#include <QTextFrame>
-#include <QTextFragment>
 #include <QCursor>
-#include <QPainter>
-#include <QDebug>
 #include <QAbstractTextDocumentLayout>
-#include <QTextDocumentFragment>
-#include <QGuiApplication>
-#include <QClipboard>
-#include <QMimeData>
+#include <QQmlFile>
+#include <QTextCodec>
+#include <QFileInfo>
 
 #include "FormattableTextArea.h"
-#include "../format.h"
-#include "../TextHighlighter.h"
-#include "../../theming/ThemeManager.h"
-#include "../../ErrorManager.h"
-#include "../../persistence.h"
 #include "../symbols.h"
-#include "../UserData.h"
+#include "../../persistence.h"
+#include "../../ErrorManager.h"
 
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
@@ -48,11 +28,13 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_selectedParagraphCount(0)
     , m_pageCount(0)
     , m_selectedPageCount(0)
+    , m_searchString()
+    , m_searchFlags()
+    , m_searchResults(QVector<Range<int>>())
     , m_underline(false)
     , m_sceneBreak()
     , m_caretTimer(this)
     , m_blinking(false)
-    , m_searchResults(QVector<Range<int>>())
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_selectionMode(SelectionMode::NoSelection)
@@ -93,73 +75,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     connect(this, &FormattableTextArea::selectedTextChanged, this, &FormattableTextArea::updateSelectedCounts);
 
-    connect(this, &FormattableTextArea::textInserted, this, [&] (const int at, const QString text) {
-        DocumentSegment* targetSegment = nullptr;
-
-        for (DocumentSegment* segment : m_documentStructure) {
-            if (targetSegment) {
-                segment->setPosition(segment->position() + text.length());
-                continue;
-            }
-
-            const DocumentSegment* next = segment->next();
-
-            if (next == nullptr || (at >= segment->position() && at < next->position())) {
-                targetSegment = segment;
-            }
-        }
-
-        emit targetSegment->textChanged();
-
-        if (at == 0
-                || symbols::isWordSeparator(m_document->characterAt(at - 1))
-                || (text.size() > 1 && symbols::containsWordSeparator(text))) {
-            targetSegment->updateWords();
-        }
-    });
-
-    connect(this, &FormattableTextArea::textRemoved, this, [&] (const int at, const QString text) {
-        int textEnd = at + text.length();
-        int length = m_documentStructure.length();
-        DocumentSegment* targetSegment = nullptr;
-
-        for (int i = 0; i < length; i++) {
-            DocumentSegment* segment = m_documentStructure.at(i);
-
-            if (targetSegment) {
-                segment->setPosition(segment->position() - text.length());
-                continue;
-            }
-
-            if (i == length - 1) {
-                targetSegment = segment;
-                break;
-            }
-
-            DocumentSegment* next = m_documentStructure.at(i + 1);
-
-            if (at >= segment->position()) {
-                if (textEnd < next->position()) {
-                    targetSegment = segment;
-                } else if (targetSegment) {
-                    // Text was removed from more than one DocumentSegment.
-                    // This means that a DocumentSegment boundary was removed,
-                    // i.e. the number of DocumentSegments is not the same
-                    // as before. Must reinstantiate the entire structure.
-
-                    updateDocumentStructure();
-                    return;
-                }
-            }
-        }
-
-        emit targetSegment->textChanged();
-
-        if (symbols::isWordSeparator(m_document->characterAt(at - 1)) || symbols::containsWordSeparator(text)) {
-            targetSegment->updateWords();
-        }
-    });
-
     newDocument();
 }
 
@@ -184,7 +99,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
 
     if (m_document) {
         connect(m_document, &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
-        connect(m_document, &QTextDocument::contentsChanged, this, &FormattableTextArea::handleTextChange);
+        connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
         connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
         connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
         connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::update, this, &FormattableTextArea::update);
@@ -208,7 +123,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
     }
 
     clearUndoStack();
-    updateDocumentStructure();
+    refreshDocumentStructure();
 
     emit documentChanged();
     emit modifiedChanged();
@@ -216,7 +131,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
     update();
 }
 
-void FormattableTextArea::handleTextChange()
+void FormattableTextArea::handleTextChange(const int position, const int removed, const int added)
 {
     emit contentHeightChanged();
 
@@ -234,6 +149,11 @@ void FormattableTextArea::handleTextChange()
     }
 
     this->updateCounts();
+
+    if (added != 0 || removed != 0) {
+        updateDocumentStructure(position, added, removed);
+        emit textChanged(position, added, removed);
+    }
 }
 
 void FormattableTextArea::updateActive()
@@ -247,60 +167,6 @@ void FormattableTextArea::updateActive()
 const QTextCharFormat FormattableTextArea::getSelectionFormat() const
 {
     return format::getMergedCharFormat(m_textCursor);
-}
-
-void FormattableTextArea::toggleBold()
-{
-    QTextCharFormat format;
-    format.setFontWeight(getSelectionFormat().fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
-    mergeFormat(format);
-}
-
-void FormattableTextArea::toggleItalics()
-{
-    QTextCharFormat format;
-    format.setFontItalic(!getSelectionFormat().fontItalic());
-    mergeFormat(format);
-}
-
-void FormattableTextArea::toggleStrikethrough()
-{
-    QTextCharFormat format;
-    format.setFontStrikeOut(!getSelectionFormat().fontStrikeOut());
-    mergeFormat(format);
-}
-
-void FormattableTextArea::applyHeading(int level)
-{
-    if (level < 0 || level > 6) {
-        emit ErrorManager::instance()->warning(tr("Only headings between 0 and 6 are permitted."));
-        return;
-    }
-
-    if (level == 0) {
-        const Theme* theme = ThemeManager::instance()->activeTheme();
-        m_textCursor.setBlockFormat(theme->blockFormat());
-        format::mergeBlockCharFormat(m_textCursor, theme->charFormat());
-    } else {
-        const HeadingFormat& format = ThemeManager::instance()->activeTheme()->headingFormat(level);
-        m_textCursor.setBlockFormat(format.blockFormat());
-//        m_highlighter->refresh();
-    }
-
-    updateActive();
-}
-
-void FormattableTextArea::insertSceneBreak()
-{
-    if (m_sceneBreak.isEmpty()) {
-        return;
-    }
-
-    m_textCursor.beginEditBlock();
-
-    format::insertSceneBreak(m_textCursor, m_sceneBreak);
-
-    m_textCursor.endEditBlock();
 }
 
 void FormattableTextArea::clearReplacements()
@@ -321,6 +187,8 @@ void FormattableTextArea::load(const QUrl &fileUrl)
 
     m_loading = true;
     emit loadingChanged();
+
+    clearMatches();
 
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
@@ -411,431 +279,12 @@ void FormattableTextArea::reset()
     m_wordCount = 0;
     m_paragraphCount = 0;
     m_pageCount = 0;
+    clearMatches();
     emit characterCountChanged();
     emit wordCountChanged(false);
     emit paragraphCountChanged();
     emit pageCountChanged();
     setFileUrl(QUrl());
-}
-
-void FormattableTextArea::copy()
-{
-    if (m_textCursor.hasSelection()) {
-        bool couldPaste = canPaste();
-
-        QClipboard* clipboard = QGuiApplication::clipboard();
-        QMimeData* mimeData = new QMimeData();
-        mimeData->setText(m_textCursor.selection().toPlainText());
-        mimeData->setHtml(m_textCursor.selection().toHtml("utf-8"));
-        clipboard->setMimeData(mimeData);
-
-        if (!couldPaste) {
-            emit canPasteChanged();
-        }
-    }
-}
-
-void FormattableTextArea::paste()
-{
-    if (!canPaste()) {
-        return;
-    }
-
-    bool hadSelection = m_textCursor.hasSelection();
-    int previousPosition = m_textCursor.selectionStart();
-    QString insertedString;
-    const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
-
-    if (mimeData->hasHtml()) {
-        m_textCursor.insertHtml(mimeData->html());
-        int newPosition = m_textCursor.position();
-        m_textCursor.setPosition(previousPosition);
-        m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
-        insertedString = m_textCursor.selectedText();
-        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme(), m_sceneBreak);
-        m_textCursor.clearSelection();
-    } else if (mimeData->hasText()) {
-        insertedString = mimeData->text();
-        m_textCursor.insertText(mimeData->text());
-    }
-
-    updateActive();
-    emit caretPositionChanged();
-    emit textChanged();
-    emit textInserted(previousPosition, insertedString);
-
-    if (hadSelection) {
-        emit selectedTextChanged();
-    }
-}
-
-void FormattableTextArea::remove()
-{
-    if (m_textCursor.hasSelection()) {
-        int position = m_textCursor.selectionStart();
-        QString text = m_textCursor.selectedText();
-
-        if (text.size() == 1) {
-            // This distinction is made because removeSelectedText() immediately
-            // adds a new undo state, which is undesired for small changes
-            // that add or remove only one character.
-            m_textCursor.clearSelection();
-            m_textCursor.setPosition(position);
-            m_textCursor.deleteChar();
-        } else {
-            m_textCursor.removeSelectedText();
-        }
-
-        emit selectedTextChanged();
-        emit textChanged();
-        emit textRemoved(position, text);
-        emit caretPositionChanged();
-    }
-}
-
-void FormattableTextArea::cut()
-{
-    copy();
-    remove();
-}
-
-void FormattableTextArea::undo()
-{
-    bool hadSelection = m_textCursor.hasSelection();
-    m_document->undo(&m_textCursor);
-    updateActive();
-    emit textChanged();
-    emit caretPositionChanged();
-
-    if (hadSelection) {
-        emit selectedTextChanged();
-    }
-
-    updateDocumentStructure();
-}
-
-void FormattableTextArea::redo()
-{
-    bool hadSelection = m_textCursor.hasSelection();
-    m_document->redo(&m_textCursor);
-    updateActive();
-    emit textChanged();
-    emit caretPositionChanged();
-
-    if (hadSelection) {
-        emit selectedTextChanged();
-    }
-
-    updateDocumentStructure();
-}
-
-void FormattableTextArea::selectWord()
-{
-    m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
-}
-
-void FormattableTextArea::selectParagraph()
-{
-    m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
-}
-
-void FormattableTextArea::selectAll()
-{
-    m_textCursor.select(QTextCursor::SelectionType::Document);
-    emit caretPositionChanged();
-    emit selectedTextChanged();
-    update();
-}
-
-void FormattableTextArea::find(const QString& searchString, const SearchOptions options)
-{
-    QTextBlock block = m_document->firstBlock();
-
-    while (block.isValid()) {
-        if (block.userData()) {
-            UserData* userData = static_cast<UserData*>(block.userData());
-
-            if (!userData->searchMatches().isEmpty()) {
-                block.setUserState((block.userState() == -1 ? 0 : block.userState()) | format::BlockState::NeedsUpdate);
-            }
-
-            userData->searchMatches().clear();
-        } else {
-            block.setUserData(new UserData());
-        }
-
-        block = block.next();
-    }
-
-    const int previousSearchResultsCount = searchResultCount();
-    m_searchResults.clear();
-
-    if (searchString.isEmpty()) {
-        emit searchResultsChanged();
-
-        if (previousSearchResultsCount != searchResultCount()) {
-            emit searchResultCountChanged();
-        }
-
-        m_highlighter->refresh();
-
-        return;
-    }
-
-    QTextDocument::FindFlags flags = 0x0;
-    QTextCursor cursor(m_document);
-    bool stopOnSelection = false;
-
-    if (options.testFlag(SearchOption::WholeWords)) {
-        flags.setFlag(QTextDocument::FindFlag::FindWholeWords);
-    }
-
-    if (options.testFlag(SearchOption::CaseSensitive)) {
-        flags.setFlag(QTextDocument::FindFlag::FindCaseSensitively);
-    }
-
-    if (options.testFlag(SearchOption::InSelection) && m_textCursor.hasSelection()) {
-        cursor.setPosition(m_textCursor.selectionStart());
-        stopOnSelection = true;
-    }
-
-    const bool useRegEx = options.testFlag(SearchOption::RegEx);
-    QRegularExpression regEx = useRegEx ? QRegularExpression(searchString) : QRegularExpression();
-
-    while (!cursor.isNull()) {
-        if (useRegEx) {
-            cursor = m_document->find(regEx, cursor, flags);
-        } else {
-            cursor = m_document->find(searchString, cursor, flags);
-        }
-
-        if (!cursor.isNull() && (!stopOnSelection || cursor.selectionEnd() <= m_textCursor.selectionEnd())) {
-            const Range<int> range = Range<int>(cursor.selectionStart(), cursor.selectionEnd());
-            m_searchResults.append(range);
-
-            QTextBlock searchBlock = m_document->findBlock(cursor.selectionStart());
-            bool currentBlockContainsEnd = false;
-
-            do {
-                currentBlockContainsEnd = searchBlock.contains(cursor.selectionEnd());
-                const int end = currentBlockContainsEnd ? range.until() - searchBlock.position() : searchBlock.length();
-                const Range<int> blockRange = Range<int>(range.from() - searchBlock.position(), end);
-
-                static_cast<UserData*>(searchBlock.userData())->searchMatches().append(blockRange);
-                searchBlock.setUserState(searchBlock.userState() | format::BlockState::NeedsUpdate);
-
-                searchBlock = searchBlock.next();
-            } while (!currentBlockContainsEnd);
-        }
-    }
-
-    emit searchResultsChanged();
-
-    if (previousSearchResultsCount != searchResultCount()) {
-        emit searchResultCountChanged();
-    }
-
-    m_highlighter->refresh();
-}
-
-void FormattableTextArea::jumpToNext()
-{
-    if (searchResults().isEmpty()) {
-        return;
-    }
-
-    bool found = false;
-
-    for (const Range<int>& range : searchResults()) {
-        if (m_textCursor.selectionStart() < range.from() || m_textCursor.selectionEnd() == range.from()) {
-            QString previousSelection = m_textCursor.selectedText();
-            m_textCursor.setPosition(range.from());
-            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
-            updateActive();
-            found = true;
-
-            emit caretPositionChanged();
-
-            if (previousSelection != m_textCursor.selectedText()) {
-                emit selectedTextChanged();
-            }
-
-            return;
-        }
-    }
-
-    if (!found) {
-        m_textCursor.movePosition(QTextCursor::Start);
-        jumpToNext();
-    }
-}
-
-void FormattableTextArea::jumpToPrevious()
-{
-    if (searchResults().isEmpty()) {
-        return;
-    }
-
-    bool found = false;
-    QVectorIterator<Range<int>> iterator(searchResults());
-    iterator.toBack();
-
-    while (iterator.hasPrevious()) {
-        const Range<int>& range = iterator.previous();
-        if (m_textCursor.selectionStart() >= range.until()) {
-            QString previousSelection = m_textCursor.selectedText();
-            m_textCursor.setPosition(range.from());
-            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
-            updateActive();
-            found = true;
-
-            emit caretPositionChanged();
-
-            if (previousSelection != m_textCursor.selectedText()) {
-                emit selectedTextChanged();
-            }
-
-            return;
-        }
-    }
-
-    if (!found) {
-        m_textCursor.movePosition(QTextCursor::End);
-        jumpToPrevious();
-    }
-}
-
-void FormattableTextArea::clearMatches()
-{
-    find("");
-}
-
-void FormattableTextArea::replaceNext(const QString& text)
-{
-    if (searchResults().isEmpty()) {
-        return;
-    }
-
-    bool found = false;
-
-    for (const Range<int>& range : searchResults()) {
-        if (m_textCursor.selectionStart() <= range.from() || m_textCursor.selectionEnd() == range.from()) {
-            QString previousSelection = m_textCursor.selectedText();
-            m_textCursor.setPosition(range.from());
-            m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
-            found = true;
-
-            m_searchResults.removeOne(range);
-
-            break;
-        }
-    }
-
-    if (!found) {
-        m_textCursor.movePosition(QTextCursor::Start);
-        replaceNext(text);
-    }
-
-    m_textCursor.insertText(text);
-    m_textCursor.setPosition(m_textCursor.position() - text.size(), QTextCursor::KeepAnchor);
-
-    updateActive();
-    emit textChanged();
-    emit selectedTextChanged();
-    emit caretPositionChanged();
-    emit searchResultsChanged();
-    emit searchResultCountChanged();
-}
-
-void FormattableTextArea::replaceAll(const QString& text)
-{
-    if (searchResults().isEmpty()) {
-        return;
-    }
-
-    QTextCursor cursor(m_document);
-
-    cursor.beginEditBlock();
-
-    // Must add the difference to all future ranges.
-    int difference = 0;
-
-    for (const Range<int>& range : searchResults()) {
-        cursor.setPosition(range.from() + difference);
-        cursor.setPosition(range.until() + difference, QTextCursor::KeepAnchor);
-        difference += text.size() - range.length();
-        cursor.insertText(text);
-    }
-
-    cursor.endEditBlock();
-
-    updateActive();
-    emit textChanged();
-
-    clearMatches();
-}
-
-void FormattableTextArea::updateDocumentStructure()
-{
-    for (DocumentSegment* segment : m_documentStructure) {
-        delete segment;
-    }
-
-    m_documentStructure.clear();
-
-    if (!m_document) {
-        emit documentStructureChanged();
-
-        return;
-    }
-
-    m_documentStructure.append(new DocumentSegment(0, 1, this));
-
-    QTextBlock previous = QTextBlock();
-    QTextBlock previousHeading = QTextBlock();
-    QTextBlock block = m_document->firstBlock();
-
-    while (block.isValid()) {
-        bool isHeading = block.blockFormat().headingLevel() > 0;
-        bool isSubheading = previous.blockFormat().headingLevel() == block.blockFormat().headingLevel() - 1
-                            // uneven headings are considered subheadings
-                            && block.blockFormat().headingLevel() % 2 == 0;
-
-        if (isHeading && !isSubheading) {
-            if (previous.isValid()) {
-                int depth;
-                DocumentSegment* const previousSegment = m_documentStructure.last();
-
-                if (!previousHeading.isValid() || previousHeading.blockFormat().headingLevel() == block.blockFormat().headingLevel()) {
-                    depth = previousSegment->depth();
-                } else {
-                    depth = previousSegment->depth() + 1;
-                }
-
-                m_documentStructure.append(new DocumentSegment(block.position(), depth, this));
-
-                if (previousSegment) {
-                    emit previousSegment->textChanged();
-                    previousSegment->updateWords();
-                }
-            }
-
-            previousHeading = block;
-        }
-
-        previous = block;
-        block = block.next();
-    }
-
-    emit m_documentStructure.last()->textChanged();
-    m_documentStructure.last()->updateWords();
-    emit documentStructureChanged();
 }
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)

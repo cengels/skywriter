@@ -1,5 +1,4 @@
 #include <QVector>
-#include <QtConcurrent>
 
 #include "DocumentSegment.h"
 #include "TextIterator.h"
@@ -8,12 +7,18 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_words(0) { }
+    m_words(0)
+{
+    setAutoDelete(false);
+}
 
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_words(0) { }
+    m_words(0)
+{
+    setAutoDelete(false);
+}
 
 int DocumentSegment::position() const
 {
@@ -161,32 +166,26 @@ int DocumentSegment::index() const
     return -1;
 }
 
+void DocumentSegment::run() {
+    TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
+    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
+
+    int i = 0;
+
+    while (!iterator.atEnd()) {
+        if (!iterator.current().isEmpty()) {
+            i++;
+        }
+
+        iterator++;
+    }
+
+    m_words = i;
+
+    emit wordsChanged();
+}
+
 void DocumentSegment::updateWords()
 {
-    QtConcurrent::run([=] {
-        TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
-        iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
-
-        int i = 0;
-
-        while (!iterator.atEnd()) {
-            if (!iterator.current().isEmpty()) {
-                i++;
-            }
-
-            iterator++;
-        }
-
-        m_words = i;
-
-        emit wordsChanged();
-
-        if (!parent()) {
-            return;
-        }
-
-        FormattableTextArea* textArea = qobject_cast<FormattableTextArea*>(parent());
-
-        textArea->updateWordCount();
-    });
+    QThreadPool::globalInstance()->start(this);
 }

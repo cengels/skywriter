@@ -3,9 +3,10 @@
 
 #include <QObject>
 #include <QTextDocument>
+#include <QtConcurrent>
 #include "FormattableTextArea/FormattableTextArea.h"
 
-class DocumentSegment : public QObject
+class DocumentSegment : public QObject, public QRunnable
 {
     Q_OBJECT
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
@@ -68,6 +69,7 @@ class DocumentSegment : public QObject
         int m_words;
 
         int index() const;
+        void run() override;
 };
 
 #endif // DOCUMENTSEGMENT_H

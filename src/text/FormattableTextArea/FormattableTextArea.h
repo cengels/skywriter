@@ -208,9 +208,7 @@ class FormattableTextArea : public QQuickItem
         void contentYChanged();
         void caretPositionChanged();
 
-        void textChanged();
-        void textInserted(const int at, const QString text);
-        void textRemoved(const int at, const QString text);
+        void textChanged(int position, int added, int removed);
         void fileUrlChanged();
         void directoryUrlChanged();
         void fileExistsChanged();
@@ -270,14 +268,15 @@ class FormattableTextArea : public QQuickItem
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);
 
-        void handleTextChange();
+        void handleTextChange(const int position, const int added, const int removed);
         //! Calls update() and sets appropriate variables that indicate the
         //! user is actively editing the document instead of just being idle.
         //! This includes ensuring the caret blinking timer is reset.
         void updateActive();
         void expandSelection();
 
-        void updateDocumentStructure();
+        void updateDocumentStructure(const int position, const int added, const int removed);
+        void refreshDocumentStructure();
 
         int m_characterCount;
         int m_selectedCharacterCount;
@@ -294,6 +293,8 @@ class FormattableTextArea : public QQuickItem
         void updateParagraphCount();
         void updatePageCount();
 
+        QString m_searchString;
+        SearchOptions m_searchFlags;
         QVector<Range<int>> m_searchResults;
 
         bool m_underline;

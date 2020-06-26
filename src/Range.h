@@ -18,11 +18,12 @@ class Range
         //! The difference between from() and until().
         T length() const;
 
-        //! Creates a new Range that is offset from this one.
-        Range offset(const T& offset) const;
-
         bool operator==(const Range& range) const;
         bool operator!=(const Range& range) const;
+        void operator+=(const T& offset);
+        void operator-=(const T& offset);
+        Range operator+(const T& offset) const;
+        Range operator-(const T& offset) const;
 
     private:
         T m_from;

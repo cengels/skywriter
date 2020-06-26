@@ -185,7 +185,7 @@ void DocumentSegment::run() {
     emit wordsChanged();
 }
 
-void DocumentSegment::updateWords()
+void DocumentSegment::countWordsAsync()
 {
     QThreadPool::globalInstance()->start(this);
 }

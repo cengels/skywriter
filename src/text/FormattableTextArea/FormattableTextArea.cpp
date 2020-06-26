@@ -8,6 +8,7 @@
 #include "../symbols.h"
 #include "../../persistence.h"
 #include "../../ErrorManager.h"
+#include "../UserData.h"
 
 FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
@@ -35,6 +36,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_sceneBreak()
     , m_caretTimer(this)
     , m_blinking(false)
+    , m_activeWordCounters(0)
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_selectionMode(SelectionMode::NoSelection)
@@ -109,6 +111,7 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         } else {
             m_highlighter = new TextHighlighter(m_document);
             m_highlighter->setSceneBreak(m_sceneBreak);
+            m_highlighter->setFindRanges(&m_searchResults);
             connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextHighlighter::setSceneBreak);
         }
 
@@ -148,7 +151,8 @@ void FormattableTextArea::handleTextChange(const int position, const int removed
         m_textCursor.endEditBlock();
     }
 
-    this->updateCounts();
+    updateCounts();
+    updateFindRanges();
 
     if (added != 0 || removed != 0) {
         updateDocumentStructure(position, added, removed);

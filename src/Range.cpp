@@ -37,6 +37,36 @@ T Range<T>::length() const
 }
 
 template<typename T>
+bool Range<T>::containsInside(const T& position) const
+{
+    return from() < position && position < until();
+}
+
+template<typename T>
+bool Range<T>::contains(const T& position) const
+{
+    return from() <= position && position < until();
+}
+
+template<typename T>
+bool Range<T>::precedes(const T& position) const
+{
+    return from() < position;
+}
+
+template<typename T>
+bool Range<T>::between(const T& start, const T& end) const
+{
+    return start <= from() && until() <= end;
+}
+
+template<typename T>
+bool Range<T>::between(const Range<T>& range) const
+{
+    return between(range.from(), range.until());
+}
+
+template<typename T>
 bool Range<T>::operator==(const Range<T>& range) const
 {
     return from() == range.from() && until() == range.until();
@@ -49,17 +79,21 @@ bool Range<T>::operator!=(const Range<T>& range) const
 }
 
 template<typename T>
-void Range<T>::operator+=(const T& offset)
+Range<T>& Range<T>::operator+=(const T& offset)
 {
     m_from += offset;
     m_until += offset;
+
+    return *this;
 }
 
 template<typename T>
-void Range<T>::operator-=(const T& offset)
+Range<T>& Range<T>::operator-=(const T& offset)
 {
     m_from -= offset;
     m_until -= offset;
+
+    return *this;
 }
 
 template<typename T>

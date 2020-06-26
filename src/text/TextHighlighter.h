@@ -7,6 +7,7 @@
 
 #include "format.h"
 #include "FormattableTextArea/FormattableTextArea.h"
+#include "../Range.h"
 
 class TextHighlighter : public QSyntaxHighlighter
 {
@@ -19,8 +20,10 @@ class TextHighlighter : public QSyntaxHighlighter
         const QString& sceneBreak() const;
         void setSceneBreak(const QString& sceneBreakString);
 
-        bool refreshing() const;
+        const QVector<Range<int>>& findRanges() const;
+        void setFindRanges(const QVector<Range<int>>* const ranges);
 
+        bool refreshing() const;
         void refresh();
 
     Q_SIGNALS:
@@ -45,6 +48,7 @@ class TextHighlighter : public QSyntaxHighlighter
 
         bool m_refreshing;
         QString m_sceneBreakString;
+        const QVector<Range<int>>* m_findRanges;
 };
 
 #endif // TEXTHIGHLIGHTER_H

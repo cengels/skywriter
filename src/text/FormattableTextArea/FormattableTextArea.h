@@ -149,7 +149,7 @@ class FormattableTextArea : public QQuickItem
         TextIterator wordIterator() const;
         TextIterator selectedWordIterator() const;
 
-        void updateWordCount();
+        void updateWordCount(bool isUserChange = true);
 
     public Q_SLOTS:
         //! Resets the text area by detaching the document and clearing the
@@ -276,6 +276,7 @@ class FormattableTextArea : public QQuickItem
         void expandSelection();
 
         void updateDocumentStructure(const int position, const int added, const int removed);
+        void updateFindRanges();
         void refreshDocumentStructure();
 
         int m_characterCount;
@@ -302,6 +303,7 @@ class FormattableTextArea : public QQuickItem
 
         QTimer m_caretTimer;
         bool m_blinking;
+        std::atomic<int> m_activeWordCounters;
 
         QMouseEvent m_lastMouseUpEvent;
         QMouseEvent m_lastMouseDownEvent;

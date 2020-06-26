@@ -8,7 +8,6 @@
 #include "../colors.h"
 #include "format.h"
 #include "UserData.h"
-#include "FormattableTextArea/FormattableTextArea.h"
 
 namespace {
     QMetaObject::Connection connection;
@@ -25,7 +24,8 @@ namespace {
 
 TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent),
     m_refreshing(true),
-    m_sceneBreakString()
+    m_sceneBreakString(),
+    m_findRanges(nullptr)
 {
     connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [&]() {
@@ -136,9 +136,9 @@ void TextHighlighter::highlightSceneBreaks(const QString& text)
 
 void TextHighlighter::highlightMatches()
 {
-    if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
-        for (const Range<int>& range : static_cast<UserData*>(currentBlockUserData())->searchMatches()) {
-            setFormat(range.from(), range.length(), searchMatchFormat);
+    if (m_findRanges) {
+        for (const Range<int>& range : *m_findRanges) {
+            setFormat(range.from() - currentBlock().position(), range.length(), searchMatchFormat);
         }
     }
 }
@@ -166,6 +166,17 @@ void TextHighlighter::setSceneBreak(const QString& sceneBreakString)
     m_sceneBreakString = sceneBreakString;
 }
 
-bool TextHighlighter::refreshing() const {
+const QVector<Range<int>>& TextHighlighter::findRanges() const
+{
+    return *m_findRanges;
+}
+
+void TextHighlighter::setFindRanges(const QVector<Range<int>>* const ranges)
+{
+    m_findRanges = ranges;
+}
+
+bool TextHighlighter::refreshing() const
+{
     return this->m_refreshing;
 }

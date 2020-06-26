@@ -75,7 +75,7 @@ void FormattableTextArea::updateCharacterCount()
     }
 }
 
-void FormattableTextArea::updateWordCount()
+void FormattableTextArea::updateWordCount(bool isUserChange)
 {
     int words = 0;
 
@@ -85,7 +85,7 @@ void FormattableTextArea::updateWordCount()
 
     if (words != this->m_wordCount) {
         m_wordCount = words;
-        emit wordCountChanged(!m_loading);
+        emit wordCountChanged(isUserChange);
     }
 
     this->updatePageCount();

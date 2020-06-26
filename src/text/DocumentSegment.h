@@ -56,7 +56,7 @@ class DocumentSegment : public QObject, public QRunnable
         //! bounds of the document.
         bool isValid() const;
 
-        void updateWords();
+        void countWordsAsync();
 
     Q_SIGNALS:
         void positionChanged();

@@ -41,7 +41,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
                     || symbols::isWordSeparator(m_document->characterAt(position - 1))
                     || removed > 0 // If text was removed, it's impossible to guarantee it didn't contain word separators.
                     || (added > 1 && symbols::containsWordSeparator(m_document->toRawText().mid(position, added)))) {
-                targetSegment->updateWords();
+                targetSegment->countWordsAsync();
             }
         }
     } else if (change < 0) {
@@ -86,7 +86,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
             emit targetSegment->textChanged();
 
             if (symbols::isWordSeparator(m_document->characterAt(position - 1))) {
-                targetSegment->updateWords();
+                targetSegment->countWordsAsync();
             }
         }
     }
@@ -107,7 +107,10 @@ void FormattableTextArea::refreshDocumentStructure()
     }
 
     DocumentSegment* firstSegment = new DocumentSegment(0, 1, this);
-    connect(firstSegment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
+    connect(firstSegment, &DocumentSegment::wordsChanged, this, [&] {
+        if (m_activeWordCounters > 0) m_activeWordCounters--;
+        updateWordCount(m_activeWordCounters <= 0);
+    });
     m_documentStructure.append(firstSegment);
 
     QTextBlock previous = QTextBlock();
@@ -132,12 +135,14 @@ void FormattableTextArea::refreshDocumentStructure()
                 }
 
                 DocumentSegment* segment = new DocumentSegment(block.position(), depth, this);
-                connect(segment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
+                connect(segment, &DocumentSegment::wordsChanged, this, [&] {
+                    if (m_activeWordCounters > 0) m_activeWordCounters--;
+                    updateWordCount(m_activeWordCounters <= 0);
+                });
                 m_documentStructure.append(segment);
 
                 if (previousSegment) {
                     emit previousSegment->textChanged();
-                    previousSegment->updateWords();
                 }
             }
 
@@ -149,6 +154,13 @@ void FormattableTextArea::refreshDocumentStructure()
     }
 
     emit m_documentStructure.last()->textChanged();
-    m_documentStructure.last()->updateWords();
     emit documentStructureChanged();
+
+    if (m_loading) {
+        m_activeWordCounters = m_documentStructure.count();
+    }
+
+    for (DocumentSegment* segment : m_documentStructure) {
+        segment->countWordsAsync();
+    }
 }

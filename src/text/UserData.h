@@ -9,10 +9,8 @@ struct UserData : public QTextBlockUserData
 {
     public:
         UserData();
-        QVector<Range<int>>& searchMatches();
 
     private:
-        QVector<Range<int>> m_searchMatches;
 };
 
 #endif // USERDATA_H

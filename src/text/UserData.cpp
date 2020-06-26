@@ -1,11 +1,6 @@
 #include "UserData.h"
 
-UserData::UserData() : m_searchMatches()
+UserData::UserData()
 {
 
-}
-
-QVector<Range<int>>& UserData::searchMatches()
-{
-    return m_searchMatches;
 }

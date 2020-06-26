@@ -14,24 +14,6 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
     m_searchString = searchString;
     m_searchFlags = options;
 
-    QTextBlock block = m_document->firstBlock();
-
-    while (block.isValid()) {
-        if (block.userData()) {
-            UserData* userData = static_cast<UserData*>(block.userData());
-
-            if (!userData->searchMatches().isEmpty()) {
-                block.setUserState((block.userState() == -1 ? 0 : block.userState()) | format::BlockState::NeedsUpdate);
-            }
-
-            userData->searchMatches().clear();
-        } else {
-            block.setUserData(new UserData());
-        }
-
-        block = block.next();
-    }
-
     const int previousSearchResultsCount = searchResultCount();
     m_searchResults.clear();
 
@@ -77,20 +59,6 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
         if (!cursor.isNull() && (!stopOnSelection || cursor.selectionEnd() <= m_textCursor.selectionEnd())) {
             const Range<int> range = Range<int>(cursor.selectionStart(), cursor.selectionEnd());
             m_searchResults.append(range);
-
-            QTextBlock searchBlock = m_document->findBlock(cursor.selectionStart());
-            bool currentBlockContainsEnd = false;
-
-            do {
-                currentBlockContainsEnd = searchBlock.contains(cursor.selectionEnd());
-                const int end = currentBlockContainsEnd ? range.until() - searchBlock.position() : searchBlock.length();
-                const Range<int> blockRange = Range<int>(range.from() - searchBlock.position(), end);
-
-                static_cast<UserData*>(searchBlock.userData())->searchMatches().append(blockRange);
-                searchBlock.setUserState(searchBlock.userState() | format::BlockState::NeedsUpdate);
-
-                searchBlock = searchBlock.next();
-            } while (!currentBlockContainsEnd);
         }
     }
 
@@ -236,4 +204,18 @@ void FormattableTextArea::replaceAll(const QString& text)
     updateActive();
 
     clearMatches();
+}
+
+void FormattableTextArea::updateFindRanges()
+{
+    // Can't check anything based on what characters were added/removed here
+    // since inserted characters may have resulted in a new match and
+    // removed characters may have resulted in a match being lost.
+    // The only possible optimization would be to limit the find() rerun
+    // to the block(s) in which the changes occurred, but as long as there
+    // is no performance problem, that would be a premature optimization.
+
+    if (!m_searchString.isEmpty()) {
+        find(m_searchString, m_searchFlags);
+    }
 }

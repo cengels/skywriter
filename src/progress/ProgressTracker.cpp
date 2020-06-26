@@ -111,11 +111,23 @@ void ProgressTracker::addProgress(const int words)
         }
     }
 
+//    const int previousProgress = m_activeProgressItem->words();
     this->m_activeProgressItem->setWords(this->m_activeProgressItem->words() + words);
+
+    // This should be user-configurable.
+    // It means that, if a user adds some words but then removes them all
+    // and starts again, the time will reset. However, if a user were to
+    // remove all words and then hit undo, the ProgressTracker would think
+    // they wrote all of those words in an instant.
+//    if (previousProgress == 0) {
+//        m_activeProgressItem->setStart(QDateTime::currentDateTime());
+//    }
+
     this->m_activeProgressItem->setEnd(QDateTime::currentDateTime());
 
     this->m_progressToday += words;
     emit progressTodayChanged();
+
 }
 
 void ProgressTracker::changeActiveFile(const QUrl& fileUrl)

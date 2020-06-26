@@ -17,7 +17,7 @@ namespace {
     void updateSearchMatchFormat() {
         const QColor fontColor = ThemeManager::instance()->activeTheme()->fontColor();
 
-        const QColor highlight = QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 25);
+        const QColor highlight = QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 35);
 
         searchMatchFormat.setBackground(highlight);
     }

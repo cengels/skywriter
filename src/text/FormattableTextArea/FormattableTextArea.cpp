@@ -63,8 +63,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     connect(this, &FormattableTextArea::widthChanged, this, [this]() {
         if (this->width() > 0) {
             this->m_document->setTextWidth(this->width());
-            emit contentWidthChanged();
-            emit contentHeightChanged();
         }
     });
 
@@ -104,6 +102,10 @@ void FormattableTextArea::newDocument(QTextDocument* document)
         connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
         connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
         connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
+        connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged, this, [&] {
+            emit contentHeightChanged();
+            emit contentWidthChanged();
+        });
         connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::update, this, &FormattableTextArea::update);
 
         if (m_highlighter) {
@@ -136,8 +138,6 @@ void FormattableTextArea::newDocument(QTextDocument* document)
 
 void FormattableTextArea::handleTextChange(const int position, const int removed, const int added)
 {
-    emit contentHeightChanged();
-
     // TODO: Fix this. For some reason, using edit blocks here doesn't work.
     // The undo manager just stops working for some reason and you can't undo
     // anything anymore.

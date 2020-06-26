@@ -44,7 +44,7 @@ Sky.CollapsiblePane {
             Layout.preferredWidth: 400
 
             Label {
-                text: qsTr('%1 characters').arg(document.selectedText ? document.selectedCharacterCount : document.characterCount)
+                text: qsTr('%L1 characters').arg(document.selectedText ? document.selectedCharacterCount : document.characterCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -52,7 +52,7 @@ Sky.CollapsiblePane {
             }
 
             Label {
-                text: qsTr('%1 paragraphs').arg(document.selectedText ? document.selectedParagraphCount : document.paragraphCount)
+                text: qsTr('%L1 paragraphs').arg(document.selectedText ? document.selectedParagraphCount : document.paragraphCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -60,7 +60,7 @@ Sky.CollapsiblePane {
             }
 
             Label {
-                text: qsTr('%1 pages').arg(document.selectedText ? document.selectedPageCount : document.pageCount)
+                text: qsTr('%L1 pages').arg(document.selectedText ? document.selectedPageCount : document.pageCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -68,7 +68,7 @@ Sky.CollapsiblePane {
             }
 
             Label {
-                text: qsTr('%1 words').arg(document.selectedText ? document.selectedWordCount : document.wordCount)
+                text: qsTr('%L1 words').arg(document.selectedText ? document.selectedWordCount : document.wordCount)
                 color: ThemeManager.activeTheme.uiColor
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter

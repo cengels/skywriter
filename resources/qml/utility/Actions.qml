@@ -390,7 +390,12 @@ QtObject {
         text: qsTr("Find")
         shortcut: StandardKey.Find
         onTriggered: {
-            mainWindow.searchBar.collapsed = !mainWindow.searchBar.collapsed;
+            if (mainWindow.searchHasFocus) {
+                mainWindow.searchBar.collapsed = true;
+            } else {
+                mainWindow.searchBar.collapsed = false;
+                mainWindow.searchBar.forceActiveFocus();
+            }
 
             if (mainWindow.searchBar.collapsed && !mainWindow.replaceBar.collapsed) {
                 mainWindow.replaceBar.collapsed = true;
@@ -402,7 +407,12 @@ QtObject {
         text: qsTr("Find and replace")
         shortcut: StandardKey.Replace
         onTriggered: {
-            mainWindow.replaceBar.collapsed = !mainWindow.replaceBar.collapsed;
+            if (mainWindow.searchHasFocus && !mainWindow.replaceBar.collapsed) {
+                mainWindow.replaceBar.collapsed = true;
+            } else {
+                mainWindow.replaceBar.collapsed = false;
+                mainWindow.replaceBar.forceActiveFocus();
+            }
 
             if (mainWindow.searchBar.collapsed && !mainWindow.replaceBar.collapsed) {
                 mainWindow.searchBar.collapsed = false;

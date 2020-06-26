@@ -561,177 +561,190 @@ ApplicationWindow {
 
     readonly property Pane searchBar: searchBar
     readonly property Pane replaceBar: replaceBar
+    readonly property alias searchHasFocus: searchBarFocusScope.activeFocus
 
     footer: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : statsBar.implicitHeight
 
-        Sky.CollapsiblePane {
-            id: searchBar
-            anchors.left: parent.left
-            anchors.right: parent.right
-            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (replaceBar.collapsed ? 0 : replaceBar.height) - (collapsed ? 0 : height)
-            horizontalPadding: 10
-            onCollapsedChanged: {
-                if (collapsed) {
-                    textArea.clearMatches();
-                } else {
-                    searchString.forceActiveFocus();
+        FocusScope {
+            anchors.fill: parent
+            id: searchBarFocusScope
+            focus: !searchBar.collapsed
 
-                    if (searchString.text !== '') {
-                        searchString.selectAll();
-                        find();
+            Sky.CollapsiblePane {
+                id: searchBar
+                anchors.left: parent.left
+                anchors.right: parent.right
+                y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (replaceBar.collapsed ? 0 : replaceBar.height) - (collapsed ? 0 : height)
+                horizontalPadding: 10
+                onCollapsedChanged: {
+                    if (collapsed) {
+                        textArea.clearMatches();
+                        textArea.forceActiveFocus();
+                    } else {
+                        searchString.forceActiveFocus();
+
+                        if (searchString.text !== '') {
+                            searchString.selectAll();
+                            find();
+                        }
+                    }
+                }
+
+                function find() {
+                    let flags = FormattableTextArea.SearchOption.None;
+
+                    if (useRegEx.checked) {
+                        flags |= FormattableTextArea.SearchOption.RegEx;
+                    }
+
+                    if (caseSensitive.checked) {
+                        flags |= FormattableTextArea.SearchOption.CaseSensitive;
+                    }
+
+                    if (inSelection.checked) {
+                        flags |= FormattableTextArea.SearchOption.InSelection;
+                    }
+
+                    if (wholeWords.checked) {
+                        flags |= FormattableTextArea.SearchOption.WholeWords;
+                    }
+
+                    textArea.find(searchString.text, flags);
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 15
+
+                    Sky.TextField {
+                        id: searchString
+                        Layout.fillWidth: false
+                        Layout.preferredWidth: Math.max(300, searchBar.width * 0.3)
+                        Layout.preferredHeight: statsBar.implicitHeight + 2
+                        font.pointSize: 10
+                        placeholderText: qsTr("Find")
+                        onTextChanged: {
+                            searchBar.find();
+
+                            if (Settings.Application.searchImmediately) {
+                                textArea.jumpToNext();
+                            }
+                        }
+
+                        KeyNavigation.tab: replaceBar.collapsed ? null : replaceString
+                    }
+
+                    Sky.IconButton {
+                        width: 24
+                        height: 24
+                        useTheme: true
+                        shape: Shapes.ArrowLeft {}
+                        enabled: textArea.searchResultCount > 0
+                        // If the user clicks twice in quick succession,
+                        // the second click will be captured by onDoubleClicked.
+                        // onClicked will not see it. Therefore, using onReleased
+                        // here.
+                        onReleased: textArea.jumpToPrevious()
+                    }
+
+                    Sky.IconButton {
+                        width: 24
+                        height: 24
+                        useTheme: true
+                        shape: Shapes.ArrowRight {}
+                        enabled: textArea.searchResultCount > 0
+                        onReleased: textArea.jumpToNext()
+                    }
+
+                    Sky.Switch {
+                        id: caseSensitive
+                        text: qsTr("Case-sensitive")
+                        tooltip: qsTr("Any characters that are uppercase in the searched text must also be uppercase in the found text.")
+                        useTheme: true
+                        onToggled: searchBar.find()
+                    }
+
+                    Sky.Switch {
+                        id: wholeWords
+                        text: qsTr("Whole words")
+                        tooltip: qsTr("Match only whole words, i.e. don't match if the found text is only part of a word.")
+                        useTheme: true
+                        onToggled: searchBar.find()
+                    }
+
+                    Sky.Switch {
+                        id: inSelection
+                        text: qsTr("In selection")
+                        tooltip: qsTr("Search the current selection only.")
+                        enabled: textArea.selectedText !== ""
+                        useTheme: true
+                        onToggled: searchBar.find()
+                    }
+
+                    Sky.Switch {
+                        id: useRegEx
+                        text: qsTr("Regular expression")
+                        tooltip: qsTr("Use a Perl regular expression to match text. Note that this is considerably slower than matching text directly.")
+                        useTheme: true
+                        onToggled: searchBar.find()
+                    }
+
+                    Sky.Text {
+                        Layout.fillWidth: true
+                        text: qsTr("%L1 results found").arg(textArea.searchResultCount)
+                        opacity: searchString.text !== '' ? 1.0 : 0.0
+                        font.pointSize: 10
+                        color: ThemeManager.activeTheme.uiColor
+
+                        Behavior on opacity { OpacityAnimator { } }
                     }
                 }
             }
 
-            function find() {
-                let flags = FormattableTextArea.SearchOption.None;
-
-                if (useRegEx.checked) {
-                    flags |= FormattableTextArea.SearchOption.RegEx;
+            Sky.CollapsiblePane {
+                id: replaceBar
+                anchors.left: parent.left
+                anchors.right: parent.right
+                y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (collapsed ? 0 : height)
+                horizontalPadding: 10
+                onCollapsedChanged: {
+                    if (!searchBar.collapsed) {
+                        searchString.forceActiveFocus();
+                    }
                 }
 
-                if (caseSensitive.checked) {
-                    flags |= FormattableTextArea.SearchOption.CaseSensitive;
-                }
+                Row {
+                    anchors.fill: parent
+                    spacing: 15
 
-                if (inSelection.checked) {
-                    flags |= FormattableTextArea.SearchOption.InSelection;
-                }
+                    Sky.TextField {
+                        id: replaceString
+                        width: Math.max(300, searchBar.width * 0.3)
+                        height: statsBar.implicitHeight + 2
+                        font.pointSize: 10
+                        placeholderText: qsTr("Replace with...")
+                    }
 
-                if (wholeWords.checked) {
-                    flags |= FormattableTextArea.SearchOption.WholeWords;
-                }
-
-                textArea.find(searchString.text, flags);
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                spacing: 15
-
-                Sky.TextField {
-                    id: searchString
-                    Layout.fillWidth: false
-                    Layout.preferredWidth: Math.max(300, searchBar.width * 0.3)
-                    Layout.preferredHeight: statsBar.implicitHeight + 2
-                    font.pointSize: 10
-                    placeholderText: qsTr("Find")
-                    onTextChanged: {
-                        searchBar.find();
-
-                        if (Settings.Application.searchImmediately) {
-                            textArea.jumpToNext();
+                    Sky.Button {
+                        id: replaceNext
+                        text: qsTr("Replace next")
+                        enabled: textArea.searchResultCount > 0
+                        onReleased: {
+                            textArea.replaceNext(replaceString.text);
+                            // Calling find again so that the ranges are updated
+                            // to accommodate the replacement.
+                            // If the performance of this isn't good enough,
+                            // replace it with a proper implementation in replaceNext().
+                            searchBar.find();
                         }
                     }
 
-                    KeyNavigation.tab: replaceBar.collapsed ? null : replaceString
-                }
-
-                Sky.IconButton {
-                    width: 24
-                    height: 24
-                    useTheme: true
-                    shape: Shapes.ArrowLeft {}
-                    enabled: textArea.searchResultCount > 0
-                    // If the user clicks twice in quick succession,
-                    // the second click will be captured by onDoubleClicked.
-                    // onClicked will not see it. Therefore, using onReleased
-                    // here.
-                    onReleased: textArea.jumpToPrevious()
-                }
-
-                Sky.IconButton {
-                    width: 24
-                    height: 24
-                    useTheme: true
-                    shape: Shapes.ArrowRight {}
-                    enabled: textArea.searchResultCount > 0
-                    onReleased: textArea.jumpToNext()
-                }
-
-                Sky.Switch {
-                    id: caseSensitive
-                    text: qsTr("Case-sensitive")
-                    tooltip: qsTr("Any characters that are uppercase in the searched text must also be uppercase in the found text.")
-                    useTheme: true
-                    onToggled: searchBar.find()
-                }
-
-                Sky.Switch {
-                    id: wholeWords
-                    text: qsTr("Whole words")
-                    tooltip: qsTr("Match only whole words, i.e. don't match if the found text is only part of a word.")
-                    useTheme: true
-                    onToggled: searchBar.find()
-                }
-
-                Sky.Switch {
-                    id: inSelection
-                    text: qsTr("In selection")
-                    tooltip: qsTr("Search the current selection only.")
-                    enabled: textArea.selectedText !== ""
-                    useTheme: true
-                    onToggled: searchBar.find()
-                }
-
-                Sky.Switch {
-                    id: useRegEx
-                    text: qsTr("Regular expression")
-                    tooltip: qsTr("Use a Perl regular expression to match text. Note that this is considerably slower than matching text directly.")
-                    useTheme: true
-                    onToggled: searchBar.find()
-                }
-
-                Sky.Text {
-                    Layout.fillWidth: true
-                    text: textArea.searchResultCount + " results found"
-                    opacity: searchString.text !== '' ? 1.0 : 0.0
-                    font.pointSize: 10
-                    color: ThemeManager.activeTheme.uiColor
-
-                    Behavior on opacity { OpacityAnimator { } }
-                }
-            }
-        }
-
-        Sky.CollapsiblePane {
-            id: replaceBar
-            anchors.left: parent.left
-            anchors.right: parent.right
-            y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (collapsed ? 0 : height)
-            horizontalPadding: 10
-
-            Row {
-                anchors.fill: parent
-                spacing: 15
-
-                Sky.TextField {
-                    id: replaceString
-                    width: Math.max(300, searchBar.width * 0.3)
-                    height: statsBar.implicitHeight + 2
-                    font.pointSize: 10
-                    placeholderText: qsTr("Replace with...")
-                }
-
-                Sky.Button {
-                    id: replaceNext
-                    text: qsTr("Replace next")
-                    enabled: textArea.searchResultCount > 0
-                    onReleased: {
-                        textArea.replaceNext(replaceString.text);
-                        // Calling find again so that the ranges are updated
-                        // to accommodate the replacement.
-                        // If the performance of this isn't good enough,
-                        // replace it with a proper implementation in replaceNext().
-                        searchBar.find();
+                    Sky.Button {
+                        text: qsTr("Replace all")
+                        enabled: replaceNext.enabled
+                        onReleased: textArea.replaceAll(replaceString.text)
                     }
-                }
-
-                Sky.Button {
-                    text: qsTr("Replace all")
-                    enabled: replaceNext.enabled
-                    onReleased: textArea.replaceAll(replaceString.text)
                 }
             }
         }
@@ -821,7 +834,7 @@ ApplicationWindow {
                                 height: headingLabel.height
                                 horizontalAlignment: Qt.AlignRight
                                 verticalAlignment: Qt.AlignBottom
-                                text: modelData.words + " words"
+                                text: qsTr("%L1 words").arg(modelData.words)
                             }
                         }
 

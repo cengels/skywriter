@@ -4,7 +4,7 @@ import Skywriter.Theming 1.0
 
 Pane {
     id: root
-    y: collapsed ? (direction === 0 ? height : -height) : (direction === 0 ? 0 : -height)
+    y: collapsed ? (direction === 0 ? 0 : -height) : (direction === 0 ? -height : 0)
     opacity: collapsed ? 0.0 : 1.0
     property bool collapsed: true
     property int direction: 0

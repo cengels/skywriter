@@ -756,10 +756,12 @@ ApplicationWindow {
         // grows).
         Sky.StatsBar {
             id: statsBar
-            anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent
+            y: collapsed || mainWindow.visibility !== Window.FullScreen ? 0 : -height
+            anchors.left: parent.left
+            anchors.right: parent.right
             document: textArea
             collapsed: searchBar.collapsed && mainWindow.visibility === Window.FullScreen
-                && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
+                       && Mouse.windowPosition.y <= mainWindow.height - height - edgeTolerance
         }
     }
 

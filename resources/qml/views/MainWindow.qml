@@ -834,7 +834,7 @@ ApplicationWindow {
                                 height: headingLabel.height
                                 horizontalAlignment: Qt.AlignRight
                                 verticalAlignment: Qt.AlignBottom
-                                text: qsTr("%L1 words").arg(modelData.words)
+                                text: qsTr("%L1 words").arg(modelData.words.length)
                             }
                         }
 

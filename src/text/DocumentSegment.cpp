@@ -7,7 +7,7 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_words(0)
+    m_words()
 {
     setAutoDelete(false);
 }
@@ -15,7 +15,7 @@ DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_words(0)
+    m_words()
 {
     setAutoDelete(false);
 }
@@ -32,7 +32,7 @@ void DocumentSegment::setPosition(int position)
     emit positionChanged();
 }
 
-int DocumentSegment::words() const
+const QVector<QString>& DocumentSegment::words() const
 {
     return m_words;
 }
@@ -170,17 +170,15 @@ void DocumentSegment::run() {
     TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
     iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
 
-    int i = 0;
+    m_words.clear();
 
     while (!iterator.atEnd()) {
         if (!iterator.current().isEmpty()) {
-            i++;
+            m_words.append(iterator.current());
         }
 
         iterator++;
     }
-
-    m_words = i;
 
     emit wordsChanged();
 }

@@ -11,7 +11,7 @@ class DocumentSegment : public QObject, public QRunnable
     Q_OBJECT
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QString text READ text NOTIFY textChanged)
-    Q_PROPERTY(int words READ words NOTIFY wordsChanged)
+    Q_PROPERTY(const QVector<QString>& words READ words NOTIFY wordsChanged)
     Q_PROPERTY(QString heading READ heading CONSTANT)
     Q_PROPERTY(QString subheading READ subheading CONSTANT)
     Q_PROPERTY(int depth READ depth CONSTANT)
@@ -29,7 +29,7 @@ class DocumentSegment : public QObject, public QRunnable
         //! Gets the text contained in this DocumentSegment.
         QString text() const;
         //! Gets the number of words of the text within this DocumentSegment.
-        int words() const;
+        const QVector<QString>& words() const;
 
         //! Gets the heading of this DocumentSegment. A new DocumentSegment
         //! begins at a new heading, so each DocumentSegment must, by definition,
@@ -66,7 +66,7 @@ class DocumentSegment : public QObject, public QRunnable
     private:
         int m_position;
         int m_depth;
-        int m_words;
+        QVector<QString> m_words;
 
         int index() const;
         void run() override;

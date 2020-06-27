@@ -80,7 +80,7 @@ void FormattableTextArea::updateWordCount(bool isUserChange)
     int words = 0;
 
     for (const DocumentSegment* segment : m_documentStructure) {
-        words += segment->words();
+        words += segment->words().count();
     }
 
     if (words != this->m_wordCount) {

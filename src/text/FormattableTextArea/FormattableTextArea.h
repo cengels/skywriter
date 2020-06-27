@@ -41,7 +41,8 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(bool fileExists READ fileExists NOTIFY fileExistsChanged)
 
     Q_PROPERTY(QTextDocument* document READ document NOTIFY documentChanged)
-    Q_PROPERTY(QVector<DocumentSegment*> documentStructure READ documentStructure NOTIFY documentStructureChanged)
+    Q_PROPERTY(const QVector<DocumentSegment*>& documentStructure READ documentStructure NOTIFY documentStructureChanged)
+    Q_PROPERTY(DocumentSegment* currentDocumentSegment READ currentDocumentSegment NOTIFY currentDocumentSegmentChanged)
 
     Q_PROPERTY(bool canUndo READ canUndo NOTIFY canUndoChanged)
     Q_PROPERTY(bool canRedo READ canRedo NOTIFY canRedoChanged)
@@ -103,6 +104,8 @@ class FormattableTextArea : public QQuickItem
 
         QTextDocument* document() const;
         const QVector<DocumentSegment*>& documentStructure() const;
+        DocumentSegment* currentDocumentSegment() const;
+        DocumentSegment* findDocumentSegment(int position) const;
 
         void setContentY(double contentY);
 
@@ -204,6 +207,7 @@ class FormattableTextArea : public QQuickItem
     Q_SIGNALS:
         void documentChanged();
         void documentStructureChanged();
+        void currentDocumentSegmentChanged();
 
         void contentYChanged();
         void caretPositionChanged();
@@ -255,6 +259,7 @@ class FormattableTextArea : public QQuickItem
         void newDocument(QTextDocument* document = new QTextDocument());
         QTextDocument* m_document;
         QVector<DocumentSegment*> m_documentStructure;
+        DocumentSegment* m_currentDocumentSegment;
         TextHighlighter* m_highlighter;
         StringReplacer m_replacer;
 
@@ -307,6 +312,7 @@ class FormattableTextArea : public QQuickItem
 
         QMouseEvent m_lastMouseUpEvent;
         QMouseEvent m_lastMouseDownEvent;
+        int m_lastCaretPosition;
         SelectionMode m_selectionMode;
 };
 

@@ -808,6 +808,8 @@ ApplicationWindow {
                     x: parent.leftPadding
                     width: parent.width
                     height: column.implicitHeight + 20
+                    prominence: textArea.currentDocumentSegment === modelData ? Sky.Button.Primary : Sky.Button.Secondary
+
                     onClicked: {
                         textArea.caretPosition = modelData.position;
                         verticalScrollbar.centerOnCaret();

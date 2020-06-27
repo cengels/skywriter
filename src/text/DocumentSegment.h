@@ -26,6 +26,8 @@ class DocumentSegment : public QObject, public QRunnable
         int position() const;
         void setPosition(int position);
 
+        int length() const;
+
         //! Gets the text contained in this DocumentSegment.
         QString text() const;
         //! Gets the number of words of the text within this DocumentSegment.
@@ -57,6 +59,11 @@ class DocumentSegment : public QObject, public QRunnable
         bool isValid() const;
 
         void countWordsAsync();
+
+        bool operator==(const DocumentSegment& other) const;
+        bool operator==(const DocumentSegment* other) const;
+        bool operator!=(const DocumentSegment& other) const;
+        bool operator!=(const DocumentSegment* other) const;
 
     Q_SIGNALS:
         void positionChanged();

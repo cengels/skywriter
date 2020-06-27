@@ -51,6 +51,7 @@ void FormattableTextArea::setCaretPosition(int caretPosition)
 
     if (this->caretPosition() != previousPosition) {
         updateActive();
+        emit caretPositionChanged();
     }
 }
 

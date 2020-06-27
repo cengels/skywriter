@@ -14,6 +14,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     : QQuickItem(parent)
     , m_document(nullptr)
     , m_documentStructure(QVector<DocumentSegment*>())
+    , m_currentDocumentSegment(nullptr)
     , m_highlighter(nullptr)
     , m_replacer(StringReplacer())
     , m_textCursor(QTextCursor())
@@ -39,6 +40,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_activeWordCounters(0)
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
+    , m_lastCaretPosition(0)
     , m_selectionMode(SelectionMode::NoSelection)
 {
     // Ideally, we would retrieve the system-wide caret blink rate here.
@@ -74,6 +76,17 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     });
 
     connect(this, &FormattableTextArea::selectedTextChanged, this, &FormattableTextArea::updateSelectedCounts);
+    connect(this, &FormattableTextArea::caretPositionChanged, this, [&] {
+        DocumentSegment* oldSegment = findDocumentSegment(m_lastCaretPosition);
+        DocumentSegment* newSegment = findDocumentSegment(m_textCursor.position());
+
+        if (oldSegment != newSegment) {
+            m_currentDocumentSegment = newSegment;
+            emit currentDocumentSegmentChanged();
+        }
+
+        m_lastCaretPosition = m_textCursor.position();
+    });
 
     newDocument();
 }

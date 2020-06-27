@@ -155,6 +155,8 @@ void FormattableTextArea::refreshDocumentStructure()
 
     emit m_documentStructure.last()->textChanged();
     emit documentStructureChanged();
+    m_currentDocumentSegment = findDocumentSegment(m_textCursor.position());
+    emit currentDocumentSegmentChanged();
 
     if (m_loading) {
         m_activeWordCounters = m_documentStructure.count();
@@ -163,4 +165,26 @@ void FormattableTextArea::refreshDocumentStructure()
     for (DocumentSegment* segment : m_documentStructure) {
         segment->countWordsAsync();
     }
+}
+
+DocumentSegment* FormattableTextArea::currentDocumentSegment() const
+{
+    return m_currentDocumentSegment;
+}
+
+DocumentSegment* FormattableTextArea::findDocumentSegment(int position) const
+{
+    Q_ASSERT(position >= 0 && position < m_document->characterCount());
+
+    DocumentSegment* lastSegment = nullptr;
+
+    for (DocumentSegment* segment : m_documentStructure) {
+        if (segment->position() <= position) {
+            lastSegment = segment;
+        } else {
+            break;
+        }
+    }
+
+    return lastSegment;
 }

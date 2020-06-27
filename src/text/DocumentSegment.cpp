@@ -32,6 +32,23 @@ void DocumentSegment::setPosition(int position)
     emit positionChanged();
 }
 
+int DocumentSegment::length() const
+{
+    const QTextDocument* doc = document();
+
+    if (!doc) {
+        return 0;
+    }
+
+    const DocumentSegment* nextSegment = next();
+
+    if (nextSegment) {
+        return nextSegment->position() - position();
+    } else {
+        return doc->characterCount() - position();
+    }
+}
+
 const QVector<QString>& DocumentSegment::words() const
 {
     return m_words;
@@ -186,4 +203,28 @@ void DocumentSegment::run() {
 void DocumentSegment::countWordsAsync()
 {
     QThreadPool::globalInstance()->start(this);
+}
+
+bool DocumentSegment::operator==(const DocumentSegment& other) const
+{
+    return position() == other.position() && depth() == other.depth();
+}
+
+bool DocumentSegment::operator==(const DocumentSegment* other) const
+{
+    if (!other) {
+        return false;
+    }
+
+    return position() == other->position() && depth() == other->depth();
+}
+
+bool DocumentSegment::operator!=(const DocumentSegment& other) const
+{
+    return !(*this == other);
+}
+
+bool DocumentSegment::operator!=(const DocumentSegment* other) const
+{
+    return !(*this == other);
 }

@@ -1,6 +1,6 @@
 #include "numbers.h"
 
-int numbers::clamp(int source, int min, int max)
+int numbers::clamp(const int source, const int min, const int max)
 {
     if (source > max)
         return max;

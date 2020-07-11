@@ -1,5 +1,14 @@
 #include "Range.h"
 
+#include <QtGlobal>
+#include <QDebug>
+
+template<typename T>
+Range<T>::Range() : m_from(0), m_until(0)
+{
+
+}
+
 template<typename T>
 Range<T>::Range(T from, T until) : m_from(from), m_until(until)
 {
@@ -37,25 +46,25 @@ T Range<T>::length() const
 }
 
 template<typename T>
-bool Range<T>::containsInside(const T& position) const
+bool Range<T>::containsInside(const T position) const
 {
     return from() < position && position < until();
 }
 
 template<typename T>
-bool Range<T>::contains(const T& position) const
+bool Range<T>::contains(const T position) const
 {
     return from() <= position && position < until();
 }
 
 template<typename T>
-bool Range<T>::precedes(const T& position) const
+bool Range<T>::precedes(const T position) const
 {
     return from() < position;
 }
 
 template<typename T>
-bool Range<T>::between(const T& start, const T& end) const
+bool Range<T>::between(const T start, const T end) const
 {
     return start <= from() && until() <= end;
 }
@@ -64,6 +73,42 @@ template<typename T>
 bool Range<T>::between(const Range<T>& range) const
 {
     return between(range.from(), range.until());
+}
+
+template<typename T>
+bool Range<T>::intersects(const T start, const T end) const
+{
+    return start == m_from
+        || (start < m_from && m_from < end)
+        || (m_from < start && start < m_until);
+}
+
+template<typename T>
+bool Range<T>::intersects(const Range<T>& range) const
+{
+    return intersects(range.from(), range.until());
+}
+
+template<typename T>
+Range<T> Range<T>::intersect(const T start, const T end) const
+{
+    if (!intersects(start, end)) {
+        return Range();
+    }
+
+    return Range(qMax(m_from, start), qMin(m_until, end));
+}
+
+template<typename T>
+Range<T> Range<T>::intersect(const Range<T>& range) const
+{
+    return intersect(range.from(), range.until());
+}
+
+template<typename T>
+bool Range<T>::isValid() const
+{
+    return m_from < m_until;
 }
 
 template<typename T>
@@ -79,7 +124,7 @@ bool Range<T>::operator!=(const Range<T>& range) const
 }
 
 template<typename T>
-Range<T>& Range<T>::operator+=(const T& offset)
+Range<T>& Range<T>::operator+=(const T offset)
 {
     m_from += offset;
     m_until += offset;
@@ -88,7 +133,7 @@ Range<T>& Range<T>::operator+=(const T& offset)
 }
 
 template<typename T>
-Range<T>& Range<T>::operator-=(const T& offset)
+Range<T>& Range<T>::operator-=(const T offset)
 {
     m_from -= offset;
     m_until -= offset;
@@ -97,13 +142,13 @@ Range<T>& Range<T>::operator-=(const T& offset)
 }
 
 template<typename T>
-Range<T> Range<T>::operator+(const T& offset) const
+Range<T> Range<T>::operator+(const T offset) const
 {
     return Range(from() + offset, until() + offset);
 }
 
 template<typename T>
-Range<T> Range<T>::operator-(const T& offset) const
+Range<T> Range<T>::operator-(const T offset) const
 {
     return Range(from() - offset, until() - offset);
 }

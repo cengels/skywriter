@@ -6,19 +6,25 @@
 #include "symbols.h"
 #include "../theming/ThemeManager.h"
 #include "../colors.h"
+#include "../Range.h"
 #include "format.h"
 #include "UserData.h"
 
 namespace {
     QMetaObject::Connection connection;
 
-    QTextCharFormat searchMatchFormat = QTextCharFormat();
-    void updateSearchMatchFormat() {
+    QColor searchMatchBackground() {
         const QColor fontColor = ThemeManager::instance()->activeTheme()->fontColor();
+        return QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 35);
+    }
 
-        const QColor highlight = QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 35);
+    QTextLayout::FormatRange formatRange(const int start, const int length, const QTextCharFormat& format) {
+        QTextLayout::FormatRange formatRange;
+        formatRange.start = start;
+        formatRange.length = length;
+        formatRange.format = format;
 
-        searchMatchFormat.setBackground(highlight);
+        return formatRange;
     }
 }
 
@@ -34,8 +40,6 @@ TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(par
 
         this->refresh();
     });
-
-    updateSearchMatchFormat();
 }
 
 void TextHighlighter::highlightBlock(const QString& text)
@@ -48,6 +52,8 @@ void TextHighlighter::highlightBlock(const QString& text)
     if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
         unsetCurrentBlockStateFlag(format::BlockState::NeedsUpdate);
     }
+
+    mergeFormats();
 }
 
 void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
@@ -111,7 +117,7 @@ void TextHighlighter::highlightComments(const QString& text)
             commentLength = endIndex - startIndex + 1;
         }
 
-        setFormat(startIndex, commentLength, commentColor);
+        setColor(startIndex, commentLength, commentColor);
         startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
     }
 }
@@ -138,20 +144,95 @@ void TextHighlighter::highlightMatches()
 {
     if (m_findRanges) {
         for (const Range<int>& range : *m_findRanges) {
-            setFormat(range.from() - currentBlock().position(), range.length(), searchMatchFormat);
+            if (range.between(currentBlock().position(), currentBlock().position() + currentBlock().length())) {
+                setBackgroundColor(range.from() - currentBlock().position(), range.length(), searchMatchBackground());
+            }
         }
     }
 }
 
+void TextHighlighter::setCharFormat(int blockPosition, int length, const QTextCharFormat& format)
+{
+    QTextLayout::FormatRange range = formatRange(blockPosition, length, format);
+    Range<int> mathRange(blockPosition, blockPosition + length);
+
+    if (m_formats.isEmpty()) {
+        m_formats.append(range);
+    } else {
+        for (int i = 0, size = m_formats.size();  i < size;  i++) {
+            QTextLayout::FormatRange currentRange = m_formats.value(i);
+            const Range<int> intersectRange = mathRange.intersect(currentRange.start, currentRange.start + currentRange.length);
+
+            if (intersectRange.isValid()) {
+                if (currentRange.start != blockPosition) {
+                    // The two ranges do not have the same start.
+                    QTextLayout::FormatRange startRange = currentRange.start < blockPosition ? currentRange : range;
+                    startRange.length = intersectRange.from() - startRange.start;
+                    m_formats.insert(i, startRange);
+                    i++;
+                }
+
+                if (currentRange.start + currentRange.length != blockPosition + length) {
+                    // The two ranges do not have the same end.
+                    QTextLayout::FormatRange endRange = currentRange.start + currentRange.length > blockPosition + length ? currentRange : range;
+                    const int end = endRange.start + endRange.length;
+                    endRange.start = intersectRange.until();
+                    endRange.length = end - endRange.start;
+                    m_formats.insert(i + 1, endRange);
+                }
+
+                currentRange.start = intersectRange.from();
+                currentRange.length = intersectRange.length();
+                currentRange.format.merge(format);
+                // We cannot return a reference from m_formats and then simply modify
+                // it here instead of replacing it. If we try that, we'll get a
+                // heap corruption. Why do we get a heap corruption, you ask?
+                // I have no damn idea.
+                m_formats.replace(i, currentRange);
+
+                // We can return here because we know that, if a range intersects
+                // with a range from the QVector, it cannot intersect with another
+                // one since we hopefully merged them all properly.
+
+                return;
+            }
+        }
+
+        m_formats.append(range);
+    }
+}
+
+void TextHighlighter::setColor(int blockPosition, int length, const QColor& color)
+{
+    QTextCharFormat format;
+    format.setForeground(color);
+    setCharFormat(blockPosition, length, format);
+}
+
+void TextHighlighter::setBackgroundColor(int blockPosition, int length, const QColor& color)
+{
+    QTextCharFormat format;
+    format.setBackground(color);
+    setCharFormat(blockPosition, length, format);
+}
+
 void TextHighlighter::setBlockFormat(const QTextCharFormat& format)
 {
-    setFormat(0, currentBlock().length() - 1, format);
+    setCharFormat(0, currentBlock().length() - 1, format);
+}
+
+void TextHighlighter::mergeFormats()
+{
+    for (const QTextLayout::FormatRange& formatRange : m_formats) {
+        setFormat(formatRange.start, formatRange.length, formatRange.format);
+    }
+
+    m_formats.clear();
 }
 
 void TextHighlighter::refresh()
 {
     this->m_refreshing = true;
-    updateSearchMatchFormat();
     this->rehighlight();
     this->m_refreshing = false;
 }

@@ -4,7 +4,7 @@
 
 namespace numbers
 {
-    int clamp(int source, int min, int max);
+    int clamp(const int source, const int min, const int max);
 };
 
 #endif // NUMBERS_H

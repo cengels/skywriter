@@ -115,7 +115,7 @@ void format::normalize(QTextCursor& textCursor, const Theme* theme, const QStrin
                     insertSceneBreak(iterationCursor, sceneBreakString);
                 }
             } else if (iterationCursor.block().text() == sceneBreakString) {
-                insertSceneBreak(iterationCursor, sceneBreakString);
+                insertSceneBreak(iterationCursor, sceneBreakString, true);
             } else {
                 iterationCursor.setBlockFormat(theme->blockFormat());
             }
@@ -170,7 +170,7 @@ void format::insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakT
             textCursor.insertBlock();
         }
 
-        textCursor.block().setUserState(textCursor.block().userState() | format::SceneBreak);
+        textCursor.block().setUserState((textCursor.block().userState() == -1 ? 0 : textCursor.block().userState()) | format::SceneBreak);
         textCursor.setBlockFormat(sceneBreakFormat);
         textCursor.insertText(sceneBreakText);
     }

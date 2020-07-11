@@ -293,7 +293,7 @@ int MarkdownParser::onLeaveBlock(MD_BLOCKTYPE type, void* detail)
     Q_UNUSED(detail);
 
     if (type == MD_BLOCK_P && m_textCursor->block().text() == m_sceneBreakString) {
-        format::insertSceneBreak(*m_textCursor, m_sceneBreakString);
+        format::insertSceneBreak(*m_textCursor, m_sceneBreakString, true);
     }
 
     return 0;

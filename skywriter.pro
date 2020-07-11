@@ -33,6 +33,7 @@ SOURCES += \
         src/Range.cpp \
         src/numbers.cpp \
         src/persistence.cpp \
+        src/profiling.cpp \
         src/progress/ProgressItem.cpp \
         src/text/DocumentSegment.cpp \
         src/text/FormattableTextArea/actions.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
     src/Range.h \
     src/numbers.h \
     src/persistence.h \
+    src/profiling.h \
     src/progress/ProgressItem.h \
     src/text/DocumentSegment.h \
     src/text/FormattableTextArea/FormattableTextArea.h \

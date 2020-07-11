@@ -18,7 +18,7 @@ Sky.CollapsiblePane {
         spacing: 0
 
         Label {
-            text: document.fileExists ? qsTr('Last saved %1').arg(Qt.formatDateTime(document.lastModified)) : ''
+            text: document.fileExists ? qsTr('Last saved %1').arg(document.lastModified.toLocaleString(Qt.locale())) : ''
             color: ThemeManager.activeTheme.uiColor
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter
@@ -28,7 +28,7 @@ Sky.CollapsiblePane {
         }
 
         Label {
-            text: qsTr('%1 added today').arg(ProgressTracker.progressToday)
+            text: qsTr('%L1 added today').arg(ProgressTracker.progressToday)
             color: ThemeManager.activeTheme.uiColor
             horizontalAlignment: Qt.AlignHCenter
             verticalAlignment: Qt.AlignVCenter

@@ -256,7 +256,8 @@ class FormattableTextArea : public QQuickItem
         void mergeFormat(const QTextCharFormat &format);
 
         int hitTest(const QPointF& point) const;
-        void newDocument(QTextDocument* document = new QTextDocument());
+        QTextDocument* newDocument();
+        void connectDocument();
         QTextDocument* m_document;
         QVector<DocumentSegment*> m_documentStructure;
         DocumentSegment* m_currentDocumentSegment;

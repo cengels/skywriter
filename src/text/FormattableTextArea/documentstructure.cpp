@@ -156,6 +156,7 @@ void FormattableTextArea::refreshDocumentStructure()
     emit m_documentStructure.last()->textChanged();
     emit documentStructureChanged();
     m_currentDocumentSegment = findDocumentSegment(m_textCursor.position());
+    m_lastCaretPosition = m_textCursor.position();
     emit currentDocumentSegmentChanged();
 
     if (m_loading) {

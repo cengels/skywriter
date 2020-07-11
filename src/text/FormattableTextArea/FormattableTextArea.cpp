@@ -89,27 +89,25 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     });
 
     newDocument();
+    connectDocument();
 }
 
-void FormattableTextArea::newDocument(QTextDocument* document)
+QTextDocument* FormattableTextArea::newDocument()
 {
     if (m_document) {
         m_document->disconnect(this);
     }
 
-    if (document && document->parent() == nullptr) {
-        document->setParent(this);
-    }
+    m_document = new QTextDocument(this);
 
-    m_document = document;
+    this->updateStyling();
+    m_textCursor = QTextCursor(m_document);
 
-    // In order to use a custom stylesheet, the text must be set as HTML.
-    // Even then, though, it just doesn't work. Reason currently unknown.
-    // It may just be broken in the current Qt version.
+    return m_document;
+}
 
-    // To implement first line indent, line height, and paragraph spacing,
-    // check out QAbstractTextDocumentLayout.
-
+void FormattableTextArea::connectDocument()
+{
     if (m_document) {
         connect(m_document, &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
         connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
@@ -129,19 +127,20 @@ void FormattableTextArea::newDocument(QTextDocument* document)
             m_highlighter->setFindRanges(&m_searchResults);
             connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextHighlighter::setSceneBreak);
         }
+    }
 
-        this->updateStyling();
-        m_textCursor = QTextCursor(m_document);
-        emit caretPositionChanged();
-        emit selectedTextChanged();
+    // must be called before emitting caretPositionChanged()
+    // so that the current document segment can be found
+    refreshDocumentStructure();
 
-        if (canPaste()) {
-            emit canPasteChanged();
-        }
+    emit caretPositionChanged();
+    emit selectedTextChanged();
+
+    if (canPaste()) {
+        emit canPasteChanged();
     }
 
     clearUndoStack();
-    refreshDocumentStructure();
 
     emit documentChanged();
     emit modifiedChanged();
@@ -211,20 +210,19 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     if (file.open(QFile::ReadOnly)) {
         QByteArray data = file.readAll();
         QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-        if (QTextDocument *doc = new QTextDocument(this)) {
-            const auto text = codec->toUnicode(data);
-            const QString fileType = QFileInfo(file).suffix();
+        newDocument();
+        const auto text = codec->toUnicode(data);
+        const QString fileType = QFileInfo(file).suffix();
 
-            if (fileType == "md") {
-                MarkdownParser(doc, m_sceneBreak).parse(text);
-            } else {
-                doc->setPlainText(text);
-            }
-
-            doc->setModified(false);
-            newDocument(doc);
-            emit loaded();
+        if (fileType == "md") {
+            MarkdownParser(m_document, m_sceneBreak).parse(text);
+        } else {
+            m_document->setPlainText(text);
         }
+
+        m_document->setModified(false);
+        connectDocument();
+        emit loaded();
 
         setFileUrl(fileUrl);
         emit lastModifiedChanged();
@@ -291,7 +289,8 @@ bool FormattableTextArea::rename(const QUrl& newName)
 
 void FormattableTextArea::reset()
 {
-    newDocument(new QTextDocument());
+    newDocument();
+    connectDocument();
     m_characterCount = 0;
     m_wordCount = 0;
     m_paragraphCount = 0;

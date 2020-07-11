@@ -490,11 +490,18 @@ ApplicationWindow {
                         }
                     }
 
+                    property bool loading: true
+                    // This is necessary because signals are always queued
+                    // and only emitted if there is nothing else happening
+                    // on the UI thread. If we simply used textArea.loading
+                    // in the other signal handlers, the loading state might
+                    // be "in the future", so to speak.
+                    onLoadingChanged: loading = textArea.loading;
                     property double previousContentHeight: 0
                     onContentHeightChanged: {
                         // activeFocus makes sure the text area does not adjust its scroll
                         // until the text area has fully initialized
-                        if (textArea.activeFocus) {
+                        if (textArea.activeFocus && !loading) {
                             // "restore" the previous scroll position
                             let newScroll = verticalScrollbar.position / contentHeight * previousContentHeight;
 

@@ -55,9 +55,9 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
         for (int i = 0; i < length; i++) {
             DocumentSegment* segment = m_documentStructure.at(i);
             const int segmentStart = segment->position();
-            const int segmentEnd = i < length - 1 ? m_documentStructure.at(i + 1)->position() : m_document->characterCount();
+            const int segmentEnd = i < length - 1 ? m_documentStructure.at(i + 1)->position() : m_document->characterCount() - change;
 
-            if (segmentStart <= position && startSegment == -1) {
+            if (segmentStart <= position && position < segmentEnd && startSegment == -1) {
                 startSegment = i;
             }
 
@@ -175,7 +175,9 @@ DocumentSegment* FormattableTextArea::currentDocumentSegment() const
 
 DocumentSegment* FormattableTextArea::findDocumentSegment(int position) const
 {
-    Q_ASSERT(position >= 0 && position < m_document->characterCount());
+    if (position < 0 || position >= m_document->characterCount()) {
+        return nullptr;
+    }
 
     DocumentSegment* lastSegment = nullptr;
 

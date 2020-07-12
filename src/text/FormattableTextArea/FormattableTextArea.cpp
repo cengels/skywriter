@@ -77,7 +77,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
 
     connect(this, &FormattableTextArea::selectedTextChanged, this, &FormattableTextArea::updateSelectedCounts);
     connect(this, &FormattableTextArea::caretPositionChanged, this, [&] {
-        DocumentSegment* oldSegment = findDocumentSegment(m_lastCaretPosition);
+        const int characterCount = m_document->characterCount();
+        DocumentSegment* oldSegment = findDocumentSegment(m_lastCaretPosition >= characterCount ? characterCount - 1 : m_lastCaretPosition);
         DocumentSegment* newSegment = findDocumentSegment(m_textCursor.position());
 
         if (oldSegment != newSegment) {

@@ -54,6 +54,14 @@ function daysSince(date) {
 function relative(date) {
     const daysAgo = daysSince(date);
 
+    function ago(value, singular) {
+        if (value === 1) {
+            return value + " " + singular + " ago";
+        }
+
+        return value + " " + singular + "s ago";
+    }
+
     if (daysAgo === 0) {
         const msDifference = Date.now() - date.getTime();
         const secsDifference = msDifference / 1000;
@@ -63,37 +71,19 @@ function relative(date) {
         if (minsDifference < 1) {
             return "now";
         } else if (hoursDifference < 1) {
-            return Math.floor(minsDifference) + " minutes ago";
+            return ago(Math.floor(minsDifference), "minute");
         }
 
-        return Math.floor(hoursDifference) + " hours ago";
+        return ago(Math.floor(hoursDifference), "hour");
     } else if (daysAgo === 1) {
         return "yesterday at " + date.toLocaleTimeString(Qt.locale());
     } else if (daysAgo <= 6) {
         return daysAgo + " days ago";
     } else if (daysAgo < 30) {
-        const weeksAgo = Math.round(daysAgo / 7);
-
-        if (weeksAgo === 1) {
-            return weeksAgo + " week ago";
-        }
-
-        return weeksAgo + " weeks ago";
+        return ago(Math.round(daysAgo / 7), "week");
     } else if (daysAgo < 365) {
-        const monthsAgo = Math.round(daysAgo / 30);
-
-        if (monthsAgo === 1) {
-            return monthsAgo + " month ago";
-        }
-
-        return monthsAgo + " months ago";
+        return ago(Math.round(daysAgo / 30), "month")
     }
 
-    const yearsAgo = Math.round(daysAgo / 365);
-
-    if (yearsAgo === 1) {
-        return yearsAgo + " year ago";
-    }
-
-    return yearsAgo + " years ago";
+    return ago(Math.round(daysAgo / 365), "year");
 }

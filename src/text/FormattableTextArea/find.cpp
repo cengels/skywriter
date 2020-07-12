@@ -7,8 +7,6 @@
 #include "FormattableTextArea.h"
 #include "../UserData.h"
 
-
-
 void FormattableTextArea::find(const QString& searchString, const SearchOptions options)
 {
     m_searchString = searchString;

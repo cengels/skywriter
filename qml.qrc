@@ -48,6 +48,7 @@
         <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>
         <file alias="PopupDialog.qml">resources/qml/controls/dialog/PopupDialog.qml</file>
         <file alias="MessageDialog.qml">resources/qml/controls/dialog/MessageDialog.qml</file>
+        <file alias="Tooltip.qml">resources/qml/controls/dialog/Tooltip.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/color">
         <file alias="AbstractColorSlider.qml">resources/qml/controls/color/AbstractColorSlider.qml</file>
@@ -79,6 +80,7 @@
     </qresource>
     <qresource prefix="/js">
         <file alias="color.js">resources/js/color.js</file>
+        <file alias="dates.js">resources/js/dates.js</file>
     </qresource>
     <qresource prefix="/qml/shapes">
         <file alias="CloseIcon.qml">resources/qml/shapes/CloseIcon.qml</file>

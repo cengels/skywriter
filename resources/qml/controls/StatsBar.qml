@@ -5,6 +5,8 @@ import Skywriter.Text 1.0
 import Skywriter.Progress 1.0
 import Skywriter.Theming 1.0
 import "qrc:/qml/controls" as Sky
+import "qrc:/qml/controls/dialog" as Sky
+import "qrc:/js/dates.js" as Dates
 
 Sky.CollapsiblePane {
     horizontalPadding: 7
@@ -18,13 +20,39 @@ Sky.CollapsiblePane {
         spacing: 0
 
         Label {
-            text: document.fileExists ? qsTr('Last saved %1').arg(document.lastModified.toLocaleString(Qt.locale())) : ''
+            id: lastSavedLabel
+            text: document.fileExists ? qsTr('Last saved %1').arg(Dates.relative(document.lastModified)) : ''
             color: ThemeManager.activeTheme.uiColor
             horizontalAlignment: Qt.AlignLeft
             verticalAlignment: Qt.AlignVCenter
             font.pointSize: 10
             Layout.alignment: Qt.AlignLeft
             Layout.preferredWidth: 400
+
+            MouseArea {
+                id: labelMouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+
+            Sky.Tooltip {
+                parent: parent
+                visible: labelMouseArea.containsMouse
+                text: document.lastModified.toLocaleString(Qt.locale());
+            }
+
+            Timer {
+                interval: 60000
+                running: document.fileExists
+                repeat: true
+                onTriggered: {
+                    const relativeDate = Dates.relative(document.lastModified);
+
+                    if (relativeDate !== lastSavedLabel.text) {
+                        lastSavedLabel.text = Qt.binding(() => document.fileExists ? qsTr('Last saved %1').arg(Dates.relative(document.lastModified)) : '');
+                    }
+                }
+            }
         }
 
         Label {

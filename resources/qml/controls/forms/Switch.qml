@@ -2,6 +2,7 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtGraphicalEffects 1.14
 import "qrc:/qml/controls/text" as Sky
+import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/effects" as Sky
 import "qrc:/js/color.js" as Color
 import Skywriter.Theming 1.0
@@ -77,26 +78,9 @@ AbstractButton {
         cursorShape: hovered ? Qt.PointingHandCursor : Qt.ArrowCursor
     }
 
-    ToolTip {
-        id: tooltipControl
+    Sky.Tooltip {
         parent: root
-        visible: root.hovered && root.tooltip != ""
-        delay: 1000
-        timeout: 10000
+        visible: root.hovered && root.tooltip !== ""
         text: root.tooltip
-        verticalPadding: 6
-        horizontalPadding: 20
-
-        contentItem: Text {
-            text: tooltipControl.text
-            font: tooltipControl.font
-            color: useTheme ? ThemeManager.activeTheme.uiColor : palette.text
-        }
-
-        background: Rectangle {
-            color: Qt.lighter(useTheme ? ThemeManager.activeTheme.uiBackground : palette.base, 1.2)
-            border.color: useTheme ? Qt.darker(ThemeManager.activeTheme.uiBackground, 1.1) : palette.alternateBase
-            radius: 20
-        }
     }
 }

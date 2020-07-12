@@ -45,7 +45,7 @@ QString persistence::documentsPath()
     return m_documentsPath;
 }
 
-bool persistence::commit(QFile& from, QFile& to) {
+bool persistence::commit(QFile& from, QFile& to, bool keepBackup) {
     from.close();
     to.close();
 
@@ -73,6 +73,10 @@ bool persistence::commit(QFile& from, QFile& to) {
         // No failsafe is possible. Roll-back the target file and return.
         to.rename(originalPath);
         return false;
+    }
+
+    if (!keepBackup) {
+        return QFile::remove(backupPath);
     }
 
     return true;

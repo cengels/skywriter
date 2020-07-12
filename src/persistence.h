@@ -17,14 +17,14 @@ namespace persistence {
     //! point of the process an error occurs, the function will return false
     //! and the files will be rolled back so that the target file is not
     //! corrupted.
-    bool commit(QFile& from, QFile& to);
+    bool commit(QFile& from, QFile& to, bool keepBackup = true);
 
     //! Safely overwrites a file by first writing the contents to a temporary
     //! file on the disk and then swapping out the two files. If at any point
     //! of this process an error occurs, all changes are rolled back and the
     //! function returns false.
     template<typename Stream>
-    bool overwrite(QFile& file, std::function<bool(Stream&)> callback)
+    bool overwrite(QFile& file, std::function<bool(Stream&)> callback, bool keepBackup = true)
     {
         static_assert(std::is_same<QTextStream, Stream>() || std::is_same<QDataStream, Stream>(), "Must pass either a QTextStream or QDataStream.");
 
@@ -50,7 +50,7 @@ namespace persistence {
 
         outputFile.close();
 
-        return commit(outputFile, file);
+        return commit(outputFile, file, keepBackup);
     }
 }
 

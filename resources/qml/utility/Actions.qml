@@ -7,6 +7,7 @@ import Qt.labs.platform 1.1 as Platform
 import Skywriter.Text 1.0
 import Skywriter.Theming 1.0
 import Skywriter.Progress 1.0
+import Skywriter.Settings 1.0 as Settings
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/forms" as Sky
 
@@ -26,7 +27,7 @@ QtObject {
     }
 
     function saveDocument(url) {
-        textArea.saveAs(url);
+        textArea.saveAs(url, Settings.Application.keepBackup);
         ProgressTracker.save();
     }
 

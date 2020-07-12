@@ -10,4 +10,5 @@ Sky.Settings {
     property string dailyReset: "06:00:00"
     property bool keepScrollWhenTyping: false
     property bool searchImmediately: false
+    property bool keepBackup: true
 }

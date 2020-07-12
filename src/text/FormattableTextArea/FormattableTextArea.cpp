@@ -235,7 +235,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         emit loadingChanged();
 }
 
-void FormattableTextArea::saveAs(const QUrl &fileUrl)
+void FormattableTextArea::saveAs(const QUrl &fileUrl, bool keepBackup)
 {
     if (!m_document)
         return;
@@ -257,7 +257,7 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl)
         }
 
         return true;
-    }));
+    }), keepBackup);
 
     if (!success) {
         emit ErrorManager::instance()->error(tr("Cannot save: ") + file.errorString());

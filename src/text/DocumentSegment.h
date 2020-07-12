@@ -74,6 +74,7 @@ class DocumentSegment : public QObject, public QRunnable
         int m_position;
         int m_depth;
         QVector<QString> m_words;
+        QReadWriteLock lock;
 
         int index() const;
         void run() override;

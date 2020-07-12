@@ -7,7 +7,8 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_words()
+    m_words(),
+    lock()
 {
     setAutoDelete(false);
 }
@@ -15,7 +16,8 @@ DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_words()
+    m_words(),
+    lock()
 {
     setAutoDelete(false);
 }
@@ -184,6 +186,7 @@ int DocumentSegment::index() const
 }
 
 void DocumentSegment::run() {
+    QWriteLocker locker(&lock);
     TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
     iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
 

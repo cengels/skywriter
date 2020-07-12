@@ -271,6 +271,33 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl, bool keepBackup)
     }
 }
 
+void FormattableTextArea::backup()
+{
+    if (!m_document || !m_fileUrl.isValid())
+        return;
+
+    const QFileInfo fileInfo = QFileInfo(QQmlFile::urlToLocalFileOrQrc(m_fileUrl));
+    const QString fileType = fileInfo.suffix();
+    QFile backupFile(QQmlFile::urlToLocalFileOrQrc(m_fileUrl) + ".bak");
+
+    bool success = persistence::overwrite(backupFile, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
+    {
+        if (fileType == "md") {
+            MarkdownParser(m_document, m_sceneBreak).write(stream);
+        } else if (fileType.contains("htm")) {
+            stream << m_document->toHtml().toUtf8();
+        } else {
+            stream << m_document->toPlainText().toUtf8();
+        }
+
+        return true;
+    }), false);
+
+    if (!success) {
+        emit ErrorManager::instance()->error(tr("Cannot backup: ") + backupFile.errorString());
+    }
+}
+
 bool FormattableTextArea::rename(const QUrl& newName)
 {
     if (!fileExists()) {

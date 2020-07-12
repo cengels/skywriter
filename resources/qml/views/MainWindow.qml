@@ -473,6 +473,7 @@ ApplicationWindow {
                     contentY: verticalScrollbar.position * contentHeight
                     overflowArea: height * 0.8
                     clip: true
+                    property bool changedSinceLastAutosave: false
 
                     // User-configurable properties
                     sceneBreak: Settings.Document.sceneBreak
@@ -559,6 +560,18 @@ ApplicationWindow {
                     onCaretPositionChanged: {
                         if (!loading) {
                             verticalScrollbar.scrollToCaret();
+                        }
+                    }
+
+                    onTextChanged: textArea.changedSinceLastAutosave = true;
+
+                    Timer {
+                        interval: Settings.Application.autosaveSeconds * 1000
+                        repeat: true
+                        running: Settings.Application.autosaveSeconds !== 0 && textArea.modified && textArea.changedSinceLastAutosave && textArea.fileExists
+                        onTriggered: {
+                            textArea.backup();
+                            textArea.changedSinceLastAutosave = false;
                         }
                     }
                 }

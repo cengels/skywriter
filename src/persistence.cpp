@@ -76,7 +76,7 @@ bool persistence::commit(QFile& from, QFile& to, bool keepBackup) {
     }
 
     if (!keepBackup) {
-        return QFile::remove(backupPath);
+        QFile::remove(backupPath);
     }
 
     return true;

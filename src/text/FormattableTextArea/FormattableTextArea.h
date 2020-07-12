@@ -160,6 +160,8 @@ class FormattableTextArea : public QQuickItem
         void reset();
         void load(const QUrl &fileUrl);
         void saveAs(const QUrl &fileUrl, bool keepBackup = true);
+        //! Backs up the current file.
+        void backup();
         bool rename(const QUrl& newName);
 
         //! Copies the selected text.

@@ -283,7 +283,6 @@ QtObject {
         onTriggered: {
             textArea.progressSuspended = true;
             root.paste.trigger();
-            textArea.progressSuspended = false;
         }
     }
     readonly property Action deleteSelected: Action {
@@ -297,7 +296,6 @@ QtObject {
         onTriggered: {
             textArea.progressSuspended = true;
             root.deleteSelected.trigger();
-            textArea.progressSuspended = false;
         }
     }
 

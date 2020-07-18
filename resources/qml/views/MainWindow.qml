@@ -549,6 +549,10 @@ ApplicationWindow {
                         }
 
                         oldWordCount = wordCount;
+
+                        if (progressSuspended) {
+                            progressSuspended = false;
+                        }
                     }
 
                     property int progressAtLastSave;

@@ -104,6 +104,33 @@ void FormattableTextArea::paste()
     } else if (mimeData->hasText()) {
         insertedString = mimeData->text();
         m_textCursor.insertText(mimeData->text());
+    } else {
+        return;
+    }
+
+    updateActive();
+    emit caretPositionChanged();
+
+    if (hadSelection) {
+        emit selectedTextChanged();
+    }
+}
+
+void FormattableTextArea::pasteUnformatted()
+{
+    if (!canPaste()) {
+        return;
+    }
+
+    bool hadSelection = m_textCursor.hasSelection();
+    QString insertedString;
+    const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
+
+    if (mimeData->hasText()) {
+        insertedString = mimeData->text();
+        m_textCursor.insertText(mimeData->text());
+    } else {
+        return;
     }
 
     updateActive();

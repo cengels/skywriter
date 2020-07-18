@@ -168,6 +168,8 @@ class FormattableTextArea : public QQuickItem
         void copy();
         //! Pastes at the text cursor's position.
         void paste();
+        //! Pastes at the text cursor's position without retaining formatting.
+        void pasteUnformatted();
         //! Removes the selected text.
         void remove();
         //! Cuts the selected text.

@@ -275,6 +275,7 @@ QtObject {
     readonly property Action pasteUnformatted: Action {
         text: qsTr("Paste Unformatted")
         shortcut: "Ctrl+Shift+V"
+        onTriggered: textArea.pasteUnformatted()
         enabled: textArea.canPaste
     }
     readonly property Action pasteUntracked: Action {

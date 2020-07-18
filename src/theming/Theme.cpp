@@ -248,42 +248,23 @@ const QTextBlockFormat Theme::blockFormat() const
 void Theme::read(const QJsonObject& json)
 {
     m_name = json["name"].toString();
-    m_font = QFont(json["fontFamily"].toString(), json["fontSize"].toDouble());
-    m_fillMode = FillMode(QMetaEnum::fromType<FillMode>().keyToValue(json["fillMode"].toString().toUtf8()));
-    m_documentWidth = json["documentWidth"].toDouble();
-    m_documentHeight = json["documentHeight"].toDouble();
-    m_paddingHorizontal = json["paddingHorizontal"].toDouble();
-    m_paddingVertical = json["paddingVertical"].toDouble();
-
-    if (json.contains("firstLineIndent")) {
-        m_firstLineIndent = json["firstLineIndent"].toDouble();
-    }
-
-    if (json.contains("lineHeight")) {
-        m_lineHeight = json["lineHeight"].toDouble();
-    }
-
-    if (json.contains("paragraphSpacing")) {
-        m_paragraphSpacing = json["paragraphSpacing"].toDouble();
-    }
-
-    if (json.contains("backgroundImage")) {
-        m_backgroundImage = json["backgroundImage"].toString();
-    }
-
-    m_fontColor = QColor(json["fontColor"].toString());
-    m_windowBackground = QColor(json["windowBackground"].toString());
-    m_documentBackground = QColor(json["documentBackground"].toString());
-
-    m_textAlignment = HAlignment(QMetaEnum::fromType<HAlignment>().keyToValue(json["textAlignment"].toString().toUtf8()));
-
-    if (json.contains("uiBackground")) {
-        m_uiBackground = QColor(json["uiBackground"].toString());
-    }
-
-    if (json.contains("uiColor")) {
-        m_uiColor = QColor(json["uiColor"].toString());
-    }
+    m_font = QFont(json.contains("fontFamily") ? json["fontFamily"].toString() : "Times New Roman",
+                   json.contains("fontSize") ? json["fontSize"].toDouble() : 12);
+    m_fillMode = json.contains("fillMode") ? FillMode(QMetaEnum::fromType<FillMode>().keyToValue(json["fillMode"].toString().toUtf8())) : FillMode::PreserveAspectCrop;
+    m_documentWidth = json.contains("documentWidth") ? json["documentWidth"].toDouble() : 0.9;
+    m_documentHeight = json.contains("documentHeight") ? json["documentHeight"].toDouble() : 1.0;
+    m_paddingHorizontal = json.contains("paddingHorizontal") ? json["paddingHorizontal"].toDouble() : 50;
+    m_paddingVertical = json.contains("paddingVertical") ? json["paddingVertical"].toDouble() : 20;
+    m_firstLineIndent = json.contains("firstLineIndent") ? json["firstLineIndent"].toDouble() : 0.0;
+    m_lineHeight = json.contains("lineHeight") ? json["lineHeight"].toDouble() : 1.0;
+    m_paragraphSpacing = json.contains("paragraphSpacing") ? json["paragraphSpacing"].toDouble() : 0.0;
+    m_backgroundImage = json.contains("backgroundImage") ? json["backgroundImage"].toString() : "";
+    m_fontColor = json.contains("fontColor") ? QColor(json["fontColor"].toString()) : QColor(Qt::GlobalColor::black);
+    m_windowBackground = json.contains("windowBackground") ? QColor(json["windowBackground"].toString()) : QColor(Qt::GlobalColor::lightGray);
+    m_documentBackground = json.contains("documentBackground") ? QColor(json["documentBackground"].toString()) : QColor(Qt::GlobalColor::white);
+    m_textAlignment = json.contains("textAlignment") ? HAlignment(QMetaEnum::fromType<HAlignment>().keyToValue(json["textAlignment"].toString().toUtf8())) : HAlignment::AlignJustify;
+    m_uiBackground = json.contains("uiBackground") ? QColor(json["uiBackground"].toString()) : QColor("#d9d9d9");
+    m_uiColor = json.contains("uiColor") ? QColor(json["uiColor"].toString()) : QColor("#1a1a1a");
 
     if (json.contains("headings")) {
         QJsonArray headings = json["headings"].toArray();
@@ -328,7 +309,7 @@ void Theme::write(QJsonArray& json) const
             object["firstLineIndent"] = m_firstLineIndent;
         }
 
-        if (m_lineHeight > 0.0) {
+        if (m_lineHeight != 1.0) {
             object["lineHeight"] = m_lineHeight;
         }
 

@@ -223,6 +223,12 @@ const QTextCharFormat Theme::charFormat() const
     format.setForeground(fontColor());
     format.setFontUnderline(false);
     format.setAnchor(false);
+    // This call is necessary. If a format has both a fontFamily() and fontFamilies()
+    // defined, it will always prioritize the entries in fontFamilies() over
+    // fontFamily(). We set fontFamilies() to an empty list here so that when
+    // the user pastes some rich-text that has fontFamilies() defined (HTML),
+    // it will clear them during mergeCharFormat().
+    format.setFontFamilies(QStringList());
 
     return format;
 }

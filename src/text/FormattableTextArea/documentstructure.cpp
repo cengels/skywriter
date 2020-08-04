@@ -61,7 +61,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
                 startSegment = i;
             }
 
-            if (startSegment != -1 && textEnd < segmentEnd) {
+            if (startSegment != -1 && segmentStart <= textEnd && textEnd < segmentEnd) {
                 endSegment = i;
             }
 

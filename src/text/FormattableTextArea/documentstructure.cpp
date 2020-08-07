@@ -127,11 +127,12 @@ void FormattableTextArea::refreshDocumentStructure()
             if (previous.isValid()) {
                 int depth;
                 DocumentSegment* const previousSegment = m_documentStructure.last();
+                const int headingDifference = block.blockFormat().headingLevel() - previousHeading.blockFormat().headingLevel();
 
-                if (!previousHeading.isValid() || previousHeading.blockFormat().headingLevel() == block.blockFormat().headingLevel()) {
+                if (!previousHeading.isValid()) {
                     depth = previousSegment->depth();
                 } else {
-                    depth = previousSegment->depth() + 1;
+                    depth = previousSegment->depth() + headingDifference;
                 }
 
                 DocumentSegment* segment = new DocumentSegment(block.position(), depth, this);

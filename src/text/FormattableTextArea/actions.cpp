@@ -49,6 +49,8 @@ void FormattableTextArea::applyHeading(int level)
         m_textCursor.setBlockFormat(format.blockFormat());
     }
 
+    refreshDocumentStructure();
+
     updateActive();
 }
 

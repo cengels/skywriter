@@ -9,6 +9,7 @@
 #include <QStyleHints>
 
 #include "FormattableTextArea.h"
+#include "../selection.h"
 #include "../../Mouse.h"
 
 void FormattableTextArea::mousePressEvent(QMouseEvent* event)
@@ -26,12 +27,12 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
                     && Mouse::isDoubleClick(event, &m_lastMouseUpEvent, &m_lastMouseDownEvent))
             {
                 expandSelection();
+                break;
             } else {
                 m_selectionMode = SelectionMode::NoSelection;
+                emit caretPositionChanged();
+                updateActive();
             }
-
-            updateActive();
-            emit caretPositionChanged();
 
             if (hadSelection || m_textCursor.hasSelection()) {
                 emit selectedTextChanged();
@@ -72,17 +73,11 @@ void FormattableTextArea::expandSelection()
     switch (m_selectionMode) {
         case SelectionMode::NoSelection:
             m_selectionMode = SelectionMode::WordSelection;
-            m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
-            emit caretPositionChanged();
-            emit selectedTextChanged();
+            this->selectWord();
             break;
         case SelectionMode::WordSelection: {
             m_selectionMode = SelectionMode::BlockSelection;
-            const QTextBlock& block = m_textCursor.block();
-            m_textCursor.setPosition(block.position());
-            m_textCursor.setPosition(block.position() + block.length() - 1, QTextCursor::KeepAnchor);
-            emit caretPositionChanged();
-            emit selectedTextChanged();
+            this->selectParagraph();
             break;
         }
         default: break;
@@ -104,10 +99,10 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
                     const int sourcePosition = this->hitTest(this->m_lastMouseDownEvent.localPos());
                     QTextCursor tempCursor(m_document);
                     tempCursor.setPosition(position);
-                    tempCursor.select(QTextCursor::WordUnderCursor);
+                    selection::selectWord(tempCursor);
 
                     m_textCursor.setPosition(sourcePosition);
-                    m_textCursor.select(QTextCursor::WordUnderCursor);
+                    selection::selectWord(m_textCursor);
 
                     const int start = qMin(tempCursor.selectionStart(), m_textCursor.selectionStart());
                     const int end = qMax(tempCursor.selectionEnd(), m_textCursor.selectionEnd());

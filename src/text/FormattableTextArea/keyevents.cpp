@@ -58,7 +58,10 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 if (!m_textCursor.hasSelection()) {
                     this->selectWord();
                 } else {
-                    if (symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionStart() - 1))
+                    if (m_textCursor.selectionEnd() - m_textCursor.selectionStart() == 1
+                            && symbols::isWordSeparator(m_document->characterAt(m_textCursor.position()))) {
+                        this->selectParagraph();
+                    } else if (symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionStart() - 1))
                                && symbols::isWordSeparator(m_document->characterAt(m_textCursor.selectionEnd()))) {
                         this->selectParagraph();
                     } else if (m_document->characterAt(m_textCursor.selectionStart()) != QChar::ParagraphSeparator

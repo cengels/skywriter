@@ -43,6 +43,7 @@ SOURCES += \
         src/text/Replacement.cpp \
         src/text/StringReplacer.cpp \
         src/text/UserData.cpp \
+        src/text/selection.cpp \
         src/text/symbols.cpp \
         src/text/FormattableTextArea/FormattableTextArea.cpp \
         src/text/FormattableTextArea/counter.cpp \
@@ -98,6 +99,7 @@ HEADERS += \
     src/text/UserData.h \
     src/text/format.h \
     src/progress/ProgressTracker.h \
+    src/text/selection.h \
     src/text/symbols.h \
     src/theming/HeadingFormat.h \
     src/theming/ThemeManager.h \

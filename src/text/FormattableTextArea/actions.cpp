@@ -11,6 +11,7 @@
 
 #include "FormattableTextArea.h"
 #include "../../ErrorManager.h"
+#include "../selection.h"
 
 void FormattableTextArea::toggleBold()
 {
@@ -209,7 +210,7 @@ void FormattableTextArea::redo()
 
 void FormattableTextArea::selectWord()
 {
-    m_textCursor.select(QTextCursor::SelectionType::WordUnderCursor);
+    selection::selectWord(m_textCursor);
     emit caretPositionChanged();
     emit selectedTextChanged();
     update();
@@ -217,7 +218,9 @@ void FormattableTextArea::selectWord()
 
 void FormattableTextArea::selectParagraph()
 {
-    m_textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+    const QTextBlock& block = m_textCursor.block();
+    m_textCursor.setPosition(block.position());
+    m_textCursor.setPosition(block.position() + block.length() - 1, QTextCursor::KeepAnchor);
     emit caretPositionChanged();
     emit selectedTextChanged();
     update();

@@ -17,9 +17,8 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
 
     switch (event->button()) {
         case Qt::LeftButton:
-        case Qt::RightButton:
         {
-            bool hadSelection = m_textCursor.hasSelection();
+            const bool hadSelection = m_textCursor.hasSelection();
             const int position = hitTest(event->localPos());
             m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
 
@@ -37,6 +36,29 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
             if (hadSelection || m_textCursor.hasSelection()) {
                 emit selectedTextChanged();
             }
+
+            break;
+        }
+        case Qt::RightButton:
+        {
+            const bool hadSelection = m_textCursor.hasSelection();
+            const int position = this->hitTest(event->localPos());
+
+            if (!(hadSelection
+                && m_textCursor.selectionStart() <= position
+                && position <= m_textCursor.selectionEnd()))
+            {
+                // Mouse cursor is not on selection.
+                m_textCursor.setPosition(position, QTextCursor::MoveAnchor);
+                m_selectionMode = SelectionMode::NoSelection;
+                updateActive();
+                emit caretPositionChanged();
+
+                if (hadSelection) {
+                    emit selectedTextChanged();
+                }
+            }
+
             break;
         }
         default: event->ignore(); break;
@@ -127,6 +149,10 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
 void FormattableTextArea::mouseReleaseEvent(QMouseEvent* event)
 {
     m_lastMouseUpEvent = QMouseEvent(*event);
+
+    if (event->button() == Qt::RightButton) {
+        emit contextMenuRequested();
+    }
 }
 
 int FormattableTextArea::hitTest(const QPointF& point) const

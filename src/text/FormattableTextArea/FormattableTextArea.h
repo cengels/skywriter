@@ -245,6 +245,8 @@ class FormattableTextArea : public QQuickItem
         void selectedWordCountChanged();
         void selectedPageCountChanged();
 
+        void contextMenuRequested();
+
         void contentWidthChanged();
         void contentHeightChanged();
         void overflowAreaChanged();
@@ -258,8 +260,8 @@ class FormattableTextArea : public QQuickItem
 
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);
-
         int hitTest(const QPointF& point) const;
+
         QTextDocument* newDocument();
         void connectDocument();
         QTextDocument* m_document;

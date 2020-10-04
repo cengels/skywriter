@@ -578,6 +578,34 @@ ApplicationWindow {
                             textArea.changedSinceLastAutosave = false;
                         }
                     }
+
+                    onContextMenuRequested: contextMenu.popup()
+
+                    Menu {
+                        id: contextMenu
+                        Sky.MenuItem { action: actions.undo }
+                        Sky.MenuItem { action: actions.redo }
+                        MenuSeparator {}
+                        Sky.MenuItem { action: actions.cut }
+                        Sky.MenuItem { action: actions.copy }
+                        Sky.MenuItem { action: actions.paste }
+                        Sky.MenuItem { action: actions.pasteUnformatted }
+                        Sky.MenuItem { action: actions.pasteUntracked }
+                        Sky.MenuItem { action: actions.deleteSelected }
+                        Sky.MenuItem { action: actions.deleteUntracked }
+                        MenuSeparator {}
+                        Sky.MenuItem { action: actions.selectWord }
+                        Sky.MenuItem { action: actions.selectParagraph }
+                        Sky.MenuItem { action: actions.selectAll }
+
+                        enter: Transition {
+                            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 50 }
+                        }
+
+                        exit: Transition {
+                            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 50 }
+                        }
+                    }
                 }
             }
         }

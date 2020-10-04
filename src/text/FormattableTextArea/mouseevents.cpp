@@ -101,24 +101,21 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
                     m_textCursor.setPosition(position, QTextCursor::KeepAnchor);
                     break;
                 case SelectionMode::WordSelection: {
-                        QTextCursor tempCursor(m_document);
-                        tempCursor.setPosition(position);
-                        tempCursor.select(QTextCursor::WordUnderCursor);
+                    const int sourcePosition = this->hitTest(this->m_lastMouseDownEvent.localPos());
+                    QTextCursor tempCursor(m_document);
+                    tempCursor.setPosition(position);
+                    tempCursor.select(QTextCursor::WordUnderCursor);
 
-                        if (tempCursor.anchor() == m_textCursor.anchor()) {
-                            m_textCursor.setPosition(tempCursor.selectionStart());
-                            m_textCursor.setPosition(tempCursor.selectionEnd(), QTextCursor::KeepAnchor);
-                        } else if (tempCursor.anchor() < m_textCursor.anchor()) {
-                            m_textCursor.setPosition(m_textCursor.anchor());
-                            m_textCursor.movePosition(QTextCursor::EndOfWord);
-                            m_textCursor.setPosition(tempCursor.selectionStart(), QTextCursor::KeepAnchor);
-                        } else {
-                            m_textCursor.setPosition(m_textCursor.anchor());
-                            m_textCursor.movePosition(QTextCursor::StartOfWord);
-                            m_textCursor.setPosition(tempCursor.selectionEnd(), QTextCursor::KeepAnchor);
-                        }
-                    }
-                    break;
+                    m_textCursor.setPosition(sourcePosition);
+                    m_textCursor.select(QTextCursor::WordUnderCursor);
+
+                    const int start = qMin(tempCursor.selectionStart(), m_textCursor.selectionStart());
+                    const int end = qMax(tempCursor.selectionEnd(), m_textCursor.selectionEnd());
+
+                    m_textCursor.setPosition(start);
+                    m_textCursor.setPosition(end, QTextCursor::KeepAnchor);
+                }
+                break;
                 case SelectionMode::BlockSelection: {
                     const QTextBlock& sourceBlock = m_document->findBlock(m_textCursor.anchor());
                     const QTextBlock& targetBlock = m_document->findBlock(position);
@@ -128,7 +125,7 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
 
                     if (targetBlock == sourceBlock) {
                         m_textCursor.setPosition(sourceBlock.position());
-                        m_textCursor.setPosition(sourceBlock.position() + sourceBlock.length()- 1, QTextCursor::KeepAnchor);
+                        m_textCursor.setPosition(sourceBlock.position() + sourceBlock.length() - 1, QTextCursor::KeepAnchor);
                     } else if (targetBlock < sourceBlock) {
                         m_textCursor.setPosition(sourceBlock.position() + sourceBlock.length() - 1);
                         m_textCursor.setPosition(targetBlock.position(), QTextCursor::KeepAnchor);

@@ -31,9 +31,9 @@ HEADERS += \
         ../libs/md4c/src/md4c.h
 
 SOURCES += \
-        unit/testsymbols.cpp \
         $$files(../src/*.cpp, true) \
-        ../libs/md4c/src/md4c.c
+        ../libs/md4c/src/md4c.c \
+        unit/test_symbols.cpp
 SOURCES -= ../src/main.cpp
 
 INCLUDEPATH += ../src

@@ -1,6 +1,10 @@
 #include <QtTest/QtTest>
 #include "../src/text/symbols.h"
 
+// This file only tests basic functionality at this point, no edge cases.
+// However, now that these tests exist, it will make it easier to add tests
+// for edge cases later down the line, once they become a problem.
+
 class TestSymbols: public QObject
 {
 	Q_OBJECT
@@ -28,6 +32,43 @@ class TestSymbols: public QObject
             QFETCH(QChar, separator);
 
             QTEST(symbols::isWordSeparator(separator), "result");
+        }
+
+        void containsWordSeparator_data()
+        {
+            QTest::addColumn<QString>("source");
+            QTest::addColumn<bool>("result");
+
+            QTest::newRow("no word separator") << "brave" << false;
+            QTest::newRow(".") << "good." << true;
+            QTest::newRow("?") << "Hello?" << true;
+            QTest::newRow("space") << "why are" << true;
+            QTest::newRow("-") << "test-driven" << false;
+            QTest::newRow("curly quotes") << "“Wait" << true;
+        }
+
+        void containsWordSeparator()
+        {
+            QFETCH(QString, source);
+
+            QTEST(symbols::containsWordSeparator(source), "result");
+        }
+
+        void sanitize_data()
+        {
+            QTest::addColumn<QString>("source");
+            QTest::addColumn<QString>("result");
+
+            QTest::newRow("END OF TEXT") << "\u0003" << "";
+            QTest::newRow("normal letters") << "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" << "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            QTest::newRow("printable symbols") << ".,-—_–#*´$" << ".,-—_–#*´$";
+        }
+
+        void sanitize()
+        {
+            QFETCH(QString, source);
+
+            QTEST(symbols::sanitize(source), "result");
         }
 };
 

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/text/symbols.h"
+#include "text/symbols.h"
 
 // This file only tests basic functionality at this point, no edge cases.
 // However, now that these tests exist, it will make it easier to add tests

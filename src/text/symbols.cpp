@@ -28,3 +28,8 @@ bool symbols::containsWordSeparator(const QString& string)
 
     return false;
 }
+
+bool symbols::isApostrophe(const QChar& character)
+{
+    return character == simple_apostrophe || character == curly_apostrophe;
+}

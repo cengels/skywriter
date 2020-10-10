@@ -20,6 +20,13 @@ namespace {
         EXPECT_FALSE(symbols::isWordSeparator('g'));
     }
 
+    TEST(symbols, isApostrophe) {
+        EXPECT_TRUE(symbols::isApostrophe('\''));
+        EXPECT_TRUE(symbols::isApostrophe(0x0027)); // '
+        EXPECT_TRUE(symbols::isApostrophe(0x2019)); // ’
+        EXPECT_FALSE(symbols::isApostrophe(0x2018)); // ‘
+    }
+
     TEST(symbols, containsWordSeparator) {
         EXPECT_FALSE(symbols::containsWordSeparator("brave"));
         EXPECT_FALSE(symbols::containsWordSeparator("test-driven")) << "Simple dashes are seen as word separators!";

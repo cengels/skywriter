@@ -21,6 +21,8 @@ namespace symbols {
     constexpr QChar italic_mark_alt = '_';
     constexpr QChar strikethrough_mark = '~';
     constexpr QChar escape_mark = '\\';
+    constexpr QChar simple_apostrophe = '\'';
+    constexpr QChar curly_apostrophe = 0x2019;
     //! Identifies all possible tokens that force the parser to consider
     //! the next token part of a new word.
     //!
@@ -38,6 +40,8 @@ namespace symbols {
     const QSet<QChar> smart_replacement_prefixes { space, newline, paragraph_separator, carriage_return };
     //! Checks if the given character is a word separator.
     bool isWordSeparator(const QChar& character);
+    //! Checks if a given character is an apostrophe.
+    bool isApostrophe(const QChar& character);
     //! Checks if the string contains a word separator.
     bool containsWordSeparator(const QString& string);
     //! Removes unprintable characters from the string.

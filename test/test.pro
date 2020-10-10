@@ -28,16 +28,22 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 
 HEADERS += \
         $$files(../src/*.h, true) \
-        ../libs/md4c/src/md4c.h
+        ../libs/md4c/src/md4c.h \
+        ../libs/gtest/googletest/include/gtest/gtest.h
 
 SOURCES += \
         $$files(../src/*.cpp, true) \
         ../libs/md4c/src/md4c.c \
+        ../libs/gtest/googletest/src/gtest-all.cc \
+        ../libs/gtest/googletest/src/gtest_main.cc \
+        unit/FormattableTextArea/test_selection.cpp \
         unit/test_symbols.cpp
 SOURCES -= ../src/main.cpp
 
 INCLUDEPATH += ../src
 INCLUDEPATH += ../libs
+INCLUDEPATH += ../libs/gtest/googletest
+INCLUDEPATH += ../libs/gtest/googletest/include
 DEPENDPATH += ../src
 
 # Default rules for deployment.

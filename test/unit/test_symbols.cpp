@@ -1,76 +1,46 @@
-#include <QtTest/QtTest>
+#include "gtest/gtest.h"
 #include "../src/text/symbols.h"
 
 // This file only tests basic functionality at this point, no edge cases.
 // However, now that these tests exist, it will make it easier to add tests
 // for edge cases later down the line, once they become a problem.
 
-class TestSymbols: public QObject
-{
-	Q_OBJECT
-	
-	private slots:
-        void isWordSeparator_data()
-        {
-            QTest::addColumn<QChar>("separator");
-            QTest::addColumn<bool>("result");
+namespace {
+    TEST(symbols, isWordSeparator) {
+        EXPECT_TRUE(symbols::isWordSeparator(','));
+        EXPECT_TRUE(symbols::isWordSeparator('.'));
+        EXPECT_TRUE(symbols::isWordSeparator('#'));
+        EXPECT_TRUE(symbols::isWordSeparator('*'));
+        EXPECT_TRUE(symbols::isWordSeparator('!'));
+        EXPECT_TRUE(symbols::isWordSeparator(0x2014));
+        EXPECT_TRUE(symbols::isWordSeparator(' '));
 
-            QTest::newRow(",") << QChar(',') << true;
-            QTest::newRow(".") << QChar('.') << true;
-            QTest::newRow("#") << QChar('#') << true;
-            QTest::newRow("*") << QChar('*') << true;
-            QTest::newRow("!") << QChar('!') << true;
-            QTest::newRow("-") << QChar('-') << false;
-            QTest::newRow("—") << QChar(0x2014) << true;
-            QTest::newRow(" ") << QChar(' ') << true;
-            QTest::newRow("A") << QChar('A') << false;
-            QTest::newRow("g") << QChar('g') << false;
-        }
+        EXPECT_FALSE(symbols::isWordSeparator('-'));
+        EXPECT_FALSE(symbols::isWordSeparator('A'));
+        EXPECT_FALSE(symbols::isWordSeparator('g'));
+    }
 
-        void isWordSeparator()
-        {
-            QFETCH(QChar, separator);
+    TEST(symbols, containsWordSeparator) {
+        EXPECT_FALSE(symbols::containsWordSeparator("brave"));
+        EXPECT_FALSE(symbols::containsWordSeparator("test-driven")) << "Simple dashes are seen as word separators!";
+        EXPECT_TRUE(symbols::containsWordSeparator("good."));
+        EXPECT_TRUE(symbols::containsWordSeparator("Hello?"));
+        EXPECT_TRUE(symbols::containsWordSeparator("why are"));
+        EXPECT_TRUE(symbols::containsWordSeparator("\"Wait"));
+        EXPECT_TRUE(symbols::containsWordSeparator("“Wait"));
+        EXPECT_TRUE(symbols::containsWordSeparator("hello\ntest"));
+        EXPECT_TRUE(symbols::containsWordSeparator("hello\rtest"));
+    }
 
-            QTEST(symbols::isWordSeparator(separator), "result");
-        }
+    TEST(symbols, sanitizeShouldRemoveEndOfText) {
+        EXPECT_EQ(symbols::sanitize("\u0003"), "");
+    }
 
-        void containsWordSeparator_data()
-        {
-            QTest::addColumn<QString>("source");
-            QTest::addColumn<bool>("result");
+    TEST(symbols, sanitizeShouldIgnoreLetters) {
+        EXPECT_EQ(symbols::sanitize("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    }
 
-            QTest::newRow("no word separator") << "brave" << false;
-            QTest::newRow(".") << "good." << true;
-            QTest::newRow("?") << "Hello?" << true;
-            QTest::newRow("space") << "why are" << true;
-            QTest::newRow("-") << "test-driven" << false;
-            QTest::newRow("curly quotes") << "“Wait" << true;
-        }
-
-        void containsWordSeparator()
-        {
-            QFETCH(QString, source);
-
-            QTEST(symbols::containsWordSeparator(source), "result");
-        }
-
-        void sanitize_data()
-        {
-            QTest::addColumn<QString>("source");
-            QTest::addColumn<QString>("result");
-
-            QTest::newRow("END OF TEXT") << "\u0003" << "";
-            QTest::newRow("normal letters") << "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" << "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            QTest::newRow("printable symbols") << ".,-—_–#*´$" << ".,-—_–#*´$";
-        }
-
-        void sanitize()
-        {
-            QFETCH(QString, source);
-
-            QTEST(symbols::sanitize(source), "result");
-        }
-};
-
-QTEST_MAIN(TestSymbols)
-#include "testsymbols.moc"
+    TEST(symbols, sanitizeShouldIgnorePrintableSymbols) {
+        EXPECT_EQ(symbols::sanitize(".,-—_–#*´$"), ".,-—_–#*´$");
+    }
+}

@@ -29,6 +29,7 @@ DEFINES += QT_DEPRECATED_WARNINGS \
 HEADERS += \
         $$files(../src/*.h, true) \
         ../libs/md4c/src/md4c.h \
+        unit/customqtprint.h \
         ../libs/gtest/googletest/include/gtest/gtest.h
 
 SOURCES += \

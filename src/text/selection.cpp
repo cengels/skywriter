@@ -12,51 +12,19 @@ namespace {
 
 void selection::selectWord(QTextCursor& cursor)
 {
-    int start = cursor.position();
-    int end = start;
-    QChar current;
+    const int end = cursor.selectionEnd();
 
-    if (cursor.atBlockEnd()) {
-        const bool onlySeparators = symbols::isWordSeparator(current);
-        start--;
-        current = cursor.document()->characterAt(start - 1);
-
-        while (symbols::isWordSeparator(current) == onlySeparators && current != symbols::space) {
-            start--;
-            current = cursor.document()->characterAt(start - 1);
-        }
-
-        start--;
-    } else {
-        // If the cursor is at the end of a word rather than inside of one,
-        // must adjust the start position to handle that.
-        if (symbols::isWordSeparator(cursor.document()->characterAt(start))
-        && !symbols::isWordSeparator(cursor.document()->characterAt(start - 1))
-        && !cursor.atStart()) {
-            start--;
-        }
-
-        end = start;
-
-        const bool onlySeparators = symbols::isWordSeparator(cursor.document()->characterAt(start));
-
-        current = cursor.document()->characterAt(start);
-
-        while (symbols::isWordSeparator(current) == onlySeparators && current != symbols::space) {
-            start--;
-            current = cursor.document()->characterAt(start);
-        }
-
-        current = cursor.document()->characterAt(end);
-
-        while (symbols::isWordSeparator(current) == onlySeparators && current != symbols::space) {
-            end++;
-            current = cursor.document()->characterAt(end);
-        }
+    // Only select to the start of the current word if there is no word separator in-between
+    // or the next token is a word separator instead (since the next selectNextWord() after this
+    // shouldn't select only a word separator).
+    if (!isSeparator(cursor.document()->characterAt(cursor.selectionStart() - 1))
+      || isSeparator(cursor.document()->characterAt(cursor.selectionStart()))) {
+        selection::selectPreviousWord(cursor, QTextCursor::MoveAnchor, false);
     }
 
-    cursor.setPosition(start + 1);
-    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    do {
+        selection::selectNextWord(cursor, QTextCursor::KeepAnchor, false);
+    } while (cursor.selectionEnd() < end);
 }
 
 void selection::selectPreviousWord(QTextCursor& cursor, const QTextCursor::MoveMode mode, const bool ignoreBlockBoundaries)

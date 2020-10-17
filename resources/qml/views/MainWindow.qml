@@ -491,13 +491,14 @@ ApplicationWindow {
                         }
                     }
 
-                    property bool loading: true
+                    property bool loading: textArea.loading;
                     // This is necessary because signals are always queued
                     // and only emitted if there is nothing else happening
                     // on the UI thread. If we simply used textArea.loading
                     // in the other signal handlers, the loading state might
                     // be "in the future", so to speak.
                     onLoadingChanged: loading = textArea.loading;
+
                     property double previousContentHeight: 0
                     onContentHeightChanged: {
                         // activeFocus makes sure the text area does not adjust its scroll

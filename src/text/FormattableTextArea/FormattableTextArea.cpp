@@ -231,9 +231,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     }
 
     m_loading = false;
-
-    if (!m_loading)
-        emit loadingChanged();
+    emit loadingChanged();
 }
 
 void FormattableTextArea::saveAs(const QUrl &fileUrl, bool keepBackup)

@@ -37,7 +37,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Backspace:
             if (!m_textCursor.atStart() && !m_textCursor.hasSelection()) {
                 if (ctrl) {
-                    selection::selectPreviousWord(m_textCursor, QTextCursor::KeepAnchor);
+                    selection::moveToPreviousWord(m_textCursor, QTextCursor::KeepAnchor);
                 } else {
                     m_textCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
                 }
@@ -51,7 +51,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Delete:
             if (!m_textCursor.atEnd() && !m_textCursor.hasSelection()) {
                 if (ctrl) {
-                    selection::selectNextWord(m_textCursor, QTextCursor::KeepAnchor);
+                    selection::moveToNextWord(m_textCursor, QTextCursor::KeepAnchor);
                 } else {
                     m_textCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
                 }

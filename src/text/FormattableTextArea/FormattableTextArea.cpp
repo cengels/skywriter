@@ -338,10 +338,10 @@ void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor:
 
     switch (op) {
         case QTextCursor::NextWord:
-            selection::selectNextWord(m_textCursor, mode);
+            selection::moveToNextWord(m_textCursor, mode);
             break;
         case QTextCursor::PreviousWord:
-            selection::selectPreviousWord(m_textCursor, mode);
+            selection::moveToPreviousWord(m_textCursor, mode);
             break;
         default: m_textCursor.movePosition(op, mode, by);
     }

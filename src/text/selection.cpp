@@ -15,19 +15,19 @@ void selection::selectWord(QTextCursor& cursor)
     const int end = cursor.selectionEnd();
 
     // Only select to the start of the current word if there is no word separator in-between
-    // or the next token is a word separator instead (since the next selectNextWord() after this
+    // or the next token is a word separator instead (since the next moveToNextWord() after this
     // shouldn't select only a word separator).
     if (!isSeparator(cursor.document()->characterAt(cursor.selectionStart() - 1))
       || isSeparator(cursor.document()->characterAt(cursor.selectionStart()))) {
-        selection::selectPreviousWord(cursor, QTextCursor::MoveAnchor, false);
+        selection::moveToPreviousWord(cursor, QTextCursor::MoveAnchor, false);
     }
 
     do {
-        selection::selectNextWord(cursor, QTextCursor::KeepAnchor, false);
+        selection::moveToNextWord(cursor, QTextCursor::KeepAnchor, false);
     } while (cursor.selectionEnd() < end);
 }
 
-void selection::selectPreviousWord(QTextCursor& cursor, const QTextCursor::MoveMode mode, const bool ignoreBlockBoundaries)
+void selection::moveToPreviousWord(QTextCursor& cursor, const QTextCursor::MoveMode mode, const bool ignoreBlockBoundaries)
 {
     if (cursor.atStart()) {
         return;
@@ -89,7 +89,7 @@ void selection::selectPreviousWord(QTextCursor& cursor, const QTextCursor::MoveM
     cursor.setPosition(start, mode);
 }
 
-void selection::selectNextWord(QTextCursor& cursor, const QTextCursor::MoveMode mode, const bool ignoreBlockBoundaries)
+void selection::moveToNextWord(QTextCursor& cursor, const QTextCursor::MoveMode mode, const bool ignoreBlockBoundaries)
 {
     if (cursor.atEnd()) {
         return;

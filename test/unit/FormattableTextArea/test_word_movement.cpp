@@ -4,11 +4,6 @@
 #include "text/selection.h"
 #include "../customqtprint.h"
 
-// There's also an apostrophe.
-// “I hate you,” Anakin said.
-// With multiple periods...
-// Combined
-
 class WordMovementTest : public ::testing::Test
 {
     public:

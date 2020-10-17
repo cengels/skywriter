@@ -6,6 +6,7 @@
 
 #include "FormattableTextArea.h"
 #include "../symbols.h"
+#include "../selection.h"
 #include "../../persistence.h"
 #include "../../ErrorManager.h"
 #include "../UserData.h"
@@ -333,9 +334,18 @@ void FormattableTextArea::reset()
 
 void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int by)
 {
-    bool hadSelection = m_textCursor.hasSelection();
+    const bool hadSelection = m_textCursor.hasSelection();
 
-    m_textCursor.movePosition(op, mode, by);
+    switch (op) {
+        case QTextCursor::NextWord:
+            selection::selectNextWord(m_textCursor, mode);
+            break;
+        case QTextCursor::PreviousWord:
+            selection::selectPreviousWord(m_textCursor, mode);
+            break;
+        default: m_textCursor.movePosition(op, mode, by);
+    }
+
     updateActive();
     emit caretPositionChanged();
 

@@ -36,6 +36,10 @@ namespace symbols {
     //! of a new word only if this token appears multiple times in a row.
     //! Single occurrences are ignored.
     const QSet<QChar> word_separators_multiple { hyphen, simple_apostrophe, curly_apostrophe };
+    //! Identifies tokens as a subset of word_separators_multiple that should *not*
+    //! be ignored during word-by-word selections, i.e. the word selection will stop
+    //! if it encounters a token in this set.
+    const QSet<QChar> stop_on_selection { hyphen };
     //! Identifies all tokens after which the StringReplacer should use the
     //! opening replacement of a smart replacement rather than the closing one.
     const QSet<QChar> smart_replacement_prefixes { space, newline, paragraph_separator, carriage_return };

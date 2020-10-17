@@ -11,6 +11,8 @@ namespace selection
     //! token (such as quotes), whereas QTextCursor::select() will only stop
     //! on a number of predefined tokens like periods and commas.
     void selectWord(QTextCursor& cursor);
+    void selectPreviousWord(QTextCursor& cursor, const QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, const bool ignoreBlockBoundaries = true);
+    void selectNextWord(QTextCursor& cursor, const QTextCursor::MoveMode mode = QTextCursor::MoveAnchor, const bool ignoreBlockBoundaries = true);
 };
 
 #endif // SELECTION_H

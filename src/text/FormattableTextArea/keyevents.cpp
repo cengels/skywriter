@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "../symbols.h"
+#include "../selection.h"
 #include "FormattableTextArea.h"
 
 void FormattableTextArea::keyPressEvent(QKeyEvent* event)
@@ -35,7 +36,11 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Back:
         case Qt::Key_Backspace:
             if (!m_textCursor.atStart() && !m_textCursor.hasSelection()) {
-                m_textCursor.movePosition(ctrl ? QTextCursor::PreviousWord : QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+                if (ctrl) {
+                    selection::selectPreviousWord(m_textCursor, QTextCursor::KeepAnchor);
+                } else {
+                    m_textCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+                }
             }
 
             remove();
@@ -45,7 +50,11 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             break;
         case Qt::Key_Delete:
             if (!m_textCursor.atEnd() && !m_textCursor.hasSelection()) {
-                m_textCursor.movePosition(ctrl ? QTextCursor::NextWord : QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                if (ctrl) {
+                    selection::selectNextWord(m_textCursor, QTextCursor::KeepAnchor);
+                } else {
+                    m_textCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                }
             }
 
             remove();

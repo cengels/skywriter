@@ -37,7 +37,8 @@ SOURCES += \
         ../libs/md4c/src/md4c.c \
         ../libs/gtest/googletest/src/gtest-all.cc \
         ../libs/gtest/googletest/src/gtest_main.cc \
-        unit/FormattableTextArea/test_selection.cpp \
+        unit/FormattableTextArea/test_word_movement.cpp \
+        unit/FormattableTextArea/test_word_selection.cpp \
         unit/test_symbols.cpp
 SOURCES -= ../src/main.cpp
 

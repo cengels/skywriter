@@ -278,8 +278,17 @@ ApplicationWindow {
             property double lastPosition: 0
             property string lastTheme: ""
             property bool fixPositionNext: false
-            onPositionChanged: adjustPosition();
-            onSizeChanged: adjustPosition();
+            onPositionChanged: {
+                if (mainWindow.active) {
+                    adjustPosition();
+                }
+            }
+
+            onSizeChanged: {
+                if (mainWindow.active) {
+                    adjustPosition();
+                }
+            }
 
             function adjustPosition() {
                 if (mainWindow.width !== previousWidth
@@ -491,7 +500,7 @@ ApplicationWindow {
                         }
                     }
 
-                    property bool loading: textArea.loading;
+                    property bool loading: false;
                     // This is necessary because signals are always queued
                     // and only emitted if there is nothing else happening
                     // on the UI thread. If we simply used textArea.loading
@@ -503,7 +512,7 @@ ApplicationWindow {
                     onContentHeightChanged: {
                         // activeFocus makes sure the text area does not adjust its scroll
                         // until the text area has fully initialized
-                        if (textArea.activeFocus && !loading) {
+                        if (textArea.activeFocus && !loading && mainWindow.active) {
                             // "restore" the previous scroll position
                             let newScroll = verticalScrollbar.position / contentHeight * previousContentHeight;
 
@@ -536,6 +545,10 @@ ApplicationWindow {
                         }
 
                         forceActiveFocus();
+
+                        if (!textArea.loading) {
+                            loading = false;
+                        }
                     }
 
                     onFileUrlChanged: {

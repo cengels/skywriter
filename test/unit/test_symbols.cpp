@@ -18,6 +18,8 @@ namespace {
         EXPECT_FALSE(symbols::isWordSeparator('-'));
         EXPECT_FALSE(symbols::isWordSeparator('A'));
         EXPECT_FALSE(symbols::isWordSeparator('g'));
+        EXPECT_FALSE(symbols::isWordSeparator('\''));
+        EXPECT_FALSE(symbols::isWordSeparator(0x2019));
     }
 
     TEST(symbols, isApostrophe) {

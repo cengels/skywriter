@@ -37,12 +37,12 @@ namespace {
             }
 
             const int number = suffix.toInt();
-            return QStringLiteral("%1 %2")
+            return QString("%1 %2")
                     .arg(name.chopped(suffix.length()))
                     .arg(number + 1);
         }
 
-        return QStringLiteral("%1 %2").arg(name).arg(1);
+        return QString("%1 %2").arg(name).arg(1);
     }
 }
 
@@ -190,7 +190,7 @@ void ThemeManager::saveChanges(Theme* theme)
 
 Theme* ThemeManager::createTheme(const Theme* from)
 {
-    QString name = from ? from->name() : "Untitled";
+    QString name = from ? from->name() : QStringLiteral("Untitled");
     bool nameOk = false;
     bool tryAgain = false;
 

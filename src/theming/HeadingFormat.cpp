@@ -6,7 +6,7 @@
 HeadingFormat::HeadingFormat(int headingLevel) :
     m_blockFormat(),
     m_charFormat(),
-    m_name("")
+    m_name(QString())
 {
     m_blockFormat.setHeadingLevel(headingLevel);
     setAlignment(defaults::headingAlignment);

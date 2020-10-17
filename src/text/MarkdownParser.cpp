@@ -90,7 +90,7 @@ namespace {
         }
 
         if (format.headingLevel() > 0) {
-            stream << QString("#").repeated(format.headingLevel()) << " ";
+            stream << QStringLiteral("#").repeated(format.headingLevel()) << " ";
         }
 
         QStack<QString> marks;

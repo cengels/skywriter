@@ -138,7 +138,7 @@ void FormattableTextArea::jumpToPrevious()
 
 void FormattableTextArea::clearMatches()
 {
-    find("");
+    find(QString());
 }
 
 void FormattableTextArea::replaceNext(const QString& text)

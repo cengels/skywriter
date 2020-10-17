@@ -216,7 +216,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         const auto text = codec->toUnicode(data);
         const QString fileType = QFileInfo(file).suffix();
 
-        if (fileType == "md") {
+        if (fileType == persistence::format_markdown) {
             MarkdownParser(m_document, m_sceneBreak).parse(text);
         } else {
             m_document->setPlainText(text);
@@ -249,9 +249,9 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl, bool keepBackup)
 
     bool success = persistence::overwrite(file, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
     {
-        if (fileType == "md") {
+        if (fileType == persistence::format_markdown) {
             MarkdownParser(m_document, m_sceneBreak).write(stream);
-        } else if (fileType.contains("htm")) {
+        } else if (fileType.contains(persistence::format_html)) {
             stream << m_document->toHtml().toUtf8();
         } else {
             stream << m_document->toPlainText().toUtf8();
@@ -279,13 +279,13 @@ void FormattableTextArea::backup()
 
     const QFileInfo fileInfo = QFileInfo(QQmlFile::urlToLocalFileOrQrc(m_fileUrl));
     const QString fileType = fileInfo.suffix();
-    QFile backupFile(QQmlFile::urlToLocalFileOrQrc(m_fileUrl) + ".bak");
+    QFile backupFile(QStringLiteral("%1.%2").arg(QQmlFile::urlToLocalFileOrQrc(m_fileUrl)).arg(persistence::format_bak));
 
     bool success = persistence::overwrite(backupFile, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
     {
-        if (fileType == "md") {
+        if (fileType == persistence::format_markdown) {
             MarkdownParser(m_document, m_sceneBreak).write(stream);
-        } else if (fileType.contains("htm")) {
+        } else if (fileType.contains(persistence::format_html)) {
             stream << m_document->toHtml().toUtf8();
         } else {
             stream << m_document->toPlainText().toUtf8();

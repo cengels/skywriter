@@ -11,6 +11,9 @@
 #define PERSISTENCE_H
 
 namespace persistence {
+    const QLatin1String format_markdown = QLatin1String("md");
+    const QLatin1String format_html = QLatin1String("htm");
+    const QLatin1String format_bak = QLatin1String("bak");
     //! Gets the path where settings and application data should be stored.
     QString documentsPath();
     //! Replaces the target file with the specified source file. If at any

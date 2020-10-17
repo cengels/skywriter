@@ -4,7 +4,7 @@
 #include "symbols.h"
 
 namespace {
-    const QString& getReplacement(const Replacement& replacement, const QString& before = "")
+    const QString& getReplacement(const Replacement& replacement, const QString& before = QString())
     {
         if (replacement.isSmartReplacement()) {
             if (!before.isEmpty() && symbols::smart_replacement_prefixes.contains(before.at(before.length() - 1))) {

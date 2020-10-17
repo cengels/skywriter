@@ -24,7 +24,7 @@ class StringReplacer
         //! Clears all replacements from this StringReplacer.
         void clear();
 
-        QString replace(const QString& source, const QString& before = "") const;
+        QString replace(const QString& source, const QString& before = QString()) const;
 
     private:
         // See Replacement. This was supposed to be a const Replacement, but

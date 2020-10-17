@@ -61,7 +61,7 @@ QString DocumentSegment::text() const
     const QTextDocument* doc = document();
 
     if (!doc) {
-        return "";
+        return QString();
     }
 
     const QString& text = doc->toPlainText();
@@ -130,7 +130,7 @@ QString DocumentSegment::heading() const
     const QTextBlock block = document()->findBlock(m_position);
 
     if (block.blockFormat().headingLevel() == 0) {
-        return "";
+        return QString();
     }
 
     return block.text();
@@ -141,7 +141,7 @@ QString DocumentSegment::subheading() const
     QTextBlock block = document()->findBlock(m_position).next();
 
     if (block.blockFormat().headingLevel() == 0 || block.blockFormat().headingLevel() % 2 != 0) {
-        return "";
+        return QString();
     }
 
     return block.text();

@@ -10,9 +10,9 @@
 #include "defaults.h"
 
 namespace {
-    Theme* m_defaultLight = new Theme("Default (Light)");
-    Theme* m_defaultDark = new Theme("Default (Dark)");
-    Theme* m_defaultSky = new Theme("Default (Sky)");
+    Theme* m_defaultLight = new Theme(QStringLiteral("Default (Light)"));
+    Theme* m_defaultDark = new Theme(QStringLiteral("Default (Dark)"));
+    Theme* m_defaultSky = new Theme(QStringLiteral("Default (Sky)"));
 }
 
 Theme::Theme(QObject* parent) : QObject(parent),
@@ -363,4 +363,3 @@ const QString Theme::headingName(int headingLevel) const
 {
     return headingFormat(headingLevel).name();
 }
-

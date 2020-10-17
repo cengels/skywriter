@@ -14,10 +14,10 @@ namespace symbols {
     constexpr QChar em_dash = 0x2014;
     constexpr QChar newline = '\n';
     constexpr QChar carriage_return = '\r';
-    constexpr QChar paragraph_separator = QChar(QChar::SpecialCharacter::ParagraphSeparator);
+    constexpr QChar paragraph_separator = QChar::SpecialCharacter::ParagraphSeparator;
     constexpr QChar space = ' ';
-    const QString bold_mark = "**";
-    const QString bold_mark_alt = "__";
+    const QString bold_mark = QStringLiteral("**");
+    const QString bold_mark_alt = QStringLiteral("__");
     constexpr QChar italic_mark = '*';
     constexpr QChar italic_mark_alt = '_';
     constexpr QChar strikethrough_mark = '~';

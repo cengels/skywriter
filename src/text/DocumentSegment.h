@@ -58,6 +58,7 @@ class DocumentSegment : public QObject, public QRunnable
         //! bounds of the document.
         bool isValid() const;
 
+        void countWords();
         void countWordsAsync();
 
         bool operator==(const DocumentSegment& other) const;

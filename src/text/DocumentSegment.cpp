@@ -186,6 +186,11 @@ int DocumentSegment::index() const
 }
 
 void DocumentSegment::run() {
+    countWords();
+}
+
+void DocumentSegment::countWords()
+{
     QWriteLocker locker(&lock);
     TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
     iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);

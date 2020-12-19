@@ -85,6 +85,10 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
     const QColor& fontColor = ThemeManager::instance()->activeTheme()->fontColor();
     const bool hasSelection = m_textCursor.hasSelection();
 
+    if (m_highlighter) {
+        m_highlighter->startHighlighting(m_overflowArea - m_contentY);
+    }
+
     const QTextBlock& end = this->m_document->end();
     for (QTextBlock block = this->m_document->begin(); block != end; block = block.next())
     {
@@ -138,10 +142,15 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             // in the selection.
             const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
             n->addRectangleNode(
-                        QRectF(QPointF(blockPosition.x() + lastLine.naturalTextRect().x() + lastLine.naturalTextWidth(),
-                                       blockPosition.y() + m_overflowArea - m_contentY + lastLine.y()),
-                               QSizeF(10, lastLine.height())),
+                        QRectF(blockPosition.x() + lastLine.naturalTextRect().x() + lastLine.naturalTextWidth(),
+                               blockPosition.y() + m_overflowArea - m_contentY + lastLine.y(),
+                               10,
+                               lastLine.height()),
                         fontColor);
+        }
+
+        if (m_highlighter) {
+            m_highlighter->highlightBlock(*n, block);
         }
     }
 

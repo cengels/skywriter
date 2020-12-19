@@ -185,7 +185,7 @@ void FormattableTextArea::undo()
 
     refreshDocumentStructure();
 
-    if (!m_searchResults.isEmpty()) {
+    if (!m_searchString.isEmpty()) {
         find(m_searchString, m_searchFlags);
     }
 }
@@ -203,7 +203,7 @@ void FormattableTextArea::redo()
 
     refreshDocumentStructure();
 
-    if (!m_searchResults.isEmpty()) {
+    if (!m_searchString.isEmpty()) {
         find(m_searchString, m_searchFlags);
     }
 }

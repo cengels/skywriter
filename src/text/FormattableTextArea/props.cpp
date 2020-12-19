@@ -100,12 +100,12 @@ QString FormattableTextArea::selectedText() const
 
 const QVector<Range<int>>& FormattableTextArea::searchResults() const
 {
-    return m_searchResults;
+    return m_highlighter->findRanges();
 }
 
 int FormattableTextArea::searchResultCount() const
 {
-    return m_searchResults.size();
+    return m_highlighter->findRanges().size();
 }
 
 QUrl FormattableTextArea::fileUrl() const

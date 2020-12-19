@@ -13,11 +13,6 @@
 namespace {
     QMetaObject::Connection connection;
 
-    QColor searchMatchBackground() {
-        const QColor fontColor = ThemeManager::instance()->activeTheme()->fontColor();
-        return QColor(fontColor.red(), fontColor.green(), fontColor.blue(), 35);
-    }
-
     QTextLayout::FormatRange formatRange(const int start, const int length, const QTextCharFormat& format) {
         QTextLayout::FormatRange formatRange;
         formatRange.start = start;
@@ -233,16 +228,6 @@ const QString& TextFormatter::sceneBreak() const
 void TextFormatter::setSceneBreak(const QString& sceneBreakString)
 {
     m_sceneBreakString = sceneBreakString;
-}
-
-const QVector<Range<int>>& TextFormatter::findRanges() const
-{
-    return *m_findRanges;
-}
-
-void TextFormatter::setFindRanges(const QVector<Range<int>>* const ranges)
-{
-    m_findRanges = ranges;
 }
 
 bool TextFormatter::refreshing() const

@@ -12,6 +12,7 @@
 #include <QTimer>
 
 #include "../TextFormatter.h"
+#include "../TextHighlighter.h"
 #include "../TextIterator.h"
 #include "../MarkdownParser.h"
 #include "../StringReplacer.h"
@@ -23,6 +24,7 @@ class QTextDocument;
 class QQuickTextDocument;
 class DocumentSegment;
 class TextFormatter;
+class TextHighlighter;
 QT_END_NAMESPACE
 
 class FormattableTextArea : public QQuickItem
@@ -67,7 +69,6 @@ class FormattableTextArea : public QQuickItem
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
     Q_PROPERTY(double overflowArea MEMBER m_overflowArea NOTIFY overflowAreaChanged)
 
-    Q_PROPERTY(QVector<Range<int>> searchResults READ searchResults MEMBER m_searchResults NOTIFY searchResultsChanged)
     Q_PROPERTY(int searchResultCount READ searchResultCount NOTIFY searchResultCountChanged)
 
     //! If true, emphasized text segments (enclosed in asterisks or underscores)
@@ -232,7 +233,6 @@ class FormattableTextArea : public QQuickItem
         void lastModifiedChanged();
         void loadingChanged();
 
-        void searchResultsChanged();
         void searchResultCountChanged();
 
         void characterCountChanged();
@@ -267,7 +267,8 @@ class FormattableTextArea : public QQuickItem
         QTextDocument* m_document;
         QVector<DocumentSegment*> m_documentStructure;
         DocumentSegment* m_currentDocumentSegment;
-        TextFormatter* m_highlighter;
+        TextFormatter* m_formatter;
+        TextHighlighter* m_highlighter;
         StringReplacer m_replacer;
 
         QTextCursor m_textCursor;
@@ -308,7 +309,6 @@ class FormattableTextArea : public QQuickItem
 
         QString m_searchString;
         SearchOptions m_searchFlags;
-        QVector<Range<int>> m_searchResults;
 
         bool m_underline;
         QString m_sceneBreak;

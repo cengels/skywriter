@@ -9,7 +9,9 @@
 #include "FormattableTextArea/FormattableTextArea.h"
 #include "../Range.h"
 
-//! This
+//! The TextFormatter is responsible for formatting a QTextDocument's
+//! text according to syntax. It inherits from QSyntaxHighlighter and
+//! directly changes the formats of the QTextDocument.
 class TextFormatter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -20,9 +22,6 @@ class TextFormatter : public QSyntaxHighlighter
 
         const QString& sceneBreak() const;
         void setSceneBreak(const QString& sceneBreakString);
-
-        const QVector<Range<int>>& findRanges() const;
-        void setFindRanges(const QVector<Range<int>>* const ranges);
 
         bool refreshing() const;
         void refresh();

@@ -13,10 +13,10 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
     m_searchFlags = options;
 
     const int previousSearchResultsCount = searchResultCount();
-    m_searchResults.clear();
+    QVector<Range<int>> results;
 
     if (searchString.isEmpty()) {
-        emit searchResultsChanged();
+        this->m_highlighter->setFindRanges(results);
 
         if (previousSearchResultsCount != searchResultCount()) {
             emit searchResultCountChanged();
@@ -54,11 +54,11 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
 
         if (!cursor.isNull() && (!stopOnSelection || cursor.selectionEnd() <= m_textCursor.selectionEnd())) {
             const Range<int> range = Range<int>(cursor.selectionStart(), cursor.selectionEnd());
-            m_searchResults.append(range);
+            results.append(range);
         }
     }
 
-    emit searchResultsChanged();
+    this->m_highlighter->setFindRanges(results);
 
     if (previousSearchResultsCount != searchResultCount()) {
         emit searchResultCountChanged();
@@ -152,8 +152,6 @@ void FormattableTextArea::replaceNext(const QString& text)
             m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);
             found = true;
 
-            m_searchResults.removeOne(range);
-
             break;
         }
     }
@@ -169,7 +167,6 @@ void FormattableTextArea::replaceNext(const QString& text)
     updateActive();
     emit selectedTextChanged();
     emit caretPositionChanged();
-    emit searchResultsChanged();
     emit searchResultCountChanged();
 }
 
@@ -196,8 +193,6 @@ void FormattableTextArea::replaceAll(const QString& text)
     cursor.endEditBlock();
 
     updateActive();
-
-    clearMatches();
 }
 
 void FormattableTextArea::updateFindRanges()

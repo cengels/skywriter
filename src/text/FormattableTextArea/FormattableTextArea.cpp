@@ -16,6 +16,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_document(nullptr)
     , m_documentStructure(QVector<DocumentSegment*>())
     , m_currentDocumentSegment(nullptr)
+    , m_formatter(nullptr)
     , m_highlighter(nullptr)
     , m_replacer(StringReplacer())
     , m_textCursor(QTextCursor())
@@ -33,7 +34,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_selectedPageCount(0)
     , m_searchString()
     , m_searchFlags()
-    , m_searchResults(QVector<Range<int>>())
     , m_underline(false)
     , m_sceneBreak()
     , m_caretTimer(this)
@@ -121,13 +121,19 @@ void FormattableTextArea::connectDocument()
         });
         connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::update, this, &FormattableTextArea::update);
 
-        if (m_highlighter) {
-            m_highlighter->setDocument(m_document);
+        if (m_formatter) {
+            m_formatter->setDocument(m_document);
         } else {
-            m_highlighter = new TextFormatter(m_document);
-            m_highlighter->setSceneBreak(m_sceneBreak);
-            m_highlighter->setFindRanges(&m_searchResults);
-            connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextFormatter::setSceneBreak);
+            m_formatter = new TextFormatter(m_document);
+            m_formatter->setSceneBreak(m_sceneBreak);
+            connect(this, &FormattableTextArea::sceneBreakChanged, m_formatter, &TextFormatter::setSceneBreak);
+        }
+
+        if (m_highlighter) {
+            m_highlighter->setParent(m_document);
+        } else {
+            m_highlighter = new TextHighlighter(m_document);
+            connect(m_highlighter, &TextHighlighter::needsRepaint, this, &FormattableTextArea::update);
         }
     }
 

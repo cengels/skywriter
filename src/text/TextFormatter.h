@@ -1,5 +1,5 @@
-#ifndef TEXTHIGHLIGHTER_H
-#define TEXTHIGHLIGHTER_H
+#ifndef TEXTFORMATTER_H
+#define TEXTFORMATTER_H
 
 #include <QObject>
 #include <QSyntaxHighlighter>
@@ -9,13 +9,14 @@
 #include "FormattableTextArea/FormattableTextArea.h"
 #include "../Range.h"
 
-class TextHighlighter : public QSyntaxHighlighter
+//! This
+class TextFormatter : public QSyntaxHighlighter
 {
     Q_OBJECT
     Q_PROPERTY(QString sceneBreak READ sceneBreak WRITE setSceneBreak NOTIFY sceneBreakChanged)
 
     public:
-        TextHighlighter(QTextDocument *parent);
+        TextFormatter(QTextDocument *parent);
 
         const QString& sceneBreak() const;
         void setSceneBreak(const QString& sceneBreakString);
@@ -42,7 +43,6 @@ class TextHighlighter : public QSyntaxHighlighter
         void highlightComments(const QString& text);
         void highlightHeadings();
         void highlightSceneBreaks(const QString& text);
-        void highlightMatches();
 
         void setCharFormat(int blockPosition, int length, const QTextCharFormat& format);
         void setColor(int blockPosition, int length, const QColor& color);
@@ -64,4 +64,4 @@ class TextHighlighter : public QSyntaxHighlighter
         QVector<QTextLayout::FormatRange> m_formats;
 };
 
-#endif // TEXTHIGHLIGHTER_H
+#endif // TEXTFORMATTER_H

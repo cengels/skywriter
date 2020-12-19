@@ -2,7 +2,7 @@
 #include <QSyntaxHighlighter>
 #include <QDebug>
 
-#include "TextHighlighter.h"
+#include "TextFormatter.h"
 #include "symbols.h"
 #include "../theming/ThemeManager.h"
 #include "../colors.h"
@@ -28,26 +28,25 @@ namespace {
     }
 }
 
-TextHighlighter::TextHighlighter(QTextDocument* parent) : QSyntaxHighlighter(parent),
+TextFormatter::TextFormatter(QTextDocument* parent) : QSyntaxHighlighter(parent),
     m_refreshing(true),
     m_sceneBreakString(),
     m_findRanges(nullptr)
 {
-    connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
+    connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextFormatter::refresh);
     connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, [&]() {
         disconnect(connection);
-        connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextHighlighter::refresh);
+        connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextFormatter::refresh);
 
         this->refresh();
     });
 }
 
-void TextHighlighter::highlightBlock(const QString& text)
+void TextFormatter::highlightBlock(const QString& text)
 {
     highlightHeadings();
     highlightSceneBreaks(text);
     highlightComments(text);
-    highlightMatches();
 
     if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
         unsetCurrentBlockStateFlag(format::BlockState::NeedsUpdate);
@@ -56,7 +55,7 @@ void TextHighlighter::highlightBlock(const QString& text)
     mergeFormats();
 }
 
-void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
+void TextFormatter::setCurrentBlockStateFlag(format::BlockState state)
 {
     if (currentBlockState() == -1) {
         setCurrentBlockState(state);
@@ -65,7 +64,7 @@ void TextHighlighter::setCurrentBlockStateFlag(format::BlockState state)
     }
 }
 
-void TextHighlighter::unsetCurrentBlockStateFlag(format::BlockState state)
+void TextFormatter::unsetCurrentBlockStateFlag(format::BlockState state)
 {
     if (currentBlockState() == -1) {
         setCurrentBlockState(format::BlockState::None);
@@ -74,7 +73,7 @@ void TextHighlighter::unsetCurrentBlockStateFlag(format::BlockState state)
     }
 }
 
-bool TextHighlighter::checkPreviousBlockStateFlag(format::BlockState state) const
+bool TextFormatter::checkPreviousBlockStateFlag(format::BlockState state) const
 {
     if (previousBlockState() == -1) {
         return false;
@@ -83,7 +82,7 @@ bool TextHighlighter::checkPreviousBlockStateFlag(format::BlockState state) cons
     return previousBlockState() & state;
 }
 
-bool TextHighlighter::checkCurrentBlockStateFlag(format::BlockState state) const
+bool TextFormatter::checkCurrentBlockStateFlag(format::BlockState state) const
 {
     if (currentBlockState() == -1) {
         return false;
@@ -92,7 +91,7 @@ bool TextHighlighter::checkCurrentBlockStateFlag(format::BlockState state) const
     return currentBlockState() & state;
 }
 
-void TextHighlighter::highlightComments(const QString& text)
+void TextFormatter::highlightComments(const QString& text)
 {
     int startIndex = checkPreviousBlockStateFlag(format::EndsWithUnclosedComment)
                      ? 0
@@ -122,7 +121,7 @@ void TextHighlighter::highlightComments(const QString& text)
     }
 }
 
-void TextHighlighter::highlightHeadings()
+void TextFormatter::highlightHeadings()
 {
     int headingLevel = currentBlock().blockFormat().headingLevel();
     if (headingLevel > 0) {
@@ -131,7 +130,7 @@ void TextHighlighter::highlightHeadings()
     }
 }
 
-void TextHighlighter::highlightSceneBreaks(const QString& text)
+void TextFormatter::highlightSceneBreaks(const QString& text)
 {
     if (text == m_sceneBreakString) {
         QTextCharFormat charFormat;
@@ -140,18 +139,7 @@ void TextHighlighter::highlightSceneBreaks(const QString& text)
     }
 }
 
-void TextHighlighter::highlightMatches()
-{
-    if (m_findRanges) {
-        for (const Range<int>& range : *m_findRanges) {
-            if (range.between(currentBlock().position(), currentBlock().position() + currentBlock().length())) {
-                setBackgroundColor(range.from() - currentBlock().position(), range.length(), searchMatchBackground());
-            }
-        }
-    }
-}
-
-void TextHighlighter::setCharFormat(int blockPosition, int length, const QTextCharFormat& format)
+void TextFormatter::setCharFormat(int blockPosition, int length, const QTextCharFormat& format)
 {
     QTextLayout::FormatRange range = formatRange(blockPosition, length, format);
     Range<int> mathRange(blockPosition, blockPosition + length);
@@ -202,26 +190,26 @@ void TextHighlighter::setCharFormat(int blockPosition, int length, const QTextCh
     }
 }
 
-void TextHighlighter::setColor(int blockPosition, int length, const QColor& color)
+void TextFormatter::setColor(int blockPosition, int length, const QColor& color)
 {
     QTextCharFormat format;
     format.setForeground(color);
     setCharFormat(blockPosition, length, format);
 }
 
-void TextHighlighter::setBackgroundColor(int blockPosition, int length, const QColor& color)
+void TextFormatter::setBackgroundColor(int blockPosition, int length, const QColor& color)
 {
     QTextCharFormat format;
     format.setBackground(color);
     setCharFormat(blockPosition, length, format);
 }
 
-void TextHighlighter::setBlockFormat(const QTextCharFormat& format)
+void TextFormatter::setBlockFormat(const QTextCharFormat& format)
 {
     setCharFormat(0, currentBlock().length() - 1, format);
 }
 
-void TextHighlighter::mergeFormats()
+void TextFormatter::mergeFormats()
 {
     for (const QTextLayout::FormatRange& formatRange : m_formats) {
         setFormat(formatRange.start, formatRange.length, formatRange.format);
@@ -230,34 +218,34 @@ void TextHighlighter::mergeFormats()
     m_formats.clear();
 }
 
-void TextHighlighter::refresh()
+void TextFormatter::refresh()
 {
     this->m_refreshing = true;
     this->rehighlight();
     this->m_refreshing = false;
 }
 
-const QString& TextHighlighter::sceneBreak() const
+const QString& TextFormatter::sceneBreak() const
 {
     return m_sceneBreakString;
 }
 
-void TextHighlighter::setSceneBreak(const QString& sceneBreakString)
+void TextFormatter::setSceneBreak(const QString& sceneBreakString)
 {
     m_sceneBreakString = sceneBreakString;
 }
 
-const QVector<Range<int>>& TextHighlighter::findRanges() const
+const QVector<Range<int>>& TextFormatter::findRanges() const
 {
     return *m_findRanges;
 }
 
-void TextHighlighter::setFindRanges(const QVector<Range<int>>* const ranges)
+void TextFormatter::setFindRanges(const QVector<Range<int>>* const ranges)
 {
     m_findRanges = ranges;
 }
 
-bool TextHighlighter::refreshing() const
+bool TextFormatter::refreshing() const
 {
     return this->m_refreshing;
 }

@@ -53,7 +53,7 @@ SOURCES += \
         src/text/FormattableTextArea/mouseevents.cpp \
         src/text/FormattableTextArea/painting.cpp \
         src/text/FormattableTextArea/props.cpp \
-        src/text/TextHighlighter.cpp \
+        src/text/TextFormatter.cpp \
         src/text/TextIterator.cpp \
         src/text/format.cpp \
         src/progress/ProgressTracker.cpp \
@@ -96,7 +96,7 @@ HEADERS += \
     src/text/MarkdownParser.h \
     src/text/Replacement.h \
     src/text/StringReplacer.h \
-    src/text/TextHighlighter.h \
+    src/text/TextFormatter.h \
     src/text/TextIterator.h \
     src/text/UserData.h \
     src/text/format.h \

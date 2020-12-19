@@ -11,7 +11,7 @@
 #include <QTextDocument>
 #include <QTimer>
 
-#include "../TextHighlighter.h"
+#include "../TextFormatter.h"
 #include "../TextIterator.h"
 #include "../MarkdownParser.h"
 #include "../StringReplacer.h"
@@ -22,7 +22,7 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 class QQuickTextDocument;
 class DocumentSegment;
-class TextHighlighter;
+class TextFormatter;
 QT_END_NAMESPACE
 
 class FormattableTextArea : public QQuickItem
@@ -267,7 +267,7 @@ class FormattableTextArea : public QQuickItem
         QTextDocument* m_document;
         QVector<DocumentSegment*> m_documentStructure;
         DocumentSegment* m_currentDocumentSegment;
-        TextHighlighter* m_highlighter;
+        TextFormatter* m_highlighter;
         StringReplacer m_replacer;
 
         QTextCursor m_textCursor;

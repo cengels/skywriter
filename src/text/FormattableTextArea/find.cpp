@@ -22,8 +22,6 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
             emit searchResultCountChanged();
         }
 
-        m_highlighter->refresh();
-
         return;
     }
 
@@ -65,8 +63,6 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
     if (previousSearchResultsCount != searchResultCount()) {
         emit searchResultCountChanged();
     }
-
-    m_highlighter->refresh();
 }
 
 void FormattableTextArea::jumpToNext()

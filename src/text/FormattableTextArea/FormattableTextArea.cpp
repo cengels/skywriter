@@ -124,10 +124,10 @@ void FormattableTextArea::connectDocument()
         if (m_highlighter) {
             m_highlighter->setDocument(m_document);
         } else {
-            m_highlighter = new TextHighlighter(m_document);
+            m_highlighter = new TextFormatter(m_document);
             m_highlighter->setSceneBreak(m_sceneBreak);
             m_highlighter->setFindRanges(&m_searchResults);
-            connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextHighlighter::setSceneBreak);
+            connect(this, &FormattableTextArea::sceneBreakChanged, m_highlighter, &TextFormatter::setSceneBreak);
         }
     }
 

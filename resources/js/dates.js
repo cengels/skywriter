@@ -1,88 +1,54 @@
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
-
-/** Determines whether a year is a leap year. */
-function isLeapYear(year) {
-    return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
-}
-
-/** Gets the number of days in a year. */
-function daysInYear(year) {
-    return isLeapYear(year) ? 366 : 365;
-}
-
-/** Gets the total number of days elapsed since the start of the year. */
-function dayInYear(date) {
-    let days = 0;
-
-    for (let month = 0; month < date.getMonth(); month++) {
-        days += daysInMonth(date.getFullYear(), month);
-    }
-
-    days += date.getDate();
-
-    return days;
-}
-
-/** Gets the number of days in a month. */
-function daysInMonth(year, month) {
-    return new Date(year, month, 0).getDate();
-}
-
-/** Gets the number of days that have elapsed since a given date. */
-function daysSince(date) {
-    const now = new Date();
-    let days = 0;
-
-    if (date.getFullYear() !== now.getFullYear()) {
-        days += dayInYear(date);
-
-        for (let year = date.getFullYear() + 1; year < now.getFullYear(); year++) {
-            days += daysInYear(year);
-        }
-    }
-
-    for (let month = date.getMonth(); month < now.getMonth(); month++) {
-        days += daysInMonth(date.getFullYear(), month);
-    }
-
-    days += now.getDate() - date.getDate();
-
-    return days;
-}
+const VOWELS = ['a', 'e', 'i', 'o', 'u', 'h'];
 
 /** Converts a date to a relative time string. */
 function relative(date) {
-    const daysAgo = daysSince(date);
+    const today = new Date().setHours(0, 0, 0, 0);
+    const msDifference = Date.now() - date.getTime();
+    const secsDifference = msDifference / 1000;
+    const minsDifference = secsDifference / 60;
+    const hoursDifference = minsDifference / 60;
+
+    // We calculate the days slightly differently.
+    // For instance, we don't want to display "16 hours ago"
+    // when it is May 3, 12 pm and the file was last saved on May 2, 8 pm.
+    // If the date differs, we never want to display "n hours ago".
+    // To accomplish this, we use the start of the day in POSIX time here
+    // instead of the now() value itself.
+    const daysDifference = (today - date.getTime()) / 1000 / 60 / 60 / 24;
 
     function ago(value, singular) {
         if (value === 1) {
-            return value + " " + singular + " ago";
+            const isVowel = VOWELS.some(vowel => singular.startsWith(vowel));
+            const article = isVowel ? 'an' : 'a';
+            return `${article} ${singular} ago`;
         }
 
-        return value + " " + singular + "s ago";
+        return `${value} ${singular}s ago`;
     }
 
-    if (daysAgo === 0) {
-        const msDifference = Date.now() - date.getTime();
-        const secsDifference = msDifference / 1000;
-        const minsDifference = secsDifference / 60;
-        const hoursDifference = minsDifference / 60;
-
-        if (minsDifference < 1) {
-            return "now";
-        } else if (hoursDifference < 1) {
-            return ago(Math.floor(minsDifference), "minute");
-        }
-
+    if (minsDifference < 1) {
+        return "now";
+    } else if (hoursDifference < 1) {
+        return ago(Math.floor(minsDifference), "minute");
+    } else if (daysDifference <= 0) {
+        // daysDifference will be negative if `date` is today.
         return ago(Math.floor(hoursDifference), "hour");
-    } else if (daysAgo === 1) {
+    } else if (daysDifference < 1) {
         return "yesterday at " + date.toLocaleTimeString(Qt.locale());
-    } else if (daysAgo <= 6) {
+    }
+    
+    const daysAgo = Math.floor(daysDifference + 1);
+
+    if (daysAgo < 7) {
         return daysAgo + " days ago";
     } else if (daysAgo < 30) {
         return ago(Math.round(daysAgo / 7), "week");
-    } else if (daysAgo < 365) {
-        return ago(Math.round(daysAgo / 30), "month")
+    }
+
+    const monthsAgo = Math.round(daysAgo / 30);
+
+    if (monthsAgo < 12) {
+        return ago(monthsAgo, "month");
     }
 
     return ago(Math.round(daysAgo / 365), "year");

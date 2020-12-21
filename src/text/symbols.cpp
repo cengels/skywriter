@@ -5,6 +5,14 @@ bool symbols::isWordSeparator(const QChar& character)
     return !character.isLetterOrNumber() && !word_separators_multiple.contains(character);
 }
 
+bool symbols::isNewLine(const QChar& character) {
+    return character == symbols::newline
+        || character == symbols::carriage_return
+        || character == symbols::paragraph_separator
+        || character == QChar::SpecialCharacter::LineFeed
+        || character == QChar::SpecialCharacter::LineSeparator;
+}
+
 QString symbols::sanitize(const QString& string)
 {
     QString newString;

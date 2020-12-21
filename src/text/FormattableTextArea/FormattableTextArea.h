@@ -74,7 +74,6 @@ class FormattableTextArea : public QQuickItem
     //! If true, emphasized text segments (enclosed in asterisks or underscores)
     //! will be underlined rather than italicized.
     Q_PROPERTY(bool underline MEMBER m_underline NOTIFY underlineChanged)
-    Q_PROPERTY(QString sceneBreak MEMBER m_sceneBreak NOTIFY sceneBreakChanged)
 
     public:
         explicit FormattableTextArea(QQuickItem *parent = nullptr);
@@ -253,7 +252,6 @@ class FormattableTextArea : public QQuickItem
 
         void firstLineIndentChanged();
         void underlineChanged();
-        void sceneBreakChanged(const QString& sceneBreak);
 
     private:
         void updateStyling();
@@ -277,6 +275,7 @@ class FormattableTextArea : public QQuickItem
 
         QUrl m_fileUrl;
         bool m_loading;
+        bool m_isUndoRedo;
 
         void setModified(bool modified);
         void setFileUrl(const QUrl& url);
@@ -307,11 +306,13 @@ class FormattableTextArea : public QQuickItem
         void updateParagraphCount();
         void updatePageCount();
 
+        void addHorizontalRule(QQuickTextNode& n, const QTextBlock& block, const qreal width, const QColor& color);
+        void addWrappedSelectionIndicator(QQuickTextNode& n, const QTextBlock& block, const QColor& color);
+
         QString m_searchString;
         SearchOptions m_searchFlags;
 
         bool m_underline;
-        QString m_sceneBreak;
 
         QTimer m_caretTimer;
         bool m_blinking;

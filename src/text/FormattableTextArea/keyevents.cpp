@@ -34,10 +34,19 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             event->accept();
             break;
         case Qt::Key_Back:
-        case Qt::Key_Backspace:
+        case Qt::Key_Backspace: {
+            bool moveBack = false;
             if (!m_textCursor.atStart() && !m_textCursor.hasSelection()) {
                 if (ctrl) {
                     selection::moveToPreviousWord(m_textCursor, QTextCursor::KeepAnchor);
+                } else if (m_textCursor.block().text().isEmpty() && !m_textCursor.atEnd()) {
+                    // Workaround for scene breaks. Backspacing on an empty block after a scene break
+                    // for some reason doesn't just delete the empty block but destroys the scene
+                    // break format as well (even though the same doesn't happen for headings),
+                    // so we basically simulate a Key_Delete deletion here and move the cursor
+                    // backwards by one.
+                    m_textCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                    moveBack = true;
                 } else {
                     m_textCursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
                 }
@@ -45,9 +54,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 
             remove();
 
+            if (moveBack) {
+                moveCursor(QTextCursor::MoveOperation::PreviousCharacter);
+            }
+
             updateActive();
             event->accept();
             break;
+        }
         case Qt::Key_Delete:
             if (!m_textCursor.atEnd() && !m_textCursor.hasSelection()) {
                 if (ctrl) {
@@ -87,7 +101,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             bool hadSelection = m_textCursor.hasSelection();
             const QString text = symbols::sanitize(event->text());
 
-            if (!text.isEmpty()) {
+            if (!text.isEmpty() && (m_textCursor.blockFormat() != format::sceneBreakFormat || symbols::isNewLine(text[0]))) {
                 const int selectionStart = m_textCursor.selectionStart();
                 const int selectionEnd = m_textCursor.selectionEnd();
                 const QChar& previousCharacter = m_document->characterAt(selectionStart - 1);
@@ -112,6 +126,8 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 }
 
                 if (m_textCursor.block().text().isEmpty()) {
+                    // Ensures that new blocks always go back to the default
+                    // block format instead of continuing in e.g. heading format.
                     m_textCursor.joinPreviousEditBlock();
                     m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
                     m_textCursor.endEditBlock();

@@ -180,20 +180,6 @@ double FormattableTextArea::contentHeight() const
     return m_document ? m_document->size().height() + m_overflowArea * 2 : -1;
 }
 
-QRectF FormattableTextArea::caretRectangle() const
-{
-    const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
-
-    if (!line.isValid()) {
-        // Without this check, the program crashes when user clicks "new".
-        return QRect();
-    }
-
-    const qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
-
-    return QRectF(x, line.y() + m_textCursor.block().layout()->position().y() + m_overflowArea - m_contentY, 1, line.height());
-}
-
 void FormattableTextArea::setReplacement(const QString& target, const QString& replaceWith)
 {
     m_replacer.setReplacement(target, replaceWith);

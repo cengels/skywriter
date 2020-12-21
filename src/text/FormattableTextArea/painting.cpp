@@ -14,6 +14,11 @@
 #include "FormattableTextArea.h"
 #include "../../theming/ThemeManager.h"
 #include "../format.h"
+#include "../UserData.h"
+
+namespace {
+    constexpr int WIDTH_HORIZONTAL_RULE = 400;
+}
 
 bool FormattableTextArea::event(QEvent* event)
 {
@@ -53,7 +58,7 @@ void FormattableTextArea::updateStyling()
 
     QTextCursor cursor(m_document);
     cursor.select(QTextCursor::Document);
-    format::normalize(cursor, theme, m_sceneBreak);
+    format::normalize(cursor, theme);
 
     if (!wasModified) {
         this->setModified(false);
@@ -123,7 +128,10 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             }
         }
 
-        if (!block.text().isEmpty()) {
+        if (block.blockFormat() == format::sceneBreakFormat) {
+            this->addHorizontalRule(*n, block, WIDTH_HORIZONTAL_RULE, fontColor);
+            continue;
+        } else if (!block.text().isEmpty()) {
             n->addTextLayout(QPointF(blockPosition.x(), blockPosition.y() + m_overflowArea - m_contentY),
                              block.layout(),
                              fontColor,
@@ -140,13 +148,7 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
             // If the selection exceeds the current block, adds a rectangle at
             // the end to indicate that the paragraph separator is included
             // in the selection.
-            const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
-            n->addRectangleNode(
-                        QRectF(blockPosition.x() + lastLine.naturalTextRect().x() + lastLine.naturalTextWidth(),
-                               blockPosition.y() + m_overflowArea - m_contentY + lastLine.y(),
-                               10,
-                               lastLine.height()),
-                        fontColor);
+            this->addWrappedSelectionIndicator(*n, block, fontColor);
         }
 
         if (m_highlighter) {
@@ -161,4 +163,47 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
     }
 
     return n;
+}
+
+QRectF FormattableTextArea::caretRectangle() const
+{
+    const QTextLine& line = m_textCursor.block().layout()->lineForTextPosition(m_textCursor.positionInBlock());
+
+    if (!line.isValid()) {
+        // Without this check, the program crashes when user clicks "new".
+        return QRect();
+    }
+
+    qreal x = line.cursorToX(m_textCursor.positionInBlock()) + m_document->documentLayout()->blockBoundingRect(m_textCursor.block()).topLeft().x();
+
+    if (m_textCursor.block().blockFormat() == format::sceneBreakFormat) {
+        x += qMin((qreal)WIDTH_HORIZONTAL_RULE, line.width()) / 2;
+    }
+
+    return QRectF(x, line.y() + m_textCursor.block().layout()->position().y() + m_overflowArea - m_contentY, 1, line.height());
+}
+
+void FormattableTextArea::addHorizontalRule(QQuickTextNode& n, const QTextBlock& block, const qreal width, const QColor& color) {
+    const qreal lineWidth = block.layout()->lineAt(0).width();
+    const qreal ruleWidth = qMin(width, lineWidth);
+    QPointF blockPosition = block.layout()->position();
+
+    n.addRectangleNode(
+                QRectF(blockPosition.x() + (lineWidth / 2 - ruleWidth / 2),
+                        blockPosition.y() + m_overflowArea - m_contentY + block.layout()->lineAt(0).height() / 2,
+                        ruleWidth,
+                        1),
+                color);
+}
+
+void FormattableTextArea::addWrappedSelectionIndicator(QQuickTextNode& n, const QTextBlock& block, const QColor& color) {
+    const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
+    QPointF blockPosition = block.layout()->position();
+
+    n.addRectangleNode(
+                QRectF(blockPosition.x() + lastLine.naturalTextRect().x() + lastLine.naturalTextWidth(),
+                        blockPosition.y() + m_overflowArea - m_contentY + lastLine.y(),
+                        10,
+                        lastLine.height()),
+                color);
 }

@@ -6,7 +6,6 @@ Sky.Settings {
     category: "document"
     property string lastFile
     property int caretPosition
-    property string sceneBreak: "# # #"
     property var autoReplacements: [
         ["\"", "“", "”"],
         ["'", "‘", "’"]

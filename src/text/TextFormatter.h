@@ -15,20 +15,15 @@
 class TextFormatter : public QSyntaxHighlighter
 {
     Q_OBJECT
-    Q_PROPERTY(QString sceneBreak READ sceneBreak WRITE setSceneBreak NOTIFY sceneBreakChanged)
 
     public:
         TextFormatter(QTextDocument *parent);
-
-        const QString& sceneBreak() const;
-        void setSceneBreak(const QString& sceneBreakString);
 
         bool refreshing() const;
         void refresh();
 
     Q_SIGNALS:
         void commentsChanged();
-        void sceneBreakChanged();
 
     protected:
         void highlightBlock(const QString &text) override;
@@ -41,7 +36,6 @@ class TextFormatter : public QSyntaxHighlighter
 
         void highlightComments(const QString& text);
         void highlightHeadings();
-        void highlightSceneBreaks(const QString& text);
 
         void setCharFormat(int blockPosition, int length, const QTextCharFormat& format);
         void setColor(int blockPosition, int length, const QColor& color);
@@ -58,7 +52,6 @@ class TextFormatter : public QSyntaxHighlighter
         void mergeFormats();
 
         bool m_refreshing;
-        QString m_sceneBreakString;
         const QVector<Range<int>>* m_findRanges;
         QVector<QTextLayout::FormatRange> m_formats;
 };

@@ -57,13 +57,9 @@ void FormattableTextArea::applyHeading(int level)
 
 void FormattableTextArea::insertSceneBreak()
 {
-    if (m_sceneBreak.isEmpty()) {
-        return;
-    }
-
     m_textCursor.beginEditBlock();
 
-    format::insertSceneBreak(m_textCursor, m_sceneBreak);
+    format::insertSceneBreak(m_textCursor);
 
     m_textCursor.endEditBlock();
 }
@@ -97,16 +93,28 @@ void FormattableTextArea::paste()
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasHtml()) {
+        m_textCursor.beginEditBlock();
+        if (m_textCursor.blockFormat() == format::sceneBreakFormat) {
+            m_textCursor.insertBlock(ThemeManager::instance()->activeTheme()->blockFormat());
+        }
+
         m_textCursor.insertHtml(mimeData->html());
         int newPosition = m_textCursor.position();
         m_textCursor.setPosition(previousPosition);
         m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
         insertedString = m_textCursor.selectedText();
-        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme(), m_sceneBreak);
+        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme());
         m_textCursor.clearSelection();
+        m_textCursor.endEditBlock();
     } else if (mimeData->hasText()) {
+        m_textCursor.beginEditBlock();
+        if (m_textCursor.blockFormat() == format::sceneBreakFormat) {
+            m_textCursor.insertBlock(ThemeManager::instance()->activeTheme()->blockFormat());
+        }
+
         insertedString = mimeData->text();
         m_textCursor.insertText(mimeData->text());
+        m_textCursor.endEditBlock();
     } else {
         return;
     }
@@ -175,15 +183,15 @@ void FormattableTextArea::cut()
 void FormattableTextArea::undo()
 {
     bool hadSelection = m_textCursor.hasSelection();
+    m_isUndoRedo = true;
     m_document->undo(&m_textCursor);
+    m_isUndoRedo = false;
     updateActive();
     emit caretPositionChanged();
 
     if (hadSelection) {
         emit selectedTextChanged();
     }
-
-    refreshDocumentStructure();
 
     if (!m_searchString.isEmpty()) {
         find(m_searchString, m_searchFlags);
@@ -193,18 +201,14 @@ void FormattableTextArea::undo()
 void FormattableTextArea::redo()
 {
     bool hadSelection = m_textCursor.hasSelection();
+    m_isUndoRedo = true;
     m_document->redo(&m_textCursor);
+    m_isUndoRedo = false;
     updateActive();
     emit caretPositionChanged();
 
     if (hadSelection) {
         emit selectedTextChanged();
-    }
-
-    refreshDocumentStructure();
-
-    if (!m_searchString.isEmpty()) {
-        find(m_searchString, m_searchFlags);
     }
 }
 

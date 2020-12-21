@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include "format.h"
+#include "UserData.h"
 #include "../theming/ThemeManager.h"
 
 namespace {
@@ -29,14 +30,6 @@ namespace {
             merger.setFontStrikeOut(false);
         }
     }
-
-    const QTextBlockFormat sceneBreakFormat = [] {
-        QTextBlockFormat format;
-        format.setAlignment(Qt::AlignHCenter);
-        format.setTopMargin(80);
-        format.setBottomMargin(80);
-        return format;
-    }();
 }
 
 const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
@@ -90,7 +83,7 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
     return mergedFormat;
 }
 
-void format::normalize(QTextCursor& textCursor, const Theme* theme, const QString& sceneBreakString)
+void format::normalize(QTextCursor& textCursor, const Theme* theme)
 {
     if (!textCursor.hasSelection())
         return;
@@ -109,17 +102,8 @@ void format::normalize(QTextCursor& textCursor, const Theme* theme, const QStrin
             iterationCursor.setBlockFormat(headingFormat.blockFormat());
             iterationCursor.select(QTextCursor::BlockUnderCursor);
             iterationCursor.mergeCharFormat(theme->charFormat());
-        } else {
-            if (iterationCursor.block().userState() != -1 && iterationCursor.block().userState() & BlockState::SceneBreak) {
-                if (iterationCursor.block().text() != sceneBreakString) {
-                    insertSceneBreak(iterationCursor, sceneBreakString);
-                }
-            } else if (iterationCursor.block().text() == sceneBreakString) {
-                insertSceneBreak(iterationCursor, sceneBreakString, true);
-            } else {
-                iterationCursor.setBlockFormat(theme->blockFormat());
-            }
-
+        } else if (iterationCursor.block().blockFormat() != format::sceneBreakFormat) {
+            iterationCursor.setBlockFormat(theme->blockFormat());
             iterationCursor.select(QTextCursor::BlockUnderCursor);
             iterationCursor.mergeCharFormat(theme->charFormat());
         }
@@ -149,34 +133,15 @@ void format::mergeBlockCharFormat(const QTextCursor& textCursor, const QTextChar
     tempCursor.mergeCharFormat(format);
 }
 
-void format::insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakText, bool replaceBlock)
+void format::insertSceneBreak(QTextCursor& textCursor)
 {
-    if (sceneBreakText.isEmpty()) {
-        return;
-    }
-
-    if (!textCursor.block().text().isEmpty() && textCursor.block().text() != sceneBreakText && !replaceBlock) {
+    if (!textCursor.block().text().isEmpty()) {
         textCursor.insertBlock();
     }
 
-    if (!replaceBlock && ((textCursor.block().userState() != -1 && textCursor.block().userState() & format::SceneBreak) || textCursor.block().text() == sceneBreakText)) {
-        // Remove scene break if already exists.
-        textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-        textCursor.removeSelectedText();
-    } else {
-        if (!textCursor.block().text().isEmpty()) {
-            textCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-            textCursor.removeSelectedText();
-            textCursor.insertBlock();
-        }
-
-        textCursor.block().setUserState((textCursor.block().userState() == -1 ? 0 : textCursor.block().userState()) | format::SceneBreak);
-        textCursor.setBlockFormat(sceneBreakFormat);
-        textCursor.insertText(sceneBreakText);
-    }
-}
-
-bool format::isSceneBreak(QTextCursor& textCursor)
-{
-    return textCursor.block().blockFormat() == sceneBreakFormat;
+    const QTextBlockFormat& format = textCursor.block().blockFormat() == format::sceneBreakFormat
+        ? ThemeManager::instance()->activeTheme()->blockFormat()
+        : format::sceneBreakFormat;
+        
+    textCursor.setBlockFormat(format);
 }

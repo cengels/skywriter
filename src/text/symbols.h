@@ -45,6 +45,8 @@ namespace symbols {
     const QSet<QChar> smart_replacement_prefixes { space, newline, paragraph_separator, carriage_return };
     //! Checks if the given character is a word separator.
     bool isWordSeparator(const QChar& character);
+    //! Checks if the character is one of the valid line break characters.
+    bool isNewLine(const QChar& character);
     //! Checks if a given character is an apostrophe.
     bool isApostrophe(const QChar& character);
     //! Checks if the string contains a word separator.

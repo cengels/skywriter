@@ -29,9 +29,7 @@ namespace {
 
     void writeBlankLine(QTextStream& stream)
     {
-        stream << "<br/>";
-        stream << symbols::newline;
-        stream << symbols::newline;
+        stream << "<br/>" << symbols::newline << symbols::newline;
     }
 
     void writeFragment(QTextStream& stream, const QTextFragment fragment, QStack<QString>& marks, bool firstFragment)
@@ -83,6 +81,11 @@ namespace {
     {
         const QTextBlockFormat& format = block.blockFormat();
 
+        if (block.blockFormat() == format::sceneBreakFormat) {
+            stream << "---" << symbols::newline << symbols::newline;
+            return;
+        }
+
         if (block.text().isEmpty()) {
             writeBlankLine(stream);
 
@@ -105,8 +108,7 @@ namespace {
             stream << marks.pop();
         }
 
-        stream << symbols::newline;
-        stream << symbols::newline;
+        stream << symbols::newline << symbols::newline;
     }
 }
 
@@ -154,12 +156,11 @@ const QTextCharFormat MarkdownParser::CHAR_FORMAT_STRIKETHROUGH_INV = []{
     return format;
 }();
 
-MarkdownParser::MarkdownParser(QTextDocument* document, const QString& sceneBreakString) :
+MarkdownParser::MarkdownParser(QTextDocument* document) :
     m_document(document),
     m_textCursor(new QTextCursor(document)),
     m_formatStack(),
-    m_flags(None),
-    m_sceneBreakString(sceneBreakString)
+    m_flags(None)
 {
     m_parse_info = {
         0, // abi_version
@@ -174,12 +175,11 @@ MarkdownParser::MarkdownParser(QTextDocument* document, const QString& sceneBrea
     };
 }
 
-MarkdownParser::MarkdownParser(QTextCursor* cursor, const QString& sceneBreakString) :
+MarkdownParser::MarkdownParser(QTextCursor* cursor) :
     m_document(cursor->document()),
     m_textCursor(cursor),
     m_formatStack(),
-    m_flags(None),
-    m_sceneBreakString(sceneBreakString)
+    m_flags(None)
 {
     m_parse_info = {
         0, // abi_version
@@ -196,12 +196,12 @@ MarkdownParser::MarkdownParser(QTextCursor* cursor, const QString& sceneBreakStr
 
 void MarkdownParser::parse(const QString& string)
 {
+    m_document->setUndoRedoEnabled(false);
     m_document->clear();
     QByteArray byteArray = string.toUtf8();
 
-    m_textCursor->beginEditBlock();
     md_parse(byteArray.constData(), MD_SIZE(byteArray.size()), &m_parse_info, this);
-    m_textCursor->endEditBlock();
+    m_document->setUndoRedoEnabled(true);
 }
 
 QString MarkdownParser::stringify() const
@@ -260,6 +260,11 @@ int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail)
         return 0;
     }
 
+    if (type == MD_BLOCK_HR) {
+        m_textCursor->insertBlock(format::sceneBreakFormat);
+        return 0;
+    }
+
     if (type == MD_BLOCK_H)
     {
         const auto* headingDetail = static_cast<MD_BLOCK_H_DETAIL*>(detail);
@@ -291,10 +296,6 @@ int MarkdownParser::onLeaveBlock(MD_BLOCKTYPE type, void* detail)
 {
     Q_UNUSED(type);
     Q_UNUSED(detail);
-
-    if (type == MD_BLOCK_P && m_textCursor->block().text() == m_sceneBreakString) {
-        format::insertSceneBreak(*m_textCursor, m_sceneBreakString, true);
-    }
 
     return 0;
 }

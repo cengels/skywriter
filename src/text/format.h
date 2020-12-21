@@ -2,10 +2,20 @@
 #define FORMAT_H
 
 #include <QTextCursor>
+#include <QTextBlockFormat>
+#include <QTextCharFormat>
 #include "../theming/Theme.h"
 
 //! Contains convenience methods related to text formatting.
 namespace format {
+    const QTextBlockFormat sceneBreakFormat = [] {
+        QTextBlockFormat format;
+        format.setAlignment(Qt::AlignHCenter);
+        format.setTopMargin(80);
+        format.setBottomMargin(80);
+        return format;
+    }();
+
     //! Gets a new QTextCharFormat containing all the formats found in the text
     //! cursor's selection, or at its position if no text is selected.
     //! This function only returns the value if the entire range is styled.
@@ -15,13 +25,11 @@ namespace format {
     const QTextCharFormat getMergedCharFormat(const QTextCursor& textCursor);
     //! Normalizes the format in the QTextCursor's selected range by making
     //! sure it conforms to the standards of the passed Theme.
-    void normalize(QTextCursor& textCursor, const Theme* theme, const QString& sceneBreakString);
+    void normalize(QTextCursor& textCursor, const Theme* theme);
     //! Merges the given char format into all currently selected blocks.
     //! Like QTextCursor::mergeBlockCharFormat, but actually works.
     void mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format);
-    void insertSceneBreak(QTextCursor& textCursor, const QString sceneBreakText, bool replaceBlock = false);
-    //! Checks if the block underneath the cursor is a scene break.
-    bool isSceneBreak(QTextCursor& textCursor);
+    void insertSceneBreak(QTextCursor& textCursor);
 
     enum BlockState {
         None = 0x0,

@@ -484,9 +484,6 @@ ApplicationWindow {
                     clip: true
                     property bool changedSinceLastAutosave: false
 
-                    // User-configurable properties
-                    sceneBreak: Settings.Document.sceneBreak
-
                     Keys.onPressed: {
                         const maxScroll = 1.0 - verticalScrollbar.size
                         if (event.key === Qt.Key_Home) {

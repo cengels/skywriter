@@ -24,6 +24,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_overflowArea(0.0)
     , m_fileUrl()
     , m_loading(false)
+    , m_isUndoRedo(false)
     , m_characterCount(0)
     , m_selectedCharacterCount(0)
     , m_wordCount(0)
@@ -35,7 +36,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_searchString()
     , m_searchFlags()
     , m_underline(false)
-    , m_sceneBreak()
     , m_caretTimer(this)
     , m_blinking(false)
     , m_activeWordCounters(0)
@@ -125,8 +125,6 @@ void FormattableTextArea::connectDocument()
             m_formatter->setDocument(m_document);
         } else {
             m_formatter = new TextFormatter(m_document);
-            m_formatter->setSceneBreak(m_sceneBreak);
-            connect(this, &FormattableTextArea::sceneBreakChanged, m_formatter, &TextFormatter::setSceneBreak);
         }
 
         if (m_highlighter) {
@@ -158,23 +156,13 @@ void FormattableTextArea::connectDocument()
 
 void FormattableTextArea::handleTextChange(const int position, const int removed, const int added)
 {
-    // TODO: Fix this. For some reason, using edit blocks here doesn't work.
-    // The undo manager just stops working for some reason and you can't undo
-    // anything anymore.
-    if (format::isSceneBreak(m_textCursor) && m_textCursor.block().text() != m_sceneBreak) {
-        m_textCursor.joinPreviousEditBlock();
-        m_textCursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
-        m_textCursor.endEditBlock();
-    } else if (!format::isSceneBreak(m_textCursor) && m_textCursor.block().text() == m_sceneBreak) {
-        m_textCursor.joinPreviousEditBlock();
-        format::insertSceneBreak(m_textCursor, m_sceneBreak, true);
-        m_textCursor.endEditBlock();
+    if (m_loading) {
+        return;
     }
 
-    updateCounts();
-    updateFindRanges();
-
     if (added != 0 || removed != 0) {
+        updateCounts();
+        updateFindRanges();
         updateDocumentStructure(position, added, removed);
         emit textChanged(position, added, removed);
     }
@@ -210,6 +198,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     }
 
     m_loading = true;
+    m_document->setUndoRedoEnabled(false);
     emit loadingChanged();
 
     clearMatches();
@@ -223,7 +212,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
         const QString fileType = QFileInfo(file).suffix();
 
         if (fileType == persistence::format_markdown) {
-            MarkdownParser(m_document, m_sceneBreak).parse(text);
+            MarkdownParser(m_document).parse(text);
         } else {
             m_document->setPlainText(text);
         }
@@ -237,6 +226,7 @@ void FormattableTextArea::load(const QUrl &fileUrl)
     }
 
     m_loading = false;
+    m_document->setUndoRedoEnabled(true);
     emit loadingChanged();
 }
 
@@ -254,7 +244,7 @@ void FormattableTextArea::saveAs(const QUrl &fileUrl, bool keepBackup)
     bool success = persistence::overwrite(file, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
     {
         if (fileType == persistence::format_markdown) {
-            MarkdownParser(m_document, m_sceneBreak).write(stream);
+            MarkdownParser(m_document).write(stream);
         } else if (fileType.contains(persistence::format_html)) {
             stream << m_document->toHtml().toUtf8();
         } else {
@@ -288,7 +278,7 @@ void FormattableTextArea::backup()
     bool success = persistence::overwrite(backupFile, static_cast<std::function<bool(QTextStream&)>>([&](QTextStream& stream)
     {
         if (fileType == persistence::format_markdown) {
-            MarkdownParser(m_document, m_sceneBreak).write(stream);
+            MarkdownParser(m_document).write(stream);
         } else if (fileType.contains(persistence::format_html)) {
             stream << m_document->toHtml().toUtf8();
         } else {
@@ -360,8 +350,7 @@ void FormattableTextArea::moveCursor(QTextCursor::MoveOperation op, QTextCursor:
 
 void FormattableTextArea::clearUndoStack()
 {
-    m_document->setUndoRedoEnabled(false);
-    m_document->setUndoRedoEnabled(true);
+    m_document->clearUndoRedoStacks(QTextDocument::Stacks::UndoAndRedoStacks);
 }
 
 void FormattableTextArea::mergeFormat(const QTextCharFormat &format)

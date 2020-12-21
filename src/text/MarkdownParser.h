@@ -16,11 +16,11 @@ class MarkdownParser
         //! Constructs a new MarkdownParser with the specified document
         //! and creates a new cursor that will iterate through the document
         //! from beginning to end.
-        MarkdownParser(QTextDocument* document, const QString& sceneBreakString);
+        MarkdownParser(QTextDocument* document);
         //! Constructs a new MarkdownParser from the specified QTextCursor
         //! and iterates through the document from the cursor's current
         //! position.
-        MarkdownParser(QTextCursor* cursor, const QString& sceneBreakString);
+        MarkdownParser(QTextCursor* cursor);
 
         //! Parses the specified string as markdown and inserts it into the
         //! document at the cursor's position.
@@ -65,7 +65,6 @@ class MarkdownParser
         QTextCursor* m_textCursor;
         QStack<QTextCharFormat> m_formatStack;
         int m_flags;
-        const QString m_sceneBreakString;
 };
 
 #endif // MARKDOWNPARSER_H

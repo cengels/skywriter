@@ -25,7 +25,6 @@ namespace {
 
 TextFormatter::TextFormatter(QTextDocument* parent) : QSyntaxHighlighter(parent),
     m_refreshing(true),
-    m_sceneBreakString(),
     m_findRanges(nullptr)
 {
     connection = connect(ThemeManager::instance()->activeTheme(), &Theme::fontColorChanged, this, &TextFormatter::refresh);
@@ -40,12 +39,7 @@ TextFormatter::TextFormatter(QTextDocument* parent) : QSyntaxHighlighter(parent)
 void TextFormatter::highlightBlock(const QString& text)
 {
     highlightHeadings();
-    highlightSceneBreaks(text);
     highlightComments(text);
-
-    if (checkCurrentBlockStateFlag(format::BlockState::NeedsUpdate)) {
-        unsetCurrentBlockStateFlag(format::BlockState::NeedsUpdate);
-    }
 
     mergeFormats();
 }
@@ -122,15 +116,6 @@ void TextFormatter::highlightHeadings()
     if (headingLevel > 0) {
         setCurrentBlockStateFlag(format::Heading);
         setBlockFormat(ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
-    }
-}
-
-void TextFormatter::highlightSceneBreaks(const QString& text)
-{
-    if (text == m_sceneBreakString) {
-        QTextCharFormat charFormat;
-        charFormat.setFontPointSize(ThemeManager::instance()->activeTheme()->fontSize() * 1.25);
-        setBlockFormat(charFormat);
     }
 }
 
@@ -218,16 +203,6 @@ void TextFormatter::refresh()
     this->m_refreshing = true;
     this->rehighlight();
     this->m_refreshing = false;
-}
-
-const QString& TextFormatter::sceneBreak() const
-{
-    return m_sceneBreakString;
-}
-
-void TextFormatter::setSceneBreak(const QString& sceneBreakString)
-{
-    m_sceneBreakString = sceneBreakString;
 }
 
 bool TextFormatter::refreshing() const

@@ -36,13 +36,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
 
         if (targetSegment) {
             emit targetSegment->textChanged();
-
-            if (position == 0
-                    || symbols::isWordSeparator(m_document->characterAt(position - 1))
-                    || removed > 0 // If text was removed, it's impossible to guarantee it didn't contain word separators.
-                    || (added > 1 && symbols::containsWordSeparator(m_document->toRawText().mid(position, added)))) {
-                targetSegment->countWordsAsync();
-            }
+            targetSegment->countWordsAsync();
         }
     } else if (change < 0) {
         // Text was removed.
@@ -84,10 +78,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
 
         if (targetSegment) {
             emit targetSegment->textChanged();
-
-            if (symbols::isWordSeparator(m_document->characterAt(position - 1))) {
-                targetSegment->countWordsAsync();
-            }
+            targetSegment->countWordsAsync();
         }
     }
 }

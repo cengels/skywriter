@@ -6,7 +6,10 @@
 #include <QTextBlock>
 #include <private/qquicktextnode_p.h>
 
+#include "FormattableTextArea/FormattableTextArea.h"
 #include "../Range.h"
+
+class FormattableTextArea;
 
 //! The TextHighlighter is responsible for highlighting parts
 //! of a QTextDocument based on external properties and syntax.
@@ -20,21 +23,22 @@ class TextHighlighter : public QObject
     Q_OBJECT
 
     public:
-        TextHighlighter(QTextDocument *parent);
+        TextHighlighter(FormattableTextArea* parent);
 
         const QVector<Range<int>>& findRanges() const;
         void setFindRanges(const QVector<Range<int>>& ranges);
 
         void highlightBlock(QQuickTextNode& documentNode, const QTextBlock& block);
-        void startHighlighting(int atY);
+        void startHighlighting();
 
     Q_SIGNALS:
         void needsRepaint();
 
     private:
+        FormattableTextArea* textArea() const;
+
         QVector<Range<int>> m_findRanges;
         QVector<Range<int>>::const_iterator m_findRangeIterator;
-        int m_atY;
 };
 
 #endif // TEXTHIGHLIGHTER_H

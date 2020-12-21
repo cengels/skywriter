@@ -10,11 +10,14 @@ namespace {
     }
 }
 
-TextHighlighter::TextHighlighter(QTextDocument* parent) : QObject(parent),
+TextHighlighter::TextHighlighter(FormattableTextArea* parent) : QObject(parent),
     m_findRanges(QVector<Range<int>>()),
-    m_findRangeIterator(m_findRanges.constBegin()),
-    m_atY(0)
+    m_findRangeIterator(m_findRanges.constBegin())
 { }
+
+FormattableTextArea* TextHighlighter::textArea() const {
+    return static_cast<FormattableTextArea*>(this->parent());
+}
 
 const QVector<Range<int>>& TextHighlighter::findRanges() const
 {
@@ -27,14 +30,19 @@ void TextHighlighter::setFindRanges(const QVector<Range<int>>& ranges)
     emit this->needsRepaint();
 }
 
-void TextHighlighter::startHighlighting(int atY)
+void TextHighlighter::startHighlighting()
 {
     m_findRangeIterator = m_findRanges.constBegin();
-    m_atY = atY;
 }
 
 void TextHighlighter::highlightBlock(QQuickTextNode& documentNode, const QTextBlock& block)
 {
+    FormattableTextArea* textArea = this->textArea();
+
+    if (!textArea) {
+        return;
+    }
+
     while (m_findRangeIterator != m_findRanges.constEnd()
         && m_findRangeIterator->from() < block.position()
         && m_findRangeIterator->to() < block.position()) {
@@ -42,6 +50,7 @@ void TextHighlighter::highlightBlock(QQuickTextNode& documentNode, const QTextBl
     }
 
     int baseX = block.document()->documentLayout()->blockBoundingRect(block).topLeft().x();
+    double atY = textArea->overflowArea() - textArea->contentY();
 
     while (m_findRangeIterator != m_findRanges.constEnd()) {
         if (!block.contains(m_findRangeIterator->from()) || !block.contains(m_findRangeIterator->to())) {
@@ -58,7 +67,7 @@ void TextHighlighter::highlightBlock(QQuickTextNode& documentNode, const QTextBl
         qreal width = isSameLine
             ? endLine.cursorToX(blockEnd, QTextLine::Edge::Trailing) + baseX - startX
             : startLine.width() + baseX - startX;
-        const QRectF rect = QRectF(startX, startLine.y() + m_atY + block.layout()->position().y(),
+        const QRectF rect = QRectF(startX, startLine.y() + atY + block.layout()->position().y(),
                                    width, startLine.height());
         documentNode.addRectangleNode(rect, searchMatchBackground());
 
@@ -67,14 +76,14 @@ void TextHighlighter::highlightBlock(QQuickTextNode& documentNode, const QTextBl
                 // Range spans at least three lines
                 QTextLine midStartLine = block.layout()->lineAt(startLine.lineNumber() + 1);
                 QTextLine midEndLine = block.layout()->lineAt(endLine.lineNumber() - 1);
-                const QRectF midRect = QRectF(midStartLine.position().x() + baseX, midStartLine.y() + m_atY + block.layout()->position().y(),
+                const QRectF midRect = QRectF(midStartLine.position().x() + baseX, midStartLine.y() + atY + block.layout()->position().y(),
                                               midStartLine.width(), midEndLine.position().y() + midEndLine.height() - midStartLine.position().y());
                 documentNode.addRectangleNode(midRect, searchMatchBackground());
             }
 
             // Range spans two or more lines
             qreal endX = endLine.position().x() + baseX;
-            const QRectF endRect = QRectF(endX, endLine.y() + m_atY + block.layout()->position().y(),
+            const QRectF endRect = QRectF(endX, endLine.y() + atY + block.layout()->position().y(),
                                           endLine.cursorToX(blockEnd, QTextLine::Edge::Trailing) + baseX - endX, endLine.height());
             documentNode.addRectangleNode(endRect, searchMatchBackground());
         }

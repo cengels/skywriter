@@ -91,7 +91,7 @@ QSGNode* FormattableTextArea::updatePaintNode(QSGNode *oldNode, QQuickItem::Upda
     const bool hasSelection = m_textCursor.hasSelection();
 
     if (m_highlighter) {
-        m_highlighter->startHighlighting(m_overflowArea - m_contentY);
+        m_highlighter->startHighlighting();
     }
 
     const QTextBlock& end = this->m_document->end();

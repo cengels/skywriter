@@ -32,7 +32,7 @@ class FormattableTextArea : public QQuickItem
     Q_OBJECT
 
     //! The scroll position of the FormattableTextArea in absolute y pixels.
-    Q_PROPERTY(double contentY WRITE setContentY MEMBER m_contentY NOTIFY contentYChanged)
+    Q_PROPERTY(double contentY READ contentY WRITE setContentY NOTIFY contentYChanged)
 
     Q_PROPERTY(int caretPosition READ caretPosition WRITE setCaretPosition NOTIFY caretPositionChanged)
 
@@ -67,7 +67,7 @@ class FormattableTextArea : public QQuickItem
 
     Q_PROPERTY(double contentWidth READ contentWidth NOTIFY contentWidthChanged)
     Q_PROPERTY(double contentHeight READ contentHeight NOTIFY contentHeightChanged)
-    Q_PROPERTY(double overflowArea MEMBER m_overflowArea NOTIFY overflowAreaChanged)
+    Q_PROPERTY(double overflowArea READ overflowArea WRITE setOverflowArea NOTIFY overflowAreaChanged)
 
     Q_PROPERTY(int searchResultCount READ searchResultCount NOTIFY searchResultCountChanged)
 
@@ -107,7 +107,11 @@ class FormattableTextArea : public QQuickItem
         DocumentSegment* currentDocumentSegment() const;
         DocumentSegment* findDocumentSegment(int position) const;
 
+        double contentY() const;
         void setContentY(double contentY);
+
+        double overflowArea() const;
+        void setOverflowArea(double overflowArea);
 
         int caretPosition() const;
         void setCaretPosition(int caretPosition);

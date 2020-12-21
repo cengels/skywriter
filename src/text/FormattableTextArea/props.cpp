@@ -24,10 +24,28 @@ const QVector<DocumentSegment*>& FormattableTextArea::documentStructure() const
     return m_documentStructure;
 }
 
+double FormattableTextArea::contentY() const
+{
+    return m_contentY;
+}
+
 void FormattableTextArea::setContentY(double contentY)
 {
     m_contentY = contentY;
     emit contentYChanged();
+
+    update();
+}
+
+double FormattableTextArea::overflowArea() const
+{
+    return m_overflowArea;
+}
+
+void FormattableTextArea::setOverflowArea(double overflowArea)
+{
+    m_overflowArea = overflowArea;
+    emit overflowAreaChanged();
 
     update();
 }

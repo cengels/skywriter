@@ -23,13 +23,9 @@ namespace format {
     //! italicized and half the range is not, the resulting format will have
     //! fontItalics() set to false.
     const QTextCharFormat getMergedCharFormat(const QTextCursor& textCursor);
-    //! Normalizes the format in the QTextCursor's selected range by making
-    //! sure it conforms to the standards of the passed Theme.
-    void normalize(QTextCursor& textCursor, const Theme* theme);
-    //! Merges the given char format into all currently selected blocks.
-    //! Like QTextCursor::mergeBlockCharFormat, but actually works.
-    void mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format);
     void insertSceneBreak(QTextCursor& textCursor);
+    //! Clears all non-user-defined formats from the QTextCursor's selection.
+    void clearFormat(QTextCursor& textCursor);
 
     enum BlockState {
         None = 0x0,

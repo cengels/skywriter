@@ -283,10 +283,8 @@ int MarkdownParser::onEnterBlock(MD_BLOCKTYPE type, void* detail)
     if (m_flags & ParserFlags::NoNewBlockNeeded) {
         m_flags &= ~ParserFlags::NoNewBlockNeeded;
         m_textCursor->setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
-        m_textCursor->setBlockCharFormat(ThemeManager::instance()->activeTheme()->charFormat());
     } else {
-        m_textCursor->insertBlock(ThemeManager::instance()->activeTheme()->blockFormat(),
-                                  ThemeManager::instance()->activeTheme()->charFormat());
+        m_textCursor->insertBlock(ThemeManager::instance()->activeTheme()->blockFormat());
     }
 
     return 0;

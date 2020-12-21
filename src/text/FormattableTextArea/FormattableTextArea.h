@@ -259,6 +259,7 @@ class FormattableTextArea : public QQuickItem
 
     private:
         void updateStyling();
+        void updateDocumentDefaults();
 
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);

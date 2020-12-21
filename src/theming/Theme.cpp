@@ -220,6 +220,7 @@ const QTextCharFormat Theme::charFormat() const
 
     format.setFontFamily(fontFamily());
     format.setFontPointSize(fontSize());
+    format.setProperty(QTextFormat::FontSizeAdjustment, 0);
     format.setForeground(fontColor());
     format.setFontUnderline(false);
     format.setAnchor(false);

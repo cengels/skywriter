@@ -83,56 +83,6 @@ const QTextCharFormat format::getMergedCharFormat(const QTextCursor& textCursor)
     return mergedFormat;
 }
 
-void format::normalize(QTextCursor& textCursor, const Theme* theme)
-{
-    if (!textCursor.hasSelection())
-        return;
-
-    int endingBlock = textCursor.document()->findBlock(textCursor.selectionEnd()).blockNumber();
-
-    QTextCursor iterationCursor(textCursor.document());
-    iterationCursor.setPosition(textCursor.selectionStart());
-
-    iterationCursor.joinPreviousEditBlock();
-
-    while (iterationCursor.blockNumber() <= endingBlock) {
-        int blockNumber = iterationCursor.blockNumber();
-        if (iterationCursor.block().blockFormat().headingLevel()) {
-            const HeadingFormat& headingFormat = theme->headingFormat(iterationCursor.block().blockFormat().headingLevel());
-            iterationCursor.setBlockFormat(headingFormat.blockFormat());
-            iterationCursor.select(QTextCursor::BlockUnderCursor);
-            iterationCursor.mergeCharFormat(theme->charFormat());
-        } else if (iterationCursor.block().blockFormat() != format::sceneBreakFormat) {
-            iterationCursor.setBlockFormat(theme->blockFormat());
-            iterationCursor.select(QTextCursor::BlockUnderCursor);
-            iterationCursor.mergeCharFormat(theme->charFormat());
-        }
-        iterationCursor.movePosition(QTextCursor::NextBlock);
-
-        if (blockNumber == iterationCursor.blockNumber()) {
-            // Reached the end, abort
-            break;
-        }
-    }
-
-    iterationCursor.endEditBlock();
-}
-
-void format::mergeBlockCharFormat(const QTextCursor& textCursor, const QTextCharFormat& format)
-{
-    // For some reason, QTextCursor::mergeBlockCharFormat() is currently
-    // broken (doesn't do anything), so this function aims to reimplement it.
-
-    QTextDocument* document = textCursor.document();
-    const QTextBlock& startBlock = document->findBlock(textCursor.selectionStart());
-    const QTextBlock& endBlock = document->findBlock(textCursor.selectionEnd());
-
-    QTextCursor tempCursor(document);
-    tempCursor.setPosition(startBlock.position());
-    tempCursor.setPosition(endBlock.position() + endBlock.length() - 1, QTextCursor::KeepAnchor);
-    tempCursor.mergeCharFormat(format);
-}
-
 void format::insertSceneBreak(QTextCursor& textCursor)
 {
     if (!textCursor.block().text().isEmpty()) {
@@ -144,4 +94,59 @@ void format::insertSceneBreak(QTextCursor& textCursor)
         : format::sceneBreakFormat;
         
     textCursor.setBlockFormat(format);
+}
+
+void format::clearFormat(QTextCursor& textCursor)
+{
+    bool endReached = false;
+    QTextCursor formatter(textCursor.document());
+
+    for (QTextBlock block = textCursor.document()->findBlock(textCursor.selectionStart());
+         block.isValid() && !endReached;
+         block = block.next())
+    {
+        if (block.contains(textCursor.selectionEnd())) {
+            endReached = true;
+        }
+
+        formatter.setPosition(block.position());
+
+        // Ideally we'd leave headings alive here, but that doesn't seem
+        // to work even without the below call.
+        formatter.setBlockFormat(QTextBlockFormat());
+
+        for (QTextLayout::FormatRange& formatRange : block.textFormats()) {
+            // formatRange.format is a copy, so unfortunately we have to
+            // call QTextCursor.setCharFormat() afterwards.
+            QTextCharFormat& format = formatRange.format;
+            format.clearProperty(QTextFormat::FontFamily);
+            format.clearProperty(QTextFormat::FontPixelSize);
+            format.clearProperty(QTextFormat::FontPointSize);
+            format.clearProperty(QTextFormat::LayoutDirection);
+            format.clearProperty(QTextFormat::BackgroundImageUrl);
+            format.clearProperty(QTextFormat::OutlinePen);
+            format.clearProperty(QTextFormat::FontFixedPitch);
+            format.clearProperty(QTextFormat::FontSizeAdjustment);
+            format.clearProperty(QTextFormat::FontLetterSpacingType);
+            format.clearProperty(QTextFormat::FontCapitalization);
+            format.clearProperty(QTextFormat::FontLetterSpacing);
+            format.clearProperty(QTextFormat::FontWordSpacing);
+            format.clearProperty(QTextFormat::FontStretch);
+            format.clearProperty(QTextFormat::FontStyleHint);
+            format.clearProperty(QTextFormat::FontStretch);
+            format.clearProperty(QTextFormat::FontStyleStrategy);
+            format.clearProperty(QTextFormat::FontKerning);
+            format.clearProperty(QTextFormat::FontHintingPreference);
+            format.clearProperty(QTextFormat::FontOverline);
+            format.clearProperty(QTextFormat::FontUnderline);
+            format.clearProperty(QTextFormat::FontStrikeOut);
+            format.clearProperty(QTextFormat::IsAnchor);
+            format.clearProperty(QTextFormat::AnchorHref);
+            format.clearProperty(QTextFormat::AnchorName);
+            format.clearProperty(QTextFormat::FontFamilies);
+            formatter.setPosition(block.position() + formatRange.start);
+            formatter.setPosition(block.position() + formatRange.start + formatRange.length, QTextCursor::KeepAnchor);
+            formatter.setCharFormat(format);
+        }
+    }
 }

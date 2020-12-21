@@ -34,8 +34,10 @@ class TextFormatter : public QSyntaxHighlighter
         bool checkPreviousBlockStateFlag(format::BlockState state) const;
         bool checkCurrentBlockStateFlag(format::BlockState state) const;
 
-        void highlightComments(const QString& text);
-        void highlightHeadings();
+        //! Applies heading format to headings.
+        void formatHeadings();
+        //! Applies comment format to comments.
+        void formatComments(const QString& text);
 
         void setCharFormat(int blockPosition, int length, const QTextCharFormat& format);
         void setColor(int blockPosition, int length, const QColor& color);

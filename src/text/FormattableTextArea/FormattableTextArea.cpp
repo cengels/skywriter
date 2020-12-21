@@ -69,7 +69,7 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
         }
     });
 
-    connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateStyling);
+    connect(ThemeManager::instance(), &ThemeManager::activeThemeChanged, this, &FormattableTextArea::updateDocumentDefaults);
     connect(this, &FormattableTextArea::overflowAreaChanged, this, [&] {
         FormattableTextArea::update();
 
@@ -103,7 +103,7 @@ QTextDocument* FormattableTextArea::newDocument()
 
     m_document = new QTextDocument(this);
 
-    this->updateStyling();
+    this->updateDocumentDefaults();
     m_textCursor = QTextCursor(m_document);
 
     return m_document;

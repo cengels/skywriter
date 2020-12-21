@@ -44,7 +44,6 @@ void FormattableTextArea::applyHeading(int level)
     if (level == 0) {
         const Theme* theme = ThemeManager::instance()->activeTheme();
         m_textCursor.setBlockFormat(theme->blockFormat());
-        format::mergeBlockCharFormat(m_textCursor, theme->charFormat());
     } else {
         const HeadingFormat& format = ThemeManager::instance()->activeTheme()->headingFormat(level);
         m_textCursor.setBlockFormat(format.blockFormat());
@@ -88,23 +87,24 @@ void FormattableTextArea::paste()
     }
 
     bool hadSelection = m_textCursor.hasSelection();
-    int previousPosition = m_textCursor.selectionStart();
     QString insertedString;
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasHtml()) {
+        QTextDocument tempDocument;
+        tempDocument.setUndoRedoEnabled(false);
+        auto cursor = QTextCursor(&tempDocument);
+        cursor.insertHtml(mimeData->html());
+        cursor.select(QTextCursor::Document);
+
+        format::clearFormat(cursor);
+
         m_textCursor.beginEditBlock();
         if (m_textCursor.blockFormat() == format::sceneBreakFormat) {
             m_textCursor.insertBlock(ThemeManager::instance()->activeTheme()->blockFormat());
         }
 
-        m_textCursor.insertHtml(mimeData->html());
-        int newPosition = m_textCursor.position();
-        m_textCursor.setPosition(previousPosition);
-        m_textCursor.setPosition(newPosition, QTextCursor::KeepAnchor);
-        insertedString = m_textCursor.selectedText();
-        format::normalize(m_textCursor, ThemeManager::instance()->activeTheme());
-        m_textCursor.clearSelection();
+        m_textCursor.insertFragment(QTextDocumentFragment(&tempDocument));
         m_textCursor.endEditBlock();
     } else if (mimeData->hasText()) {
         m_textCursor.beginEditBlock();
@@ -138,8 +138,14 @@ void FormattableTextArea::pasteUnformatted()
     const QMimeData* mimeData = QGuiApplication::clipboard()->mimeData();
 
     if (mimeData->hasText()) {
+        m_textCursor.beginEditBlock();
+        if (m_textCursor.blockFormat() == format::sceneBreakFormat) {
+            m_textCursor.insertBlock(ThemeManager::instance()->activeTheme()->blockFormat());
+        }
+
         insertedString = mimeData->text();
         m_textCursor.insertText(mimeData->text());
+        m_textCursor.endEditBlock();
     } else {
         return;
     }

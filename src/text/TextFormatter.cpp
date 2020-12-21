@@ -38,8 +38,8 @@ TextFormatter::TextFormatter(QTextDocument* parent) : QSyntaxHighlighter(parent)
 
 void TextFormatter::highlightBlock(const QString& text)
 {
-    highlightHeadings();
-    highlightComments(text);
+    formatHeadings();
+    formatComments(text);
 
     mergeFormats();
 }
@@ -80,7 +80,16 @@ bool TextFormatter::checkCurrentBlockStateFlag(format::BlockState state) const
     return currentBlockState() & state;
 }
 
-void TextFormatter::highlightComments(const QString& text)
+void TextFormatter::formatHeadings()
+{
+    int headingLevel = currentBlock().blockFormat().headingLevel();
+    if (headingLevel > 0) {
+        setCurrentBlockStateFlag(format::Heading);
+        setBlockFormat(ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
+    }
+}
+
+void TextFormatter::formatComments(const QString& text)
 {
     int startIndex = checkPreviousBlockStateFlag(format::EndsWithUnclosedComment)
                      ? 0
@@ -107,15 +116,6 @@ void TextFormatter::highlightComments(const QString& text)
 
         setColor(startIndex, commentLength, commentColor);
         startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
-    }
-}
-
-void TextFormatter::highlightHeadings()
-{
-    int headingLevel = currentBlock().blockFormat().headingLevel();
-    if (headingLevel > 0) {
-        setCurrentBlockStateFlag(format::Heading);
-        setBlockFormat(ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).charFormat());
     }
 }
 

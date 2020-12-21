@@ -45,7 +45,35 @@ void FormattableTextArea::updateStyling()
         return;
     }
 
+    QTextCursor cursor(m_document);
+
+    for (; !cursor.atEnd(); cursor.movePosition(QTextCursor::MoveOperation::NextBlock)) {
+        QTextBlockFormat format = cursor.block().blockFormat();
+        int headingLevel = format.headingLevel();
+
+        if (headingLevel > 0 && headingLevel < 7) {
+            cursor.setBlockFormat(ThemeManager::instance()->activeTheme()->headingFormat(headingLevel).blockFormat());
+        } else if (format != format::sceneBreakFormat) {
+            cursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
+        }
+    }
+}
+
+void FormattableTextArea::updateDocumentDefaults()
+{
+    if (!m_document) {
+        return;
+    }
+	m_document->blockSignals(true);
+
     bool wasModified = this->modified();
+
+    // See https://github.com/cengels/skywriter/issues/51.
+    // Unfortunately there is no way to ensure the new theme's
+    // block formats (applied in updateStyling()) are ignored
+    // by the undo manager, so we have to disable the undo manager
+    // here temporarily, which also clears the undo/redo stack.
+    m_document->setUndoRedoEnabled(false);
 
     const Theme* theme = ThemeManager::instance()->activeTheme();
 
@@ -56,9 +84,10 @@ void FormattableTextArea::updateStyling()
     m_document->setDefaultTextOption(textOption);
     m_document->setTextWidth(this->width());
 
-    QTextCursor cursor(m_document);
-    cursor.select(QTextCursor::Document);
-    format::normalize(cursor, theme);
+    updateStyling();
+
+    m_document->setUndoRedoEnabled(true);
+	m_document->blockSignals(false);
 
     if (!wasModified) {
         this->setModified(false);
@@ -184,20 +213,26 @@ QRectF FormattableTextArea::caretRectangle() const
 }
 
 void FormattableTextArea::addHorizontalRule(QQuickTextNode& n, const QTextBlock& block, const qreal width, const QColor& color) {
-    const qreal lineWidth = block.layout()->lineAt(0).width();
+    const qreal lineWidth = block.layout()->boundingRect().width();
     const qreal ruleWidth = qMin(width, lineWidth);
     QPointF blockPosition = block.layout()->position();
 
     n.addRectangleNode(
                 QRectF(blockPosition.x() + (lineWidth / 2 - ruleWidth / 2),
-                        blockPosition.y() + m_overflowArea - m_contentY + block.layout()->lineAt(0).height() / 2,
+                        blockPosition.y() + m_overflowArea - m_contentY + block.layout()->boundingRect().height() / 2,
                         ruleWidth,
                         1),
                 color);
 }
 
 void FormattableTextArea::addWrappedSelectionIndicator(QQuickTextNode& n, const QTextBlock& block, const QColor& color) {
-    const QTextLine lastLine = block.layout()->lineAt(block.layout()->lineCount() - 1);
+    int lineCount = block.layout()->lineCount();
+
+    if (lineCount == 0) {
+        return;
+    }
+
+    const QTextLine lastLine = block.layout()->lineAt(lineCount - 1);
     QPointF blockPosition = block.layout()->position();
 
     n.addRectangleNode(

@@ -37,7 +37,7 @@ ProgressTracker::ProgressTracker(QObject *parent)
     , m_items(),
       m_items_to_save()
     , m_activeProgressItem(nullptr)
-    , m_maximumIdleMinutes(0)
+    , m_minimumIdleMinutes(0)
     , m_dailyReset()
     , m_fileUrl()
 {
@@ -53,15 +53,15 @@ QList<ProgressItem*> ProgressTracker::items() const
     return this->m_items;
 }
 
-int ProgressTracker::maximumIdleMinutes() const
+int ProgressTracker::minimumIdleMinutes() const
 {
-    return this->m_maximumIdleMinutes;
+    return this->m_minimumIdleMinutes;
 }
 
-void ProgressTracker::setMaximumIdleMinutes(const int minutes)
+void ProgressTracker::setMinimumIdleMinutes(const int minutes)
 {
-    this->m_maximumIdleMinutes = minutes;
-    emit maximumIdleMinutesChanged();
+    this->m_minimumIdleMinutes = minutes;
+    emit minimumIdleMinutesChanged();
 }
 
 QTime ProgressTracker::dailyReset() const {
@@ -88,7 +88,7 @@ void ProgressTracker::addProgress(const int words)
     const QDateTime& now = QDateTime::currentDateTime();
 
     if (this->m_activeProgressItem != nullptr
-            && this->m_activeProgressItem->end().secsTo(now) > this->m_maximumIdleMinutes * 60) {
+            && this->m_activeProgressItem->end().secsTo(now) > this->m_minimumIdleMinutes * 60) {
         this->m_activeProgressItem = nullptr;
         skipIdleCheck = true;
     }
@@ -97,7 +97,7 @@ void ProgressTracker::addProgress(const int words)
         if (!skipIdleCheck
                 && !this->m_items.isEmpty()
                 && this->m_items.constLast()->fileUrl() == m_fileUrl
-                && this->m_items.constLast()->end().secsTo(now) <= this->m_maximumIdleMinutes * 60) {
+                && this->m_items.constLast()->end().secsTo(now) <= this->m_minimumIdleMinutes * 60) {
             this->m_activeProgressItem = this->m_items.last();
             this->m_items_to_save.append(m_activeProgressItem);
         } else {

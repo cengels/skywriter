@@ -20,6 +20,9 @@
         <file alias="checkered.svg">resources/images/checkered.svg</file>
         <file alias="arrow-down.svg">resources/images/arrow-down.svg</file>
     </qresource>
+    <qresource prefix="/json">
+        <file alias="user-settings.json">resources/json/user-settings.json</file>
+    </qresource>
     <qresource prefix="/qml/controls">
         <file alias="StatsBar.qml">resources/qml/controls/StatsBar.qml</file>
         <file alias="ThemePreview.qml">resources/qml/controls/ThemePreview.qml</file>
@@ -77,6 +80,7 @@
         <file alias="ApplicationSettings.qml">resources/qml/utility/settings/ApplicationSettings.qml</file>
         <file alias="DocumentSettings.qml">resources/qml/utility/settings/DocumentSettings.qml</file>
         <file alias="WindowSettings.qml">resources/qml/utility/settings/WindowSettings.qml</file>
+        <file alias="UserSettings.qml">resources/qml/utility/settings/UserSettings.qml</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="color.js">resources/js/color.js</file>

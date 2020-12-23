@@ -38,6 +38,7 @@ namespace {
         qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/ApplicationSettings.qml"), "Skywriter.Settings", 1, 0, "Application");
         qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/DocumentSettings.qml"), "Skywriter.Settings", 1, 0, "Document");
         qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/WindowSettings.qml"), "Skywriter.Settings", 1, 0, "Window");
+        qmlRegisterSingletonType(QUrl("qrc:///qml/utility/settings/UserSettings.qml"), "Skywriter.Settings", 1, 0, "User");
 
         ThemeManager::instance()->setParent(&app);
         ErrorManager::instance()->setParent(&app);

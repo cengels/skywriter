@@ -16,9 +16,9 @@
     of the associated document, the start and end times of writing, and the
     progress (in words) made in that time.
 
-    Progress items are automatically closed and saved when maximumIdleMinutes
+    Progress items are automatically closed and saved when minimumIdleMinutes
     have passed since the last progress was tracked (i.e. the last word change).
-    A maximumIdleMinutes value of 0 means that items are never closed after
+    A minimumIdleMinutes value of 0 means that items are never closed after
     a specific period of time and are only saved when the application is closed.
 */
 class ProgressTracker : public QObject {
@@ -27,7 +27,7 @@ class ProgressTracker : public QObject {
     Q_PROPERTY(int progressToday READ progressToday NOTIFY progressTodayChanged);
     Q_PROPERTY(const QList<ProgressItem*> items READ items NOTIFY itemsChanged);
     Q_PROPERTY(QUrl fileUrl READ fileUrl NOTIFY fileUrlChanged);
-    Q_PROPERTY(int maximumIdleMinutes READ maximumIdleMinutes WRITE setMaximumIdleMinutes NOTIFY maximumIdleMinutesChanged);
+    Q_PROPERTY(int minimumIdleMinutes READ minimumIdleMinutes WRITE setMinimumIdleMinutes NOTIFY minimumIdleMinutesChanged);
     Q_PROPERTY(QTime dailyReset READ dailyReset WRITE setDailyReset NOTIFY dailyResetChanged);
 
     public:
@@ -36,8 +36,8 @@ class ProgressTracker : public QObject {
         int progressToday() const;
         QList<ProgressItem*> items() const;
 
-        int maximumIdleMinutes() const;
-        void setMaximumIdleMinutes(const int minutes);
+        int minimumIdleMinutes() const;
+        void setMinimumIdleMinutes(const int minutes);
 
         QTime dailyReset() const;
         void setDailyReset(const QTime& time);
@@ -66,7 +66,7 @@ class ProgressTracker : public QObject {
     Q_SIGNALS:
         void progressTodayChanged();
         void itemsChanged();
-        void maximumIdleMinutesChanged();
+        void minimumIdleMinutesChanged();
         void dailyResetChanged();
         void fileUrlChanged();
         void activeFileChanged();
@@ -78,7 +78,7 @@ class ProgressTracker : public QObject {
         QList<ProgressItem*> m_items;
         QList<ProgressItem*> m_items_to_save;
         ProgressItem* m_activeProgressItem;
-        int m_maximumIdleMinutes;
+        int m_minimumIdleMinutes;
         QTime m_dailyReset;
         QUrl m_fileUrl;
 };

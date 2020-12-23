@@ -130,8 +130,8 @@ ApplicationWindow {
             ThemeManager.activeThemeIndex = foundIndex;
         }
 
-        ProgressTracker.maximumIdleMinutes = Qt.binding(() => Settings.Application.maximumProgressIdleMinutes);
-        ProgressTracker.dailyReset = Qt.binding(() => Settings.Application.dailyReset);
+        ProgressTracker.minimumIdleMinutes = Qt.binding(() => Settings.User.groups.progress.minimumIdleMinutes);
+        ProgressTracker.dailyReset = Qt.binding(() => Settings.User.groups.progress.dailyReset);
         ProgressTracker.load();
     }
 
@@ -513,7 +513,7 @@ ApplicationWindow {
                             // "restore" the previous scroll position
                             let newScroll = verticalScrollbar.position / contentHeight * previousContentHeight;
 
-                            if (Settings.Application.keepScrollWhenTyping) {
+                            if (Settings.User.groups.editor.keepScrollOnType) {
                                 // ... and add the difference of old and new content height
                                 newScroll += (contentHeight - previousContentHeight) / contentHeight;
                             }
@@ -581,9 +581,9 @@ ApplicationWindow {
                     onTextChanged: textArea.changedSinceLastAutosave = true;
 
                     Timer {
-                        interval: Settings.Application.autosaveSeconds * 1000
+                        interval: Settings.User.groups.files.backupInterval * 1000
                         repeat: true
-                        running: Settings.Application.autosaveSeconds !== 0 && textArea.modified && textArea.changedSinceLastAutosave && textArea.fileExists
+                        running: Settings.User.groups.files.backupInterval !== 0 && textArea.modified && textArea.changedSinceLastAutosave && textArea.fileExists
                         onTriggered: {
                             textArea.backup();
                             textArea.changedSinceLastAutosave = false;
@@ -690,7 +690,7 @@ ApplicationWindow {
                         onTextChanged: {
                             searchBar.find();
 
-                            if (Settings.Application.searchImmediately) {
+                            if (Settings.User.groups.editor.instantSearch) {
                                 textArea.jumpToNext();
                             }
                         }

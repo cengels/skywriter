@@ -1,0 +1,124 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://cengels.com/skywriter/user-settings-schema.json",
+    "type": "object",
+    "default": {
+        "groups": {
+
+        }
+    },
+    "required": [
+        "groups"
+    ],
+    "properties": {
+        "$schema": { "type": "string" },
+        "groups": {
+            "$id": "#/properties/groups",
+            "type": "object",
+            "title": "The setting groups",
+            "description": "Each setting must be part of a group. They will be grouped both in the UI as well as in the resulting settings file.",
+            "additionalProperties": {
+                "$id": "#/properties/groups/group",
+                "type": "object",
+                "title": "An individual setting group",
+                "description": "Each setting must be part of a group. They will be grouped both in the UI as well as in the resulting settings file.",
+                "additionalProperties": {
+                    "$id": "#/properties/groups/group/setting",
+                    "type": "object",
+                    "title": "An individual setting",
+                    "description": "A setting that be included in the setting group.",
+                    "oneOf": [
+                        {
+                            "$id": "#/properties/groups/group/setting/boolean",
+                            "title": "A boolean setting",
+                            "description": "A boolean setting with one of two values: true or false.",
+                            "properties": {
+                                "name": { "type": "string", "title": "Name", "description": "The name of the setting." },
+                                "description": { "type": "string", "title": "Description", "description": "The description of the setting." },
+                                "type": { "type": "string", "const": "boolean" },
+                                "default": { "type": "boolean", "title": "Default value", "description": "The default if the user has not defined a value themselves." }
+                            },
+                            "required": ["name", "description", "type", "default"],
+                            "additionalProperties": false
+                        },
+                        {
+                            "$id": "#/properties/groups/group/setting/integer",
+                            "title": "A integer setting",
+                            "description": "A integer setting with an integer value.",
+                            "properties": {
+                                "name": { "type": "string", "title": "Name", "description": "The name of the setting." },
+                                "description": { "type": "string", "title": "Description", "description": "The description of the setting." },
+                                "type": { "type": "string", "const": "integer" },
+                                "default": { "type": "integer", "title": "Default value", "description": "The default if the user has not defined a value themselves." },
+                                "minimum": { "type": "integer", "title": "Minimum value", "description": "If defined, the setting value must be greater or equal to this value." },
+                                "maximum": { "type": "integer", "title": "Maximum value", "description": "If defined, the setting value must be smaller or equal to this value." }
+                            },
+                            "required": ["name", "description", "type", "default"],
+                            "additionalProperties": false
+                        },
+                        {
+                            "$id": "#/properties/groups/group/setting/time",
+                            "title": "A time setting",
+                            "description": "A time setting with a time of day value.",
+                            "properties": {
+                                "name": { "type": "string", "title": "Name", "description": "The name of the setting." },
+                                "description": { "type": "string", "title": "Description", "description": "The description of the setting." },
+                                "type": { "type": "string", "const": "time" },
+                                "default": { "type": "string", "title": "Default value", "description": "The default if the user has not defined a value themselves.", "pattern": "^([0-1]?\\d|2[0-3])(?::([0-5]?\\d))(?::([0-5]?\\d))$" }
+                            },
+                            "required": ["name", "description", "type", "default"],
+                            "additionalProperties": false
+                        },
+                        {
+                            "$id": "#/properties/groups/group/setting/string",
+                            "title": "A string setting",
+                            "description": "A string setting with any string value.",
+                            "properties": {
+                                "name": { "type": "string", "title": "Name", "description": "The name of the setting." },
+                                "description": { "type": "string", "title": "Description", "description": "The description of the setting." },
+                                "type": { "type": "string", "const": "string" },
+                                "default": { "type": "string", "title": "Default value", "description": "The default if the user has not defined a value themselves." }
+                            },
+                            "required": ["name", "description", "type", "default"],
+                            "additionalProperties": false
+                        },
+                        {
+                            "$id": "#/properties/groups/group/setting/enum",
+                            "title": "An enum setting",
+                            "description": "A string setting with a limited number of options.",
+                            "properties": {
+                                "name": { "type": "string", "title": "Name", "description": "The name of the setting." },
+                                "description": { "type": "string", "title": "Description", "description": "The description of the setting." },
+                                "type": { "type": "string", "const": "enum" },
+                                "default": { "type": "string", "title": "Default value", "description": "The default if the user has not defined a value themselves. This must be one of the possible values." },
+                                "options": {
+                                    "type": "array",
+                                    "title": "Possible options",
+                                    "description": "An array of all the options the user may enter. Any other strings are rejected.",
+                                    "items": {
+                                        "$id": "#/properties/groups/group/setting/enum/value",
+                                        "title": "An enum value",
+                                        "description": "One of the possible values of the enum.",
+                                        "type": "object",
+                                        "properties": {
+                                            "name": { "type": "string", "title": "Name", "description": "A human-readable name for the enum value." },
+                                            "description": { "type": "string", "title": "Description", "description": "The description of the enum value." },
+                                            "value": { "type": "string", "title": "Value", "description": "The enum's actual value." }
+                                        },
+                                        "required": ["name", "description", "value"],
+                                        "additionalProperties": false
+                                    },
+                                    "additionalItems": false,
+                                    "minItems": 2
+                                }
+                            },
+                            "required": ["name", "description", "type", "default", "options"],
+                            "additionalProperties": false
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

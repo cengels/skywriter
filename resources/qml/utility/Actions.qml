@@ -27,7 +27,7 @@ QtObject {
     }
 
     function saveDocument(url) {
-        textArea.saveAs(url, Settings.Application.keepBackup);
+        textArea.saveAs(url, Settings.User.groups.files.removeBackupOnSave);
         ProgressTracker.save();
     }
 

@@ -47,6 +47,8 @@ namespace {
         qRegisterMetaType<QEvent*>("QEvent*");
         qRegisterMetaType<QVector<DocumentSegment*>>("QVector<DocumentSegment*>");
         qRegisterMetaType<const DocumentSegment*>("const DocumentSegment*");
+        qRegisterMetaType<Property*>("Property*");
+        qRegisterMetaType<QVector<Property*>>("QVector<Property*>");
     }
 }
 

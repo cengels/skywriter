@@ -1,11 +1,15 @@
 #include <QQmlFile>
+#include <QMetaProperty>
 
 #include "QmlHelper.h"
 
 QmlHelper::QmlHelper(QObject *parent) : QObject(parent)
-{
+{ }
 
-}
+Property::Property(QString name, QString type) : QObject(),
+    m_name(name),
+    m_type(type)
+{ }
 
 QString QmlHelper::toLocalFileString(const QUrl& url) const
 {
@@ -67,4 +71,18 @@ template<typename T>
 T QmlHelper::clamp(const T& value, const T& min, const T& max) const
 {
     return qBound(min, value, max);
+}
+
+QVector<Property*> QmlHelper::properties(QObject *item)
+{
+    const QMetaObject *meta = item->metaObject();
+
+    QVector<Property*> list;
+    for (int i = 0; i < meta->propertyCount(); i++)
+    {
+        QMetaProperty property = meta->property(i);
+        list.push_back(new Property(property.name(), property.typeName()));
+    }
+
+    return list;
 }

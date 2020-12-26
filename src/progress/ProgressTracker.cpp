@@ -40,6 +40,7 @@ ProgressTracker::ProgressTracker(QObject *parent)
     , m_minimumIdleMinutes(0)
     , m_dailyReset()
     , m_fileUrl()
+    , m_skipIdleCheck(false)
 {
 }
 
@@ -84,7 +85,8 @@ void ProgressTracker::addProgress(const int words)
         return;
     }
 
-    bool skipIdleCheck = false;
+    bool skipIdleCheck = this->m_skipIdleCheck;
+    this->m_skipIdleCheck = false;
     const QDateTime& now = QDateTime::currentDateTime();
 
     if (this->m_activeProgressItem != nullptr
@@ -130,11 +132,18 @@ void ProgressTracker::addProgress(const int words)
 
 }
 
+void ProgressTracker::finishCurrent()
+{
+    this->save();
+    this->m_activeProgressItem = nullptr;
+    this->m_skipIdleCheck = true;
+}
+
 void ProgressTracker::changeActiveFile(const QUrl& fileUrl)
 {
     this->save();
-
     this->m_activeProgressItem = nullptr;
+
     this->m_fileUrl = fileUrl;
 
     emit fileUrlChanged();

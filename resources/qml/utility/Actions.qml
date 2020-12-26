@@ -299,6 +299,12 @@ QtObject {
             root.deleteSelected.trigger();
         }
     }
+    readonly property Action finishProgressItem: Action {
+        text: qsTr("Finish progress item")
+        onTriggered: {
+            ProgressTracker.finishCurrent();
+        }
+    }
 
     readonly property Action selectWord:  Action {
         text: qsTr("Select Word")

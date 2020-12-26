@@ -54,6 +54,9 @@ class ProgressTracker : public QObject {
 
         //! Adds the specified number of words for the currently active file.
         void addProgress(const int words);
+        //! Finalizes the current progress item and starts a new one the next time
+        //! `addProgress()` is called.
+        void finishCurrent();
         //! Sets a new file. Note that this closes any active progress items.
         void changeActiveFile(const QUrl& fileUrl);
         //! Renames the active file. This updates the file name in any
@@ -81,6 +84,7 @@ class ProgressTracker : public QObject {
         int m_minimumIdleMinutes;
         QTime m_dailyReset;
         QUrl m_fileUrl;
+        bool m_skipIdleCheck;
 };
 
 #endif // PROGRESSTRACKER_H

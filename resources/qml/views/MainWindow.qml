@@ -227,9 +227,11 @@ ApplicationWindow {
                         appearance.show();
                     }
                 }
+                MenuSeparator {}
                 Sky.MenuItem {
                     text: qsTr("Progress...")
                 }
+                Sky.MenuItem { action: actions.finishProgressItem }
             }
             Sky.Menu {
                 title: qsTr("Help")

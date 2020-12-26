@@ -98,10 +98,7 @@ void FormattableTextArea::refreshDocumentStructure()
     }
 
     DocumentSegment* firstSegment = new DocumentSegment(0, 1, this);
-    connect(firstSegment, &DocumentSegment::wordsChanged, this, [&] {
-        if (m_activeWordCounters > 0) m_activeWordCounters--;
-        updateWordCount(m_activeWordCounters <= 0);
-    });
+    connect(firstSegment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
     m_documentStructure.append(firstSegment);
 
     QTextBlock previous = QTextBlock();
@@ -127,10 +124,7 @@ void FormattableTextArea::refreshDocumentStructure()
                 }
 
                 DocumentSegment* segment = new DocumentSegment(block.position(), depth, this);
-                connect(segment, &DocumentSegment::wordsChanged, this, [&] {
-                    if (m_activeWordCounters > 0) m_activeWordCounters--;
-                    updateWordCount(m_activeWordCounters <= 0);
-                });
+                connect(segment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
                 m_documentStructure.append(segment);
 
                 if (previousSegment) {
@@ -150,10 +144,6 @@ void FormattableTextArea::refreshDocumentStructure()
     m_currentDocumentSegment = findDocumentSegment(m_textCursor.position());
     m_lastCaretPosition = m_textCursor.position();
     emit currentDocumentSegmentChanged();
-
-    if (m_loading) {
-        m_activeWordCounters = m_documentStructure.count();
-    }
 
     for (DocumentSegment* segment : m_documentStructure) {
         segment->countWordsAsync();

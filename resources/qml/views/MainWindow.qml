@@ -553,9 +553,11 @@ ApplicationWindow {
                     }
 
                     property int oldWordCount;
-                    property bool progressSuspended: false;
+                    property bool progressSuspended: false
                     onWordCountChanged: {
-                        if (!progressSuspended && isProgress && oldWordCount !== wordCount) {
+                        // If neither canUndo nor canRedo are true, the word count change
+                        // was not prompted by the user (e.g. during loading).
+                        if (!progressSuspended && (canUndo || canRedo) && oldWordCount !== wordCount) {
                             ProgressTracker.addProgress(wordCount - oldWordCount);
                         }
 

@@ -38,7 +38,6 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_underline(false)
     , m_caretTimer(this)
     , m_blinking(false)
-    , m_activeWordCounters(0)
     , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
     , m_lastCaretPosition(0)
@@ -314,7 +313,7 @@ void FormattableTextArea::reset()
     m_pageCount = 0;
     clearMatches();
     emit characterCountChanged();
-    emit wordCountChanged(false);
+    emit wordCountChanged();
     emit paragraphCountChanged();
     emit pageCountChanged();
     setFileUrl(QUrl());

@@ -4,6 +4,7 @@ import "qrc:/qml/controls/text" as Sky
 Sky.Text {
     linkColor: palette.link
     onLinkActivated: Qt.openUrlExternally(link)
+    textFormat: Text.RichText
 
     MouseArea {
         anchors.fill: parent

@@ -5,6 +5,7 @@ import 'qrc:/qml/controls/text' as Sky
 Sky.Text {
     property int textIndent: 0
     property int paragraphSpacing: 0
+    textFormat: Text.RichText
 
     onHeightChanged: recomputeLorem()
     onWidthChanged: recomputeLorem()

@@ -5,7 +5,7 @@ Text {
     wrapMode: Text.Wrap
     color: palette.text
     linkColor: palette.link
-    textFormat: Text.RichText
+    textFormat: Text.PlainText
     lineHeight: 0.8
     bottomPadding: 4
 }

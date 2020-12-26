@@ -33,6 +33,14 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             moveCursor(QTextCursor::Down, moveMode);
             event->accept();
             break;
+        case Qt::Key_Home:
+            moveCursor(ctrl ? QTextCursor::Start : QTextCursor::StartOfBlock, moveMode);
+            event->accept();
+            break;
+        case Qt::Key_End:
+            moveCursor(ctrl ? QTextCursor::End : QTextCursor::EndOfBlock, moveMode);
+            event->accept();
+            break;
         case Qt::Key_Back:
         case Qt::Key_Backspace: {
             bool moveBack = false;

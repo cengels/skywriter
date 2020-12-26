@@ -486,11 +486,7 @@ ApplicationWindow {
 
                     Keys.onPressed: {
                         const maxScroll = 1.0 - verticalScrollbar.size
-                        if (event.key === Qt.Key_Home) {
-                            verticalScrollbar.position = 0.0;
-                        } else if (event.key === Qt.Key_End) {
-                            verticalScrollbar.position = maxScroll;
-                        } else if (event.key === Qt.Key_PageUp) {
+                        if (event.key === Qt.Key_PageUp) {
                             verticalScrollbar.position = Math.max(0.0, verticalScrollbar.position - (textArea.height / contentHeight));
                         } else if (event.key === Qt.Key_PageDown) {
                             verticalScrollbar.position = Math.min(maxScroll, verticalScrollbar.position + (textArea.height / contentHeight));

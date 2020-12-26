@@ -676,15 +676,12 @@ ApplicationWindow {
                     textArea.find(searchString.text, flags);
                 }
 
-                RowLayout {
-                    anchors.fill: parent
+                Row {
                     spacing: 15
 
                     Sky.TextField {
                         id: searchString
-                        Layout.fillWidth: false
-                        Layout.preferredWidth: Math.max(300, searchBar.width * 0.3)
-                        Layout.preferredHeight: statsBar.implicitHeight + 2
+                        width: Math.max(300, searchBar.width * 0.3)
                         font.pointSize: 10
                         placeholderText: qsTr("Find")
                         onTextChanged: {
@@ -699,8 +696,9 @@ ApplicationWindow {
                     }
 
                     Sky.IconButton {
-                        width: 24
-                        height: 24
+                        width: searchString.height - 3
+                        height: searchString.height - 3
+                        anchors.verticalCenter: parent.verticalCenter
                         useTheme: true
                         shape: Shapes.ArrowLeft {}
                         enabled: textArea.searchResultCount > 0
@@ -712,8 +710,9 @@ ApplicationWindow {
                     }
 
                     Sky.IconButton {
-                        width: 24
-                        height: 24
+                        width: searchString.height - 3
+                        height: searchString.height - 3
+                        anchors.verticalCenter: parent.verticalCenter
                         useTheme: true
                         shape: Shapes.ArrowRight {}
                         enabled: textArea.searchResultCount > 0
@@ -722,6 +721,7 @@ ApplicationWindow {
 
                     Sky.Switch {
                         id: caseSensitive
+                        height: searchString.height
                         text: qsTr("Case-sensitive")
                         tooltip: qsTr("Any characters that are uppercase in the searched text must also be uppercase in the found text.")
                         useTheme: true
@@ -730,6 +730,7 @@ ApplicationWindow {
 
                     Sky.Switch {
                         id: wholeWords
+                        height: searchString.height
                         text: qsTr("Whole words")
                         tooltip: qsTr("Match only whole words, i.e. don't match if the found text is only part of a word.")
                         useTheme: true
@@ -738,6 +739,7 @@ ApplicationWindow {
 
                     Sky.Switch {
                         id: inSelection
+                        height: searchString.height
                         text: qsTr("In selection")
                         tooltip: qsTr("Search the current selection only.")
                         enabled: textArea.selectedText !== ""
@@ -747,6 +749,7 @@ ApplicationWindow {
 
                     Sky.Switch {
                         id: useRegEx
+                        height: searchString.height
                         text: qsTr("Regular expression")
                         tooltip: qsTr("Use a Perl regular expression to match text. Note that this is considerably slower than matching text directly.")
                         useTheme: true
@@ -754,11 +757,12 @@ ApplicationWindow {
                     }
 
                     Sky.Text {
-                        Layout.fillWidth: true
+                        anchors.verticalCenter: parent.verticalCenter
                         text: qsTr("%L1 results found").arg(textArea.searchResultCount)
                         opacity: searchString.text !== '' ? 1.0 : 0.0
                         font.pointSize: 10
                         color: ThemeManager.activeTheme.uiColor
+                        wrapMode: Text.NoWrap
 
                         Behavior on opacity { OpacityAnimator { } }
                     }
@@ -784,7 +788,7 @@ ApplicationWindow {
                     Sky.TextField {
                         id: replaceString
                         width: Math.max(300, searchBar.width * 0.3)
-                        height: statsBar.implicitHeight + 2
+                        height: searchString.height
                         font.pointSize: 10
                         placeholderText: qsTr("Replace with...")
                     }
@@ -793,6 +797,7 @@ ApplicationWindow {
                         id: replaceNext
                         text: qsTr("Replace next")
                         enabled: textArea.searchResultCount > 0
+                        height: replaceString.height
                         onReleased: {
                             textArea.replaceNext(replaceString.text);
                             // Calling find again so that the ranges are updated
@@ -806,6 +811,7 @@ ApplicationWindow {
                     Sky.Button {
                         text: qsTr("Replace all")
                         enabled: replaceNext.enabled
+                        height: replaceString.height
                         onReleased: textArea.replaceAll(replaceString.text)
                     }
                 }

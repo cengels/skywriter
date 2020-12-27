@@ -45,7 +45,7 @@
         <file alias="SectionLabel.qml">resources/qml/controls/forms/SectionLabel.qml</file>
         <file alias="Form.qml">resources/qml/controls/forms/Form.qml</file>
         <file alias="IconButton.qml">resources/qml/controls/forms/IconButton.qml</file>
-        <file alias="Switch.qml">resources/qml/controls/forms/Switch.qml</file>
+        <file alias="TextSwitch.qml">resources/qml/controls/forms/TextSwitch.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/dialog">
         <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>

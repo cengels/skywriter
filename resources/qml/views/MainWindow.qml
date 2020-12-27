@@ -721,7 +721,7 @@ ApplicationWindow {
                         onReleased: textArea.jumpToNext()
                     }
 
-                    Sky.Switch {
+                    Sky.TextSwitch {
                         id: caseSensitive
                         height: searchString.height
                         text: qsTr("Case-sensitive")
@@ -730,7 +730,7 @@ ApplicationWindow {
                         onToggled: searchBar.find()
                     }
 
-                    Sky.Switch {
+                    Sky.TextSwitch {
                         id: wholeWords
                         height: searchString.height
                         text: qsTr("Whole words")
@@ -739,7 +739,7 @@ ApplicationWindow {
                         onToggled: searchBar.find()
                     }
 
-                    Sky.Switch {
+                    Sky.TextSwitch {
                         id: inSelection
                         height: searchString.height
                         text: qsTr("In selection")
@@ -749,7 +749,7 @@ ApplicationWindow {
                         onToggled: searchBar.find()
                     }
 
-                    Sky.Switch {
+                    Sky.TextSwitch {
                         id: useRegEx
                         height: searchString.height
                         text: qsTr("Regular expression")

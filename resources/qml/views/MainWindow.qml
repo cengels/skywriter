@@ -705,6 +705,7 @@ ApplicationWindow {
                         onTextChanged: searchBar.find()
 
                         KeyNavigation.tab: replaceBar.collapsed ? null : replaceString
+                        onAccepted: textArea.jumpToNext()
                     }
 
                     Sky.IconButton {
@@ -819,6 +820,12 @@ ApplicationWindow {
                         height: searchString.height
                         font.pointSize: 10
                         placeholderText: qsTr("Replace with...")
+                        onAccepted: {
+                            if (textArea.searchResultCount > 0) {
+                                textArea.replaceNext(replaceString.text);
+                                searchBar.find();
+                            }
+                        }
                     }
 
                     Sky.Button {

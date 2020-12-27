@@ -695,7 +695,12 @@ ApplicationWindow {
                             searchBar.find();
 
                             if (Settings.User.groups.editor.instantSearch) {
-                                textArea.jumpToNext();
+                                if (textArea.searchResultCount > 0) {
+                                    textArea.jumpToNext();
+                                } else {
+                                    // Clears the selection.
+                                    textArea.caretPosition = textArea.caretPosition;
+                                }
                             }
                         }
 

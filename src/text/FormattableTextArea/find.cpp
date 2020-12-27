@@ -74,7 +74,11 @@ void FormattableTextArea::jumpToNext()
     bool found = false;
 
     for (const Range<int>& range : searchResults()) {
-        if (m_textCursor.selectionStart() < range.from() || m_textCursor.selectionEnd() == range.from()) {
+        if (m_textCursor.selectionStart() < range.from()
+          // This check ensures that, when the user updates the search term and instantSearch
+          // is activated, it only jumps to the next match if there is no match under the cursor
+          // while still ensuring that jumping to the next match is possible using the button.
+          || (m_textCursor.selectionStart() == range.from() && m_textCursor.selectionEnd() != range.until())) {
             QString previousSelection = m_textCursor.selectedText();
             m_textCursor.setPosition(range.from());
             m_textCursor.setPosition(range.until(), QTextCursor::KeepAnchor);

@@ -597,6 +597,17 @@ ApplicationWindow {
 
                     onContextMenuRequested: contextMenu.popup()
 
+                    onSearchResultCountChanged: {
+                        if (Settings.User.groups.editor.instantSearch) {
+                            if (textArea.searchResultCount > 0) {
+                                textArea.jumpToNext();
+                            } else {
+                                // Clears the selection.
+                                textArea.caretPosition = textArea.caretPosition;
+                            }
+                        }
+                    }
+
                     Menu {
                         id: contextMenu
                         Sky.MenuItem { action: actions.undo }
@@ -691,18 +702,7 @@ ApplicationWindow {
                         width: Math.max(300, searchBar.width * 0.3)
                         font.pointSize: 10
                         placeholderText: qsTr("Find")
-                        onTextChanged: {
-                            searchBar.find();
-
-                            if (Settings.User.groups.editor.instantSearch) {
-                                if (textArea.searchResultCount > 0) {
-                                    textArea.jumpToNext();
-                                } else {
-                                    // Clears the selection.
-                                    textArea.caretPosition = textArea.caretPosition;
-                                }
-                            }
-                        }
+                        onTextChanged: searchBar.find()
 
                         KeyNavigation.tab: replaceBar.collapsed ? null : replaceString
                     }

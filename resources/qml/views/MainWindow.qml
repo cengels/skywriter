@@ -700,7 +700,6 @@ ApplicationWindow {
                     Sky.TextField {
                         id: searchString
                         width: Math.max(300, searchBar.width * 0.3)
-                        font.pointSize: 10
                         placeholderText: qsTr("Find")
                         onTextChanged: searchBar.find()
 
@@ -818,7 +817,6 @@ ApplicationWindow {
                         id: replaceString
                         width: Math.max(300, searchBar.width * 0.3)
                         height: searchString.height
-                        font.pointSize: 10
                         placeholderText: qsTr("Replace with...")
                         onEnterPressed: {
                             if (textArea.searchResultCount > 0) {

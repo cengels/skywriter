@@ -24,6 +24,29 @@
                 "maximum": 1440,
                 "default": 5
             },
+            "idleMode": {
+                "name": "Idle mode",
+                "description": "Which idle mode to use for the minimum idle time check.",
+                "type": "enum",
+                "default": "typing",
+                "options": [
+                    {
+                        "name": "Typing",
+                        "value": "typing",
+                        "description": "Default. You're considered idle if you haven't typed anything into the text area for the configured minimum idle time."
+                    },
+                    {
+                        "name": "Focus",
+                        "value": "focus",
+                        "description": "You're considered idle if Skywriter does not have the active system focus (e.g. by being in the background) for the configured minimum idle time."
+                    },
+                    {
+                        "name": "System",
+                        "value": "system",
+                        "description": "You're considered idle if your system is idle for the configured minimum idle time. In other words: if you move your mouse or press any key on your keyboard in- or outside Skywriter, you are not idle. Not recommended if you frequently leave Skywriter open in the background (use Focus instead)."
+                    }
+                ]
+            },
             "dailyReset": {
                 "name": "Daily reset",
                 "description": "The time of day after which the progress tracker will begin a new day. This is relevant for the display of \"words written today\". The default is 5 AM.",

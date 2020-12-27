@@ -67,8 +67,8 @@ TextField {
 
     property string previousText: ""
     onTextChanged: {
+        validationEvent.reset();
         validationEvent.text = root.text;
-        validationEvent.accepted = true;
 
         validate(validationEvent);
 

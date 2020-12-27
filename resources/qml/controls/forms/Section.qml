@@ -6,16 +6,13 @@ import "qrc:/qml/controls/text" as Sky
 
 ColumnLayout {
     id: root
-    anchors.left: parent.left
-    anchors.right: parent.right
+    Layout.fillWidth: true
     property string title: ""
     property bool collapsible: true
     property bool collapsed: false
     default property list<Item> content
     property alias columns: gridLayout.columns
     property alias rows: gridLayout.rows
-    property int columns
-    property int rows
     state: "expanded"
     states: [
         State {
@@ -43,25 +40,22 @@ ColumnLayout {
             text: title
             level: 2
             font.pointSize: 13
-            colorFactor: mouseArea.containsMouse ? 1.5 : 1
+            colorFactor: mouseArea.containsMouse && root.collapsible ? 1.5 : 1
         }
 
         MouseArea {
             id: mouseArea
             anchors.fill: heading
-            cursorShape: Qt.PointingHandCursor
-            hoverEnabled: true
+            cursorShape: root.collapsible ? Qt.PointingHandCursor : undefined
+            hoverEnabled: root.collapsible
             onClicked: {
                 if (root.collapsible) {
-                    collapsed = !collapsed;
+                    root.collapsed = !root.collapsed;
                 }
             }
         }
     }
 
-    // This layout seems to cause a recursive rearrange.
-    // It still works, but should definitely be fixed at
-    // some point.
     GridLayout {
         id: gridLayout
         children: content

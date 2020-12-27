@@ -46,6 +46,7 @@
         <file alias="Form.qml">resources/qml/controls/forms/Form.qml</file>
         <file alias="IconButton.qml">resources/qml/controls/forms/IconButton.qml</file>
         <file alias="TextSwitch.qml">resources/qml/controls/forms/TextSwitch.qml</file>
+        <file alias="Switch.qml">resources/qml/controls/forms/Switch.qml</file>
     </qresource>
     <qresource prefix="/qml/controls/dialog">
         <file alias="Dialog.qml">resources/qml/controls/dialog/Dialog.qml</file>
@@ -66,6 +67,8 @@
         <file alias="Menu.qml">resources/qml/controls/menu/Menu.qml</file>
         <file alias="MenuBar.qml">resources/qml/controls/menu/MenuBar.qml</file>
         <file alias="MenuItem.qml">resources/qml/controls/menu/MenuItem.qml</file>
+        <file alias="TabButton.qml">resources/qml/controls/menu/TabButton.qml</file>
+        <file alias="TabBar.qml">resources/qml/controls/menu/TabBar.qml</file>
     </qresource>
     <qresource prefix="/qml/effects">
         <file alias="CornerRadius.qml">resources/qml/effects/CornerRadius.qml</file>

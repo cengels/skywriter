@@ -143,6 +143,7 @@ ApplicationWindow {
     View.AboutQt { id: aboutQt }
     View.AboutSkywriter { id: aboutSkywriter }
     View.Appearance { id: appearance }
+    View.Preferences { id: preferences }
 
     menuBar: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : menuBar.implicitHeight
@@ -174,9 +175,6 @@ ApplicationWindow {
                 Sky.MenuItem { action: actions.rename }
                 MenuSeparator {}
                 Sky.MenuItem { action: actions.fullscreen }
-                Sky.MenuItem {
-                    text: qsTr("Preferences...")
-                }
                 Sky.MenuItem { action: actions.quit }
             }
             Sky.Menu {
@@ -232,6 +230,13 @@ ApplicationWindow {
                     text: qsTr("Progress...")
                 }
                 Sky.MenuItem { action: actions.finishProgressItem }
+                MenuSeparator {}
+                Sky.MenuItem {
+                    text: qsTr("Preferences...")
+                    onTriggered: {
+                        preferences.show();
+                    }
+                }
             }
             Sky.Menu {
                 title: qsTr("Help")

@@ -15,7 +15,7 @@ const QPalette& colors::palette()
 
         skywriter_palette.setColor(QPalette::ColorRole::Base, QColor { "#32285E" });
         skywriter_palette.setColor(QPalette::ColorRole::AlternateBase, QColor { "#2b2252" });
-        skywriter_palette.setColor(QPalette::ColorRole::BrightText, QColor { "#CACACA" });
+        skywriter_palette.setColor(QPalette::ColorRole::BrightText, QColor { "#d9d9d9" });
         skywriter_palette.setColor(QPalette::ColorRole::Button, QColor { "#4D3DAD" }); // accent color
         skywriter_palette.setColor(QPalette::ColorRole::ButtonText, QColor { "#A8A8A9" });
         skywriter_palette.setColor(QPalette::ColorRole::Dark, QColor { "#473C77" });

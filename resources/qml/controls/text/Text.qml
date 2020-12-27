@@ -7,5 +7,5 @@ Text {
     linkColor: palette.link
     textFormat: Text.PlainText
     lineHeight: 0.8
-    bottomPadding: 4
+    bottomPadding: padding !== -1 ? padding : 4
 }

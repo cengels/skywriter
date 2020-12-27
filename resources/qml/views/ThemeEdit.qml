@@ -38,6 +38,8 @@ Sky.Dialog {
 
                 Sky.Section {
                     title: qsTr("General")
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     columns: 3
 
                     Sky.Field {
@@ -81,6 +83,8 @@ Sky.Dialog {
 
                 Sky.Section {
                     title: qsTr("Document")
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     columns: 3
 
                     readonly property FileDialog imageDialog: FileDialog {

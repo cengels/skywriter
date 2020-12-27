@@ -3,6 +3,7 @@ import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 import QtQuick.Window 2.14
 import "qrc:/qml/controls/forms" as Sky
+import "qrc:/qml/controls/text" as Sky
 import "qrc:/js/color.js" as Color
 
 Column {
@@ -15,7 +16,12 @@ Column {
     property alias editable: delegate.editable
     property alias currentIndex: delegate.currentIndex
     property alias itemDelegate: delegate.delegate
+    property color popupFontColor: palette.brightText
+    property real popupWidth: 0
     property alias validator: delegate.validator
+    property alias textRole: delegate.textRole
+    property alias valueRole: delegate.valueRole
+    property alias highlightedIndex: delegate.highlightedIndex
     readonly property string text: delegate.acceptableInput ? delegate.editText : delegate.currentText
 
     signal accepted()
@@ -65,25 +71,22 @@ Column {
                 width: 12
                 source: "qrc:/images/arrow-down.svg"
             }
-
-            MouseArea {
-                id: indicatorMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onPressed: mouse.accepted = false;
-            }
         }
 
         contentItem: TextInput {
             leftPadding: rectangle.radius
             rightPadding: delegate.indicator.width + delegate.spacing
             enabled: delegate.editable
-
             text: delegate.displayText
             color: palette.text
             font: delegate.font
             verticalAlignment: Text.AlignVCenter
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.NoButton
         }
 
 
@@ -102,6 +105,48 @@ Column {
                 ColorAnimation { duration: 100 }
             }
         }
+
+        popup: Popup {
+            id: popup
+            y: delegate.height + 1
+            x: Math.min(0, delegate.width - width)
+            width: root.popupWidth === 0 ? Math.max(delegate.width, contentItem.contentWidth) : root.popupWidth
+            implicitHeight: contentItem.implicitHeight
+            padding: 1
+
+            contentItem: root.popupContent
+
+            background: Rectangle {
+                color: palette.alternateBase
+                radius: 16
+            }
+        }
+
+        delegate: ItemDelegate {
+            id: itemDelegate
+            width: popup.width - popup.padding * 2
+            highlighted: delegate.currentIndex === index
+
+            contentItem: Sky.Text {
+                color: root.popupFontColor
+                text: delegate.textRole != null && delegate.textRole != "" ? modelData[delegate.textRole] : modelData
+            }
+
+            background: Rectangle {
+                color: itemDelegate.hovered ? palette.button : itemDelegate.highlighted ? Qt.darker(palette.mid, 1.2) : "transparent"
+                radius: 16
+            }
+        }
+    }
+
+    property ListView popupContent: ListView {
+        clip: true
+        width: popup.width
+        implicitHeight: contentHeight
+        model: popup.visible ? delegate.delegateModel : null
+        currentIndex: root.currentIndex
+
+        ScrollIndicator.vertical: ScrollIndicator { }
     }
 
     readonly property Sky.SectionLabel textDelegate: Sky.SectionLabel {

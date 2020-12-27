@@ -638,6 +638,7 @@ ApplicationWindow {
                 id: searchBar
                 anchors.left: parent.left
                 anchors.right: parent.right
+                height: row.height + 15
                 y: (mainWindow.visibility === Window.FullScreen && !statsBar.collapsed ? -statsBar.height : 0) - (replaceBar.collapsed ? 0 : replaceBar.height) - (collapsed ? 0 : height)
                 horizontalPadding: 10
                 onCollapsedChanged: {
@@ -677,6 +678,7 @@ ApplicationWindow {
                 }
 
                 Row {
+                    id: row
                     spacing: 15
 
                     Sky.TextField {
@@ -765,6 +767,22 @@ ApplicationWindow {
                         wrapMode: Text.NoWrap
 
                         Behavior on opacity { OpacityAnimator { } }
+                    }
+                }
+
+                Sky.IconButton {
+                    anchors.right: parent.right
+                    width: 32
+                    height: 32
+                    circle: false
+                    fill: ThemeManager.activeTheme.uiColor
+                    // For some reason Qt.darker()/Qt.lighter() don't work here
+                    // so we have to use opacity.
+                    opacity: 0.6
+                    shape: Shapes.CloseIcon {}
+                    onClicked: {
+                        searchBar.collapsed = true;
+                        replaceBar.collapsed = true;
                     }
                 }
             }

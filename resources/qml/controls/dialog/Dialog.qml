@@ -19,6 +19,14 @@ Window {
     property bool canAccept: true
     default property var content
 
+    onVisibleChanged: {
+        if (visible) {
+            shown();
+        }
+    }
+
+    signal shown
+
     signal accepted
     signal applied
     signal discarded

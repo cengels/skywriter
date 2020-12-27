@@ -8,6 +8,9 @@ import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/menu" as Sky
 import Skywriter.Settings 1.0 as Settings
 
+// Note that we cannot use ListViews in this file or the form
+// will not be able to bind itself to the fields.
+
 Sky.Dialog {
     id: root
     title: qsTr("Preferences")
@@ -16,10 +19,15 @@ Sky.Dialog {
     height: 600
     minimumWidth: 450
     minimumHeight: 270
+    canAccept: form.valid
     standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
 
+    signal submit
+
     onAccepted: {
-        // ...
+        // If we attached the fields to the accepted signal directly,
+        // this would get called first before the fields.
+        submit();
     }
 
     Component {
@@ -32,6 +40,8 @@ Sky.Dialog {
             anchors.left: parent.left
             anchors.right: parent.right
             height: column.height
+            property var setting
+            property string category
 
             Column {
                 id: column
@@ -63,8 +73,14 @@ Sky.Dialog {
                     id: booleanSetting
 
                     Sky.Switch {
-                        objectName: setting.id
+                        id: toggle
                         anchors.right: parent.right
+
+                        Connections {
+                            target: root
+                            onShown: toggle.checked = Settings.User.groups[row.category][setting.id]
+                            onSubmit: Settings.User.groups[row.category][setting.id] = toggle.checked
+                        }
                     }
                 }
 
@@ -72,11 +88,17 @@ Sky.Dialog {
                     id: integerSetting
 
                     Sky.NumberField {
-                        objectName: setting.id
+                        id: numberField
                         width: settingItem.width
                         min: setting.minimum
                         max: setting.maximum
                         clamp: true
+
+                        Connections {
+                            target: root
+                            onShown: numberField.text = Settings.User.groups[row.category][setting.id]
+                            onSubmit: Settings.User.groups[row.category][setting.id] = numberField.value
+                        }
                     }
                 }
 
@@ -85,7 +107,6 @@ Sky.Dialog {
 
                     Sky.ComboBox {
                         id: comboBox
-                        objectName: setting.id
                         width: settingItem.width
                         items: setting.options
                         popupWidth: 350
@@ -100,6 +121,12 @@ Sky.Dialog {
                             anchors.right: parent.right
                             text: highlightedIndex !== -1 ? setting.options[highlightedIndex].description : null
                         }
+
+                        Connections {
+                            target: root
+                            onShown: comboBox.currentValue = Settings.User.groups[row.category][setting.id]
+                            onSubmit: Settings.User.groups[row.category][setting.id] = comboBox.currentValue
+                        }
                     }
                 }
 
@@ -107,7 +134,7 @@ Sky.Dialog {
                     id: timeSetting
 
                     Sky.TextField {
-                        objectName: setting.id
+                        id: timeField
                         width: settingItem.width
 
                         valid: {
@@ -117,6 +144,12 @@ Sky.Dialog {
                                 .filter(x => !Number.isNaN(x) && x >= 0 && x < 60);
 
                             return numbers.length === 3 && numbers[0] < 24;
+                        }
+
+                        Connections {
+                            target: root
+                            onShown: timeField.text = Settings.User.groups[row.category][setting.id]
+                            onSubmit: Settings.User.groups[row.category][setting.id] = timeField.text
                         }
                     }
                 }
@@ -136,27 +169,34 @@ Sky.Dialog {
     Component {
         id: groupDelegate
 
-        ListView {
-            property string categoryId
-            property string name
-            property var settings
-            delegate: settingDelegate
+        Flickable {
             Layout.fillWidth: true
             Layout.fillHeight: true
             boundsBehavior: Flickable.StopAtBounds
             flickDeceleration: 2000
             ScrollBar.vertical: ScrollBar {}
-            spacing: 10
+            property string categoryId
+            property string name
+            property var settings
 
-            model: ListModel {
-                id: settingModel
+            Column {
+                id: settingsList
+                anchors.fill: parent
+                spacing: 10
+
+                Component.onCompleted: {
+                    for (const settingKey in settings) {
+                        const setting = Object.assign({}, settings[settingKey]);
+                        setting.id = settingKey;
+                        settingDelegate.createObject(settingsList, { setting: setting, category: categoryId });
+                    }
+                }
             }
 
-            Component.onCompleted: {
-                for (const settingKey in settings) {
-                    const setting = Object.assign({}, settings[settingKey]);
-                    setting.id = settingKey;
-                    settingModel.append({ setting: setting });
+            Connections {
+                target: root
+                onAccepted: {
+                    Settings.User.groups[categoryId].sync();
                 }
             }
         }
@@ -190,14 +230,14 @@ Sky.Dialog {
             anchors.right: parent.right
             height: form.height - tabBar.height
             children: form.categories.map(category => groupDelegate.createObject(stackLayout, category))
-        }
 
-        Component.onCompleted: {
-            for (const groupKey in Settings.User.schema.groups) {
-                form.categories.push({ categoryId: groupKey, name: groupKey[0].toUpperCase() + groupKey.slice(1), settings: Settings.User.schema.groups[groupKey] });
+            Component.onCompleted: {
+                for (const groupKey in Settings.User.schema.groups) {
+                    form.categories.push({ categoryId: groupKey, name: groupKey[0].toUpperCase() + groupKey.slice(1), settings: Settings.User.schema.groups[groupKey] });
+                }
+
+                form.categoriesChanged();
             }
-
-            form.categoriesChanged();
         }
     }
 }

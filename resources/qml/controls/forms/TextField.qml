@@ -16,6 +16,7 @@ TextField {
     property bool markValid: false
     property bool valid: acceptableInput
     verticalAlignment: Qt.AlignVCenter
+    focus: true
 
     background: Rectangle {
         id: rectangle
@@ -55,6 +56,7 @@ TextField {
 
     signal validate(var event)
     signal editAccepted();
+    signal enterPressed();
 
     Utility.ValidationEvent {
         id: validationEvent
@@ -87,5 +89,11 @@ TextField {
 
     onTextEdited: {
         props.isManualEdit = true;
+    }
+
+    Keys.onPressed: {
+        if (root.activeFocus && (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)) {
+            enterPressed();
+        }
     }
 }

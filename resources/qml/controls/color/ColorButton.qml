@@ -1,6 +1,6 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
+//import "qrc:/qtgraphicaleffects" as QtGraphicalEffects
 
 Button {
     id: root
@@ -30,18 +30,17 @@ Button {
         border.width: 2
     }
 
-    background: DropShadow {
-        anchors.fill: circle
-        source: circle
-        radius: 8
-        samples: 16.0
-        spread: 0.4
-        color: "#77000000"
-        opacity: root.hovered ? 1.0 : 0.0
+//    background: QtGraphicalEffects.DropShadow {
+//        anchors.fill: circle
+//        source: circle
+//        radius: 8
+//        samples: 16.0
+//        spread: 0.4
+//        color: "#77000000"
+//        opacity: root.hovered ? 1.0 : 0.0
 
-        Behavior on opacity {
-            OpacityAnimator { duration: 100 }
-        }
-    }
+//        Behavior on opacity {
+//            OpacityAnimator { duration: 100 }
+//        }
+//    }
 }
-

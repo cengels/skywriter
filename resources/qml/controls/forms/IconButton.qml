@@ -1,7 +1,7 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Shapes 1.14
-import Skywriter.Theming 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Shapes
+import Skywriter.Theming
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/effects" as Sky
 import "qrc:/qml/shapes" as Sky

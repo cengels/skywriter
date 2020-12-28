@@ -1,6 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
 
 Switch {
     id: root
@@ -61,15 +60,15 @@ Switch {
             }
         }
 
-        DropShadow {
-            anchors.fill: circle
-            horizontalOffset: 2
-            verticalOffset: 2
-            radius: 4.0
-            samples: 17
-            color: "#30000000"
-            source: circle
-        }
+//        DropShadow {
+//            anchors.fill: circle
+//            horizontalOffset: 2
+//            verticalOffset: 2
+//            radius: 4.0
+//            samples: 17
+//            color: "#30000000"
+//            source: circle
+//        }
     }
 
     MouseArea {

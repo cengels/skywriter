@@ -71,7 +71,7 @@ void FormattableTextArea::copy()
         QClipboard* clipboard = QGuiApplication::clipboard();
         QMimeData* mimeData = new QMimeData();
         mimeData->setText(m_textCursor.selection().toPlainText());
-        mimeData->setHtml(m_textCursor.selection().toHtml("utf-8"));
+        mimeData->setHtml(m_textCursor.selection().toHtml());
         clipboard->setMimeData(mimeData);
 
         if (!couldPaste) {

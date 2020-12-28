@@ -1,13 +1,12 @@
-import QtQml 2.14
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Window 2.14
-import QtQuick.Dialogs 1.3
-import Qt.labs.platform 1.1 as Platform
-import Skywriter.Text 1.0
-import Skywriter.Theming 1.0
-import Skywriter.Progress 1.0
-import Skywriter.Settings 1.0 as Settings
+import QtQml
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Window
+import Qt.labs.platform as Platform
+import Skywriter.Text
+import Skywriter.Theming
+import Skywriter.Progress
+import Skywriter.Settings as Settings
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/forms" as Sky
 
@@ -41,12 +40,11 @@ QtObject {
         ProgressTracker.changeActiveFile(textArea.fileUrl);
     }
 
-    readonly property FileDialog openDialog: FileDialog {
+    readonly property Platform.FileDialog openDialog: Platform.FileDialog {
         title: qsTr("Open...")
         modality: Qt.ApplicationModal
-        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)"]
-        selectedNameFilter: "Markdown files (*.md)"
-        selectExisting: true
+        nameFilters: ["Text files (*.txt)", "Markdown files (*.md)", "HTML files (*.html *.htm)", "All files (*.*)"]
+        selectedNameFilter.index: 1
         folder: textArea.fileExists
                 ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
@@ -65,13 +63,13 @@ QtObject {
         }
     }
 
-    readonly property FileDialog saveDialog: FileDialog {
+    readonly property Platform.FileDialog saveDialog: Platform.FileDialog {
         title: qsTr("Save As...")
         modality: Qt.ApplicationModal
         defaultSuffix: "md"
         nameFilters: openDialog.nameFilters
-        selectedNameFilter: "All files (*)"
-        selectExisting: false
+        selectedNameFilter.index: 3
+        fileMode: Platform.FileDialog.SaveFile
         folder: textArea.fileExists
                 ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
@@ -94,13 +92,12 @@ QtObject {
         }
     }
 
-    readonly property FileDialog renameDialog: FileDialog {
+    readonly property Platform.FileDialog renameDialog: Platform.FileDialog {
         title: qsTr("Rename...")
         modality: Qt.ApplicationModal
         defaultSuffix: saveDialog.defaultSuffix
         nameFilters: saveDialog.nameFilters
-        selectedNameFilter: saveDialog.selectedNameFilter
-        selectExisting: saveDialog.selectExisting
+        selectedNameFilter.index: 3
         folder: saveDialog.folder
         onVisibleChanged: {
             if (visible && textArea.fileExists) {

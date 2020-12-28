@@ -1,11 +1,10 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/effects" as Sky
 import "qrc:/js/color.js" as Color
-import Skywriter.Theming 1.0
+import Skywriter.Theming
 
 AbstractButton {
     id: root
@@ -48,8 +47,8 @@ AbstractButton {
         anchors.fill: parent
         color: "transparent"
 
-        layer.enabled: true
-        layer.effect: Sky.CornerRadius { radius: 15 }
+        // layer.enabled: true
+        // layer.effect: Sky.CornerRadius { radius: 15 }
         border.width: root.checked ? 2 : 0
         border.color: Color.adjustAlpha(root.actualColor, 0.4)
         radius: 15

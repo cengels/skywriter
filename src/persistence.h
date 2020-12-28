@@ -43,10 +43,6 @@ namespace persistence {
 
         Stream out(&outputFile);
 
-        if (std::is_same<QTextStream, Stream>()) {
-            out.setCodec("UTF-8");
-        }
-
         if (!callback(out)) {
             return false;
         }

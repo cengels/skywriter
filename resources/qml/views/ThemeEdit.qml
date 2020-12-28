@@ -1,14 +1,14 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.14
-import QtQuick.Window 2.14
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
+import Qt.labs.platform
 import "qrc:/qml/controls" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/forms" as Sky
 import "qrc:/qml/controls/color" as Sky
 import "qrc:/qml/shapes" as Shapes
-import Skywriter.Theming 1.0
+import Skywriter.Theming
 
 Sky.Dialog {
     id: root
@@ -91,8 +91,7 @@ Sky.Dialog {
                         id: imageDialog
                         title: qsTr("Select image...")
                         nameFilters: ["Image files (*.jpg *.png *.bmp *.gif *.jpeg)"]
-                        selectedNameFilter: "Image files (*.jpg *.png *.bmp *.gif *.jpeg)"
-                        selectExisting: true
+                        selectedNameFilter.index: 0
                         folder: shortcuts.pictures
                         onAccepted: {
                             theme.backgroundImage = imageDialog.fileUrl

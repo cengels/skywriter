@@ -1,9 +1,9 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
-import Skywriter.Text 1.0
-import Skywriter.Progress 1.0
-import Skywriter.Theming 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Skywriter.Text
+import Skywriter.Progress
+import Skywriter.Theming
 import "qrc:/qml/controls" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/js/dates.js" as Dates

@@ -1,5 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick
+import QtQuick.Controls
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/effects" as Sky
 
@@ -54,8 +54,8 @@ Button {
         border.color: hovered && !root.outline ? hoverColor : normalColor
         color: root.outline ? "transparent" : normalColor
 
-        layer.enabled: true
-        layer.effect: Sky.CornerRadius { radius: 10 }
+        // layer.enabled: true
+        // layer.effect: Sky.CornerRadius { radius: 10 }
         radius: 10
 
         Rectangle {

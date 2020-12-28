@@ -1,6 +1,6 @@
-import QtQuick 2.14
-import QtQuick.Window 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Window
+import QtGraphicalEffects
 
 OpacityMask {
     id: root

@@ -153,6 +153,6 @@ Range<T> Range<T>::operator-(const T offset) const
     return Range(from() - offset, until() - offset);
 }
 
-template struct Range<int>;
-template struct Range<double>;
-template struct Range<float>;
+template class Range<int>;
+template class Range<double>;
+template class Range<float>;

@@ -41,10 +41,7 @@ class Mouse : public QObject
         QPointF m_globalPosition;
         QPointF m_windowPosition;
         Qt::MouseButtons m_buttons;
-        // This must not be a pointer, because Qt simply reuses the same
-        // QMouseEvent instance for all of its events. As a result,
-        // this would effectively be overwritten by the next event if not copied.
-        QMouseEvent m_lastPressMouseEvent;
+        QMouseEvent* m_lastPressMouseEvent;
 
 };
 

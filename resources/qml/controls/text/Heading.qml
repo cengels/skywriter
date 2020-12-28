@@ -1,4 +1,4 @@
-import QtQuick 2.14
+import QtQuick
 import "qrc:/qml/controls/text" as Sky
 
 Column {

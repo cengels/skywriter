@@ -4,3 +4,7 @@
 [submodule "libs/gtest"]
 	path = libs/gtest
 	url = https://github.com/google/googletest
+[submodule "libs/qtgraphicaleffects"]
+	path = libs/qtgraphicaleffects
+	url = https://github.com/qt/qtgraphicaleffects
+	branch = dev

@@ -147,41 +147,48 @@ QtObject {
         id: unsavedNewHandlers
         target: unsavedDialog
         enabled: false
-        onAccepted: {
+
+        function onAccepted() {
             saveWithPrompt();
             reset();
         }
-        onDiscarded: reset()
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
+
+        function onDiscarded() { reset(); }
+        function onVisibleChanged() { unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible; }
     }
 
     readonly property Connections unsavedOpenHandlers: Connections {
         id: unsavedOpenHandlers
         target: unsavedDialog
         enabled: false
-        onAccepted: {
+
+        function onAccepted() {
             saveWithPrompt();
             loadDocument(openDialog.fileUrl);
         }
-        onDiscarded: {
+
+        function onDiscarded() {
             loadDocument(openDialog.fileUrl);
         }
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
+        function onVisibleChanged() { unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible; }
     }
 
     readonly property Connections unsavedQuitHandlers: Connections {
         id: unsavedQuitHandlers
         target: unsavedDialog
         enabled: false
-        onAccepted: {
+
+        function onAccepted() {
             saveWithPrompt();
             mainWindow.close();
         }
-        onDiscarded: {
+
+        function onDiscarded() {
             mainWindow.forceClose = true;
             mainWindow.close();
         }
-        onVisibleChanged: unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible
+
+        function onVisibleChanged() { unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible; }
     }
 
     readonly property Action fullscreen: Action {

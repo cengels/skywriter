@@ -56,15 +56,15 @@ ApplicationWindow {
 
     Connections {
         target: ErrorManager
-        onError: {
+        function onError() {
             errorDialog.text = message;
             errorDialog.show();
         }
-        onWarning: {
+        function onWarning() {
             errorDialog.text = message;
             errorDialog.show();
         }
-        onInfo: {
+        function onInfo() {
             errorDialog.text = message;
             errorDialog.show();
         }
@@ -376,7 +376,7 @@ ApplicationWindow {
 
                 property bool isDragging: false
 
-                onMove: {
+                function onMove() {
                     if (Mouse.buttons & Qt.LeftButton && isDragging) {
                         const textAreaPosition = textArea.mapFromGlobal(Mouse.globalPosition.x, Mouse.globalPosition.y);
 
@@ -400,13 +400,13 @@ ApplicationWindow {
                     }
                 }
 
-                onPressed: {
+                function onPressed() {
                     if (Mouse.isInside(textArea)) {
                         isDragging = true;
                     }
                 }
 
-                onReleased: {
+                function onReleased(button, longPress) {
                     if (button === Qt.MiddleButton && longPress) {
                         verticalScrollbar.middleMouseOriginY = -1;
                         verticalScrollbar.movementFactor = 0;
@@ -878,7 +878,8 @@ ApplicationWindow {
 
         Connections {
             target: Mouse
-            onWindowPositionChanged: {
+
+            function onWindowPositionChanged() {
                 if (!documentStructureDrawer.opened
                         && Mouse.windowPosition.y >= documentStructureDrawer.y + edgeTolerance
                         && Mouse.windowPosition.y < documentStructureDrawer.y + documentStructureDrawer.height

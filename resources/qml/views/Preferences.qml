@@ -78,8 +78,8 @@ Sky.Dialog {
 
                         Connections {
                             target: root
-                            onShown: toggle.checked = Settings.User.groups[row.category][setting.id]
-                            onSubmit: Settings.User.groups[row.category][setting.id] = toggle.checked
+                            function onShown() { toggle.checked = Settings.User.groups[row.category][setting.id]; }
+                            function onSubmit() { Settings.User.groups[row.category][setting.id] = toggle.checked; }
                         }
                     }
                 }
@@ -96,8 +96,8 @@ Sky.Dialog {
 
                         Connections {
                             target: root
-                            onShown: numberField.text = Settings.User.groups[row.category][setting.id]
-                            onSubmit: Settings.User.groups[row.category][setting.id] = numberField.value
+                            function onShown() { numberField.text = Settings.User.groups[row.category][setting.id]; }
+                            function onSubmit() { Settings.User.groups[row.category][setting.id] = numberField.value; }
                         }
                     }
                 }
@@ -124,8 +124,8 @@ Sky.Dialog {
 
                         Connections {
                             target: root
-                            onShown: comboBox.currentValue = Settings.User.groups[row.category][setting.id]
-                            onSubmit: Settings.User.groups[row.category][setting.id] = comboBox.currentValue
+                            function onShown() { comboBox.currentValue = Settings.User.groups[row.category][setting.id]; }
+                            function onSubmit() { Settings.User.groups[row.category][setting.id] = comboBox.currentValue; }
                         }
                     }
                 }
@@ -148,8 +148,8 @@ Sky.Dialog {
 
                         Connections {
                             target: root
-                            onShown: timeField.text = Settings.User.groups[row.category][setting.id]
-                            onSubmit: Settings.User.groups[row.category][setting.id] = timeField.text
+                            function onShown() { timeField.text = Settings.User.groups[row.category][setting.id]; }
+                            function onSubmit() { Settings.User.groups[row.category][setting.id] = timeField.text; }
                         }
                     }
                 }
@@ -195,7 +195,7 @@ Sky.Dialog {
 
             Connections {
                 target: root
-                onAccepted: {
+                function onAccepted() {
                     Settings.User.groups[categoryId].sync();
                 }
             }

@@ -2,6 +2,14 @@ QT += quick quickcontrols2 quick-private concurrent
 
 CONFIG += c++20
 
+versionAtLeast(QT_VERSION, 6.0.0) {
+    error(Migration to Qt 6 is still pending for when all relevant APIs are ready. The recommended version to build this project with is 5.14.2. See https://github.com/cengels/skywriter/issues/54 for details.)
+}
+
+versionAtLeast(QT_VERSION, 5.15.0) {
+    error(Qt version 5.15 is unsupported. See https://github.com/cengels/skywriter/issues/54 for details.)
+}
+
 #Application version
 VERSION_MAJOR = 0
 VERSION_MINOR = 0

@@ -899,20 +899,23 @@ ApplicationWindow {
         ListView {
             id: listView
             anchors.fill: parent
-            anchors.margins: 12
-            interactive: false
+            anchors.topMargin: 12
+            anchors.bottomMargin: 12
+            flickDeceleration: 3000
+            boundsBehavior: Flickable.StopAtBounds
             model: textArea.documentStructure
             spacing: 12
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: ScrollBar { width: 12 }
             delegate: Control {
                 width: listView.width - leftPadding
                 height: button.height
-                leftPadding: (modelData.depth - 1) * 20
+                leftPadding: (modelData.depth - 1) * 20 + 12
+                rightPadding: 12
 
                 Sky.Button {
                     id: button
                     x: parent.leftPadding
-                    width: parent.width
+                    width: parent.width - parent.rightPadding
                     height: column.implicitHeight + 20
                     prominence: textArea.currentDocumentSegment === modelData ? Sky.Button.Primary : Sky.Button.Secondary
 

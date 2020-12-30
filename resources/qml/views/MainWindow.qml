@@ -873,6 +873,7 @@ ApplicationWindow {
         width: 0.2 * mainWindow.width
         height: mainWindow.height - y - (statsBar.collapsed ? 0 : statsBar.height) + (searchBar.collapsed ? 0 : searchBar.y)
         modal: false
+        clip: true
 
         background: Rectangle { color: Qt.darker(ThemeManager.activeTheme.uiBackground, 1.1) }
 
@@ -901,7 +902,7 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.topMargin: 12
             anchors.bottomMargin: 12
-            flickDeceleration: 3000
+            flickDeceleration: 2000
             boundsBehavior: Flickable.StopAtBounds
             model: textArea.documentStructure
             spacing: 12

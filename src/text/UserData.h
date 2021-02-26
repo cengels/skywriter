@@ -14,7 +14,11 @@ struct UserData : public QTextBlockUserData
         //! it to the text block before returning it.
         static UserData& fromBlock(QTextBlock& block);
 
+        int wordCount() const;
+        void setWordCount(int wordCount);
+
     private:
+        int m_wordCount;
 };
 
 #endif // USERDATA_H

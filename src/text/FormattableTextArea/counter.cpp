@@ -11,6 +11,7 @@
 
 #include "FormattableTextArea.h"
 #include "../TextIterator.h"
+#include "../UserData.h"
 #include "../symbols.h"
 
 int FormattableTextArea::characterCount() const
@@ -75,12 +76,35 @@ void FormattableTextArea::updateCharacterCount()
     }
 }
 
+void FormattableTextArea::countWords(const int position, const int change)
+{
+    QTextBlock block = m_document->findBlock(position);
+    const QTextBlock lastBlock = m_document->findBlock(position + change);
+
+    while (block.isValid() && block != lastBlock) {
+        TextIterator textIterator = this->wordIterator(block.text());
+        int i = 0;
+
+        while (!textIterator.atEnd()) {
+            if (!textIterator.current().isEmpty()) {
+                i++;
+            }
+
+            textIterator++;
+        };
+
+        UserData::fromBlock(block).setWordCount(i);
+
+        block = block.next();
+    }
+}
+
 void FormattableTextArea::updateWordCount()
 {
     int words = 0;
 
     for (const DocumentSegment* segment : m_documentStructure) {
-        words += segment->words().count();
+        words += segment->wordCount();
     }
 
     if (words != this->m_wordCount) {
@@ -98,7 +122,7 @@ void FormattableTextArea::updateSelectedWordCount()
             return;
         }
 
-        TextIterator textIterator = this->selectedWordIterator();
+        TextIterator textIterator = this->wordIterator(m_textCursor.selectedText());
         int i = 0;
 
         while (!textIterator.atEnd()) {
@@ -183,17 +207,9 @@ void FormattableTextArea::updateSelectedCounts()
     this->updateSelectedWordCount();
 }
 
-TextIterator FormattableTextArea::wordIterator() const
+TextIterator FormattableTextArea::wordIterator(const QString& text) const
 {
-    TextIterator iterator = TextIterator(m_document->toPlainText(), TextIterator::IterationType::ByWord);
-    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
-
-    return iterator;
-}
-
-TextIterator FormattableTextArea::selectedWordIterator() const
-{
-    TextIterator iterator = TextIterator(m_textCursor.selectedText(), TextIterator::IterationType::ByWord);
+    TextIterator iterator = TextIterator(text, TextIterator::IterationType::ByWord);
     iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
 
     return iterator;

@@ -153,8 +153,7 @@ class FormattableTextArea : public QQuickItem
 
         bool loading() const;
 
-        TextIterator wordIterator() const;
-        TextIterator selectedWordIterator() const;
+        TextIterator wordIterator(const QString& text) const;
 
         void updateWordCount();
 
@@ -293,6 +292,7 @@ class FormattableTextArea : public QQuickItem
         void expandSelection();
 
         void updateDocumentStructure(const int position, const int added, const int removed);
+        void countWords(const int position, const int change);
         void updateFindRanges();
         void refreshDocumentStructure();
 

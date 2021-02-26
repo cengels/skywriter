@@ -126,6 +126,8 @@ void FormattableTextArea::connectDocument()
         } else {
             m_formatter = new TextFormatter(m_document);
         }
+
+        countWords(0, m_document->characterCount());
     }
 
     // must be called before emitting caretPositionChanged()
@@ -156,6 +158,7 @@ void FormattableTextArea::handleTextChange(const int position, const int removed
     if (added != 0 || removed != 0) {
         updateCounts();
         updateFindRanges();
+        countWords(position, added + removed);
         updateDocumentStructure(position, added, removed);
         emit textChanged(position, added, removed);
     }

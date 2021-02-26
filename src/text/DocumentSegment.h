@@ -6,12 +6,12 @@
 #include <QtConcurrent>
 #include "FormattableTextArea/FormattableTextArea.h"
 
-class DocumentSegment : public QObject, public QRunnable
+class DocumentSegment : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QString text READ text NOTIFY textChanged)
-    Q_PROPERTY(const QVector<QString>& words READ words NOTIFY wordsChanged)
+    Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
     Q_PROPERTY(QString heading READ heading CONSTANT)
     Q_PROPERTY(QString subheading READ subheading CONSTANT)
     Q_PROPERTY(int depth READ depth CONSTANT)
@@ -58,8 +58,13 @@ class DocumentSegment : public QObject, public QRunnable
         //! bounds of the document.
         bool isValid() const;
 
-        void countWords();
-        void countWordsAsync();
+        //! Gets the first text block contained in the DocumentSegment.
+        QTextBlock firstBlock() const;
+        //! Gets the last text block contained in the DocumentSegment.
+        QTextBlock lastBlock() const;
+
+        //! Updates the word count of the DocumentSegment.
+        void updateWordCount();
 
         bool operator==(const DocumentSegment& other) const;
         bool operator==(const DocumentSegment* other) const;
@@ -69,13 +74,12 @@ class DocumentSegment : public QObject, public QRunnable
     Q_SIGNALS:
         void positionChanged();
         void textChanged();
-        void wordsChanged();
+        void wordCountChanged();
 
     private:
         int m_position;
         int m_depth;
-        QVector<QString> m_words;
-        QReadWriteLock lock;
+        int m_wordCount;
 
         int index() const;
         void run() override;

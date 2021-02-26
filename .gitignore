@@ -52,5 +52,6 @@ compile_commands.json
 *creator.user*
 
 build/
+test_files/
 .vscode/
 .vs/

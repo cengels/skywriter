@@ -1,5 +1,6 @@
 #include <QVector>
 
+#include "UserData.h"
 #include "DocumentSegment.h"
 #include "TextIterator.h"
 #include "symbols.h"
@@ -7,8 +8,7 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_words(),
-    lock()
+    m_wordCount(0)
 {
     setAutoDelete(false);
 }
@@ -16,8 +16,7 @@ DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_words(),
-    lock()
+    m_wordCount(0)
 {
     setAutoDelete(false);
 }
@@ -51,9 +50,9 @@ int DocumentSegment::length() const
     }
 }
 
-const QVector<QString>& DocumentSegment::words() const
+int DocumentSegment::wordCount() const
 {
-    return m_words;
+    return m_wordCount;
 }
 
 QString DocumentSegment::text() const
@@ -185,32 +184,41 @@ int DocumentSegment::index() const
     return -1;
 }
 
-void DocumentSegment::run() {
-    countWords();
+QTextBlock DocumentSegment::firstBlock() const
+{
+    const QTextDocument* doc = this->document();
+
+    if (doc == nullptr) {
+        return QTextBlock();
+    }
+
+    return doc->findBlock(this->position());
 }
 
-void DocumentSegment::countWords()
+QTextBlock DocumentSegment::lastBlock() const
 {
-    QWriteLocker locker(&lock);
-    TextIterator iterator = TextIterator(text(), TextIterator::IterationType::ByWord);
-    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
+    const QTextDocument* doc = this->document();
 
-    m_words.clear();
+    if (doc == nullptr) {
+        return QTextBlock();
+    }
 
-    while (!iterator.atEnd()) {
-        if (!iterator.current().isEmpty()) {
-            m_words.append(iterator.current());
-        }
+    return doc->findBlock(this->position() + this->length() - 1);
+}
 
-        iterator++;
+void DocumentSegment::updateWordCount()
+{
+    QTextBlock block = this->firstBlock();
+    const QTextBlock lastBlock = this->lastBlock();
+
+    m_wordCount = 0;
+
+    while (block.isValid() && block != lastBlock) {
+        m_wordCount += UserData::fromBlock(block).wordCount();
+        block = block.next();
     }
 
     emit wordsChanged();
-}
-
-void DocumentSegment::countWordsAsync()
-{
-    QThreadPool::globalInstance()->start(this);
 }
 
 bool DocumentSegment::operator==(const DocumentSegment& other) const

@@ -36,7 +36,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
 
         if (targetSegment) {
             emit targetSegment->textChanged();
-            targetSegment->countWordsAsync();
+            targetSegment->updateWordCount();
         }
     } else if (change < 0) {
         // Text was removed.
@@ -78,7 +78,7 @@ void FormattableTextArea::updateDocumentStructure(const int position, const int 
 
         if (targetSegment) {
             emit targetSegment->textChanged();
-            targetSegment->countWordsAsync();
+            targetSegment->updateWordCount();
         }
     }
 }
@@ -98,7 +98,7 @@ void FormattableTextArea::refreshDocumentStructure()
     }
 
     DocumentSegment* firstSegment = new DocumentSegment(0, 1, this);
-    connect(firstSegment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
+    connect(firstSegment, &DocumentSegment::wordCountChanged, this, &FormattableTextArea::updateWordCount);
     m_documentStructure.append(firstSegment);
 
     QTextBlock previous = QTextBlock();
@@ -124,7 +124,7 @@ void FormattableTextArea::refreshDocumentStructure()
                 }
 
                 DocumentSegment* segment = new DocumentSegment(block.position(), depth, this);
-                connect(segment, &DocumentSegment::wordsChanged, this, &FormattableTextArea::updateWordCount);
+                connect(segment, &DocumentSegment::wordCountChanged, this, &FormattableTextArea::updateWordCount);
                 m_documentStructure.append(segment);
 
                 if (previousSegment) {
@@ -146,7 +146,7 @@ void FormattableTextArea::refreshDocumentStructure()
     emit currentDocumentSegmentChanged();
 
     for (DocumentSegment* segment : m_documentStructure) {
-        segment->countWordsAsync();
+        segment->updateWordCount();
     }
 }
 

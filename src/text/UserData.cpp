@@ -1,6 +1,6 @@
 #include "UserData.h"
 
-UserData::UserData()
+UserData::UserData() : m_wordCount(0)
 { }
 
 UserData& UserData::fromBlock(QTextBlock& block) {
@@ -12,4 +12,14 @@ UserData& UserData::fromBlock(QTextBlock& block) {
     }
 
     return *userData;
+}
+
+int UserData::wordCount() const
+{
+    return this->m_wordCount;
+}
+
+void UserData::setWordCount(int wordCount)
+{
+    this->m_wordCount = wordCount;
 }

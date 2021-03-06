@@ -8,6 +8,12 @@
                 "type": "boolean",
                 "default": true
             },
+            "smoothScrolling": {
+                "name": "Smooth scrolling",
+                "description": "Whether scrolling in the editor should be smooth or instant. Smooth scrolling is slower but less jarring.",
+                "type": "boolean",
+                "default": true
+            },
             "instantSearch": {
                 "name": "Immediately jump to next search match",
                 "description": "Whether the editor should automatically jump to the position of the next search match when typing in the search bar. If this setting is off, the search will not jump to the next match until the corresponding button or the Enter key are pressed.",

@@ -280,6 +280,11 @@ ApplicationWindow {
             property real scrollStart: 0
 
             function scrollTo(y) {
+                if (!Settings.User.groups.editor.smoothScrolling) {
+                    verticalScrollbar.position = y;
+                    return;
+                }
+
                 if (scrollAnimation.running && scrollStart != 0) {
                     scrollAnimation.stop();
 

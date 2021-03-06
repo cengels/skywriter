@@ -277,6 +277,32 @@ ApplicationWindow {
             visible: textArea.contentHeight > scrollView.height
             enabled: visible
             minimumSize: 50 / scrollView.height
+            property real scrollStart: 0
+
+            function scrollTo(y) {
+                if (scrollAnimation.running && scrollStart != 0) {
+                    scrollAnimation.stop();
+
+                    const difference = Math.abs(scrollAnimation.to - verticalScrollbar.position);
+
+                    if (position - y < 0) {
+                        scrollAnimation.to = y + difference;
+                    } else {
+                        scrollAnimation.to = y - difference;
+                    }
+                } else {
+                    scrollAnimation.to = y;
+                }
+
+                scrollStart = verticalScrollbar.position;
+                scrollAnimation.duration = Math.min(Math.abs(verticalScrollbar.position - y) * textArea.contentHeight * 2.5, 1000);
+                scrollAnimation.start();
+            }
+
+            NumberAnimation on position {
+                id: scrollAnimation
+                easing.type: Easing.OutQuad
+            }
 
             readonly property int middleMouseThreshold: 32
 
@@ -347,12 +373,18 @@ ApplicationWindow {
                 }
             }
 
-            function centerOnCaret() {
+            function centerOnCaret(smooth) {
                 const verticalCaretCenter = textArea.caretRectangle().y + textArea.contentY + textArea.caretRectangle().height / 2;
                 const relativeCaretPosition = verticalCaretCenter / textArea.contentHeight;
                 const verticalScrollViewCenter = textArea.contentY + scrollView.height / 2;
                 const relativeScrollViewCenter = verticalScrollViewCenter / textArea.contentHeight;
-                verticalScrollbar.position += relativeCaretPosition - relativeScrollViewCenter;
+                const newPosition = verticalScrollbar.position + relativeCaretPosition - relativeScrollViewCenter;
+
+                if (smooth) {
+                    verticalScrollbar.scrollTo(newPosition);
+                } else {
+                    verticalScrollbar.position = newPosition;
+                }
             }
 
             Component.onCompleted: lastTheme = ThemeManager.activeTheme.name
@@ -451,9 +483,9 @@ ApplicationWindow {
                     // Scrolls about 72 pixels per wheel "click"
                     const delta = (wheel.angleDelta.y * 0.6) / textArea.contentHeight;
 
-                    verticalScrollbar.position = wheel.angleDelta.y < 0
+                    verticalScrollbar.scrollTo(wheel.angleDelta.y < 0
                             ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
-                            : Math.max(verticalScrollbar.position - delta, 0.0);
+                            : Math.max(verticalScrollbar.position - delta, 0.0));
                 }
             }
             onPressed: {
@@ -500,19 +532,19 @@ ApplicationWindow {
                         }
                     }
 
-                    property bool loading: false;
+                    property bool suspended: false;
                     // This is necessary because signals are always queued
                     // and only emitted if there is nothing else happening
                     // on the UI thread. If we simply used textArea.loading
                     // in the other signal handlers, the loading state might
                     // be "in the future", so to speak.
-                    onLoadingChanged: loading = textArea.loading;
+                    onLoadingChanged: suspended = textArea.loading;
 
                     property double previousContentHeight: 0
                     onContentHeightChanged: {
                         // activeFocus makes sure the text area does not adjust its scroll
                         // until the text area has fully initialized
-                        if (textArea.activeFocus && !loading && mainWindow.active) {
+                        if (textArea.activeFocus && !suspended && mainWindow.active) {
                             // "restore" the previous scroll position
                             let newScroll = verticalScrollbar.position / contentHeight * previousContentHeight;
 
@@ -547,7 +579,7 @@ ApplicationWindow {
                         forceActiveFocus();
 
                         if (!textArea.loading) {
-                            loading = false;
+                            suspended = false;
                         }
                     }
 
@@ -578,7 +610,7 @@ ApplicationWindow {
                     }
 
                     onCaretPositionChanged: {
-                        if (!loading) {
+                        if (!suspended) {
                             verticalScrollbar.scrollToCaret();
                         }
                     }
@@ -921,8 +953,10 @@ ApplicationWindow {
                     prominence: textArea.currentDocumentSegment === modelData ? Sky.Button.Primary : Sky.Button.Secondary
 
                     onClicked: {
+                        textArea.suspended = true;
                         textArea.caretPosition = modelData.position;
-                        verticalScrollbar.centerOnCaret();
+                        textArea.suspended = false;
+                        verticalScrollbar.centerOnCaret(true);
                     }
 
                     Column {

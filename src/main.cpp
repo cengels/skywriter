@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextObject(new QmlHelper(&app));
     engine.rootContext()->setContextProperty("QT_VERSION", qVersion());
     engine.addImportPath(":/");
-    engine.load(":/qml/views/MainWindow.qml");
+    engine.load(QUrl(QStringLiteral("qrc:/qml/views/MainWindow.qml")));
 
     app.topLevelWindows().first()->installEventFilter(mouse);
 

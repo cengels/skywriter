@@ -2,8 +2,15 @@
 #include <QStringList>
 #include <QString>
 #include <QDebug>
+#include <QTextDocument>
+#include <QTextBlock>
+#include <QTextLayout>
 
 #include "symbols.h"
+#include "../Range.h"
+#include "../profiling.h"
+#include "UserData.h"
+#include "format.h"
 #include "TextIterator.h"
 
 namespace {
@@ -31,15 +38,20 @@ namespace {
     }
 }
 
-// Must copy text rather than reference it to ensure thread safety.
-TextIterator::TextIterator(const QString text, const IterationType iterationType) :
-    m_text(text),
+// A previous approach considered using a copied QTextCursor instead of m_iterator here to iterate
+// through the text. However, each call of QTextCursor::movePosition() or QTextCursor::setPosition()
+// takes a significant period of time. A simple iterator is much faster.
+// We also need to make sure that we use iterators to a copy of the selectedText, not to a reference
+// otherwise everything breaks.
+TextIterator::TextIterator(const QTextCursor& cursor, const IterationType iterationType) :
+    m_originalCursor(cursor),
+    m_text(cursor.selectedText()),
+    m_iterator(m_text.constBegin()),
+    m_iteratorEnd(m_text.constEnd()),
+    m_position(cursor.selectionStart()),
     m_iterationType(iterationType),
-    m_charIterator(text.constBegin()),
-    m_charIteratorEnd(text.constEnd()),
     m_current(),
-    m_ignorePairs(),
-    m_state(TextIteratorState::None)
+    m_commentsEnabled(false)
 {
     switch (m_iterationType) {
         case TextIterator::IterationType::ByCharacter:
@@ -54,13 +66,14 @@ TextIterator::TextIterator(const QString text, const IterationType iterationType
 }
 
 TextIterator::TextIterator(const TextIterator& textIterator) :
+    m_originalCursor(textIterator.m_originalCursor),
     m_text(textIterator.m_text),
+    m_iterator(textIterator.m_iterator),
+    m_iteratorEnd(textIterator.m_iteratorEnd),
+    m_position(textIterator.m_position),
     m_iterationType(textIterator.m_iterationType),
-    m_charIterator(textIterator.m_charIterator),
-    m_charIteratorEnd(textIterator.m_charIteratorEnd),
     m_current(textIterator.m_current),
-    m_ignorePairs(textIterator.m_ignorePairs),
-    m_state(textIterator.m_state) { }
+    m_commentsEnabled(textIterator.m_commentsEnabled) { }
 
 TextIterator& TextIterator::operator++()
 {
@@ -101,7 +114,7 @@ TextIterator& TextIterator::operator+=(int by)
 bool TextIterator::operator==(const TextIterator& other) const
 {
     return this->m_iterationType == other.m_iterationType
-            && this->m_charIterator == other.m_charIterator;
+            && this->m_iterator == other.m_iterator;
 }
 
 bool TextIterator::operator!=(const TextIterator& other) const
@@ -114,34 +127,30 @@ const QString TextIterator::current() const
     return this->m_current;
 }
 
-bool TextIterator::atEnd() const {
+bool TextIterator::atEnd() const
+{
     return m_current == '\0' || m_current.isNull();
-}
-
-void TextIterator::ignoreEnclosedBy(const QChar openingToken, const QChar closingToken) {
-    this->m_ignorePairs.insert(QPair<const QChar, const QChar>(openingToken, closingToken));
 }
 
 const QString TextIterator::nextChar()
 {
     do {
-        if (m_charIterator == m_charIteratorEnd) {
+        if (m_iterator == m_iteratorEnd) {
             return QString();
         }
 
-        m_charIterator++;
+        m_iterator++;
+        m_position++;
+    } while (this->shouldIgnoreToken());
 
-        this->updateState();
-    } while (m_state & TextIteratorState::IgnoreBlock);
-
-    return QString(*m_charIterator);
+    return QString(*m_iterator);
 }
 
 const QString TextIterator::nextWord()
 {
     QString word;
 
-    if (m_charIterator == m_charIteratorEnd) {
+    if (m_iterator == m_iteratorEnd) {
         return QString();
     }
 
@@ -149,42 +158,58 @@ const QString TextIterator::nextWord()
     // is not empty (which means that the iteration began with a word
     // separator). Abort if the end of the string is found.
 
-    while (m_charIterator != m_charIteratorEnd) {
-        this->updateState();
-
-        if (m_state & TextIteratorState::IgnoreBlock) {
-            m_charIterator++;
+    while (m_iterator != m_iteratorEnd) {
+        if (this->shouldIgnoreToken()) {
+            m_iterator++;
+            m_position++;
             continue;
         }
 
-        bool isSeparator = isWordSeparator(m_charIterator);
+        bool isSeparator = isWordSeparator(m_iterator);
 
         if (isSeparator && !word.isEmpty()) {
             break;
         }
 
-        QChar character = *m_charIterator;
+        QChar character = *m_iterator;
 
         // The isLetter() check makes sure to exclude non-letter characters
         // from the output. That way free-standing symbols that are not
         // declared word separators don't get falsely interpreted as a word.
 
-        if (!isSeparator && m_charIterator->isLetterOrNumber()) {
+        if (!isSeparator && m_iterator->isLetterOrNumber()) {
             word.append(character);
         }
-        m_charIterator++;
+        m_iterator++;
+        m_position++;
     }
 
     return word;
 }
 
-void TextIterator::updateState()
+bool TextIterator::shouldIgnoreToken()
 {
-    QChar character = *m_charIterator;
-
-    if (m_state & TextIteratorState::IgnoreBlock && containsSecond(this->m_ignorePairs, character)) {
-        m_state = TextIteratorState(m_state & ~TextIteratorState::IgnoreBlock);
-    } else if (!(m_state & TextIteratorState::IgnoreBlock) && containsFirst(this->m_ignorePairs, character)) {
-        m_state = TextIteratorState(m_state | TextIteratorState::IgnoreBlock);
+    if (m_commentsEnabled) {
+        return false;
     }
+
+    QTextBlock block = m_originalCursor.document()->findBlock(m_position);
+    int positionInBlock = m_position - block.position();
+    for (Range<int> range : UserData::fromBlock(block).comments()) {
+        if (range.contains(positionInBlock)) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void TextIterator::setCommentsEnabled(bool enabled)
+{
+    m_commentsEnabled = enabled;
+}
+
+bool TextIterator::commentsEnabled()
+{
+    return m_commentsEnabled;
 }

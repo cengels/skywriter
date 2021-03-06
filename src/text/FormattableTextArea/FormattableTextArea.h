@@ -153,7 +153,7 @@ class FormattableTextArea : public QQuickItem
 
         bool loading() const;
 
-        TextIterator wordIterator(const QString& text) const;
+        TextIterator wordIterator(const QTextCursor& cursor) const;
 
         void updateWordCount();
 

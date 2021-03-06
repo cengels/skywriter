@@ -125,6 +125,10 @@ void FormattableTextArea::connectDocument()
             m_formatter->setDocument(m_document);
         } else {
             m_formatter = new TextFormatter(m_document);
+            connect(m_formatter, &TextFormatter::blockInvalidated, this, [&] (QTextBlock block) -> void {
+                countWords(block.position(), block.length());
+                findDocumentSegment(block.position())->updateWordCount();
+            });
         }
 
         countWords(0, m_document->characterCount());

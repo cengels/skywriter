@@ -31,7 +31,7 @@ class DocumentSegment : public QObject
         //! Gets the text contained in this DocumentSegment.
         QString text() const;
         //! Gets the number of words of the text within this DocumentSegment.
-        const QVector<QString>& words() const;
+        int wordCount() const;
 
         //! Gets the heading of this DocumentSegment. A new DocumentSegment
         //! begins at a new heading, so each DocumentSegment must, by definition,
@@ -82,7 +82,6 @@ class DocumentSegment : public QObject
         int m_wordCount;
 
         int index() const;
-        void run() override;
 };
 
 #endif // DOCUMENTSEGMENT_H

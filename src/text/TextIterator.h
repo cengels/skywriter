@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QSet>
-
+#include <QTextCursor>
 
 class TextIterator
 {
@@ -16,7 +16,7 @@ class TextIterator
 //            ByLine
         };
 
-        TextIterator(const QString text, const IterationType iterationType);
+        TextIterator(const QTextCursor& cursor, const IterationType iterationType);
         TextIterator(const TextIterator& textIterator);
         TextIterator& operator++();
         TextIterator operator++(int);
@@ -27,28 +27,24 @@ class TextIterator
         const QString current() const;
         bool atEnd() const;
 
-        //! Ignores any characters surrounded by the specified opening and
-        //! closing token.
-        void ignoreEnclosedBy(const QChar openingToken, const QChar closingToken);
+        //! If set to true, will not count comments.
+        void setCommentsEnabled(bool enabled);
+        //! Whether the TextIterator should count comments. False by default.
+        bool commentsEnabled();
 
     private:
-        enum TextIteratorState {
-            None = 0,
-            IgnoreBlock = 1
-        };
-
-        const QString m_text;
+        const QTextCursor& m_originalCursor;
+        QString m_text;
+        QString::const_iterator m_iterator;
+        QString::const_iterator m_iteratorEnd;
+        int m_position;
         const IterationType m_iterationType;
-        QString::const_iterator m_charIterator;
-        QString::const_iterator m_charIteratorEnd;
         QString m_current;
-        QSet<const QPair<const QChar, const QChar>> m_ignorePairs;
-        TextIteratorState m_state;
+        bool m_commentsEnabled;
 
         const QString nextChar();
         const QString nextWord();
-
-        void updateState();
+        bool shouldIgnoreToken();
 };
 
 #endif // TEXTITERATOR_H

@@ -13,6 +13,7 @@
 #include "../TextIterator.h"
 #include "../UserData.h"
 #include "../symbols.h"
+#include "../../profiling.h"
 
 int FormattableTextArea::characterCount() const
 {
@@ -79,10 +80,12 @@ void FormattableTextArea::updateCharacterCount()
 void FormattableTextArea::countWords(const int position, const int change)
 {
     QTextBlock block = m_document->findBlock(position);
-    const QTextBlock lastBlock = m_document->findBlock(position + change);
+    int end = position + change;
 
-    while (block.isValid() && block != lastBlock) {
-        TextIterator textIterator = this->wordIterator(block.text());
+    while (block.isValid() && block.position() < end) {
+        QTextCursor cursor = QTextCursor(block);
+        cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+        TextIterator textIterator = this->wordIterator(cursor);
         int i = 0;
 
         while (!textIterator.atEnd()) {
@@ -117,33 +120,31 @@ void FormattableTextArea::updateWordCount()
 
 void FormattableTextArea::updateSelectedWordCount()
 {
-    QtConcurrent::run([=] {
-        if (!m_document) {
-            return;
+    if (!m_document) {
+        return;
+    }
+
+    TextIterator textIterator = this->wordIterator(m_textCursor);
+    int i = 0;
+
+    while (!textIterator.atEnd()) {
+        if (!textIterator.current().isEmpty()) {
+            i++;
         }
 
-        TextIterator textIterator = this->wordIterator(m_textCursor.selectedText());
-        int i = 0;
+        textIterator++;
+    };
 
-        while (!textIterator.atEnd()) {
-            if (!textIterator.current().isEmpty()) {
-                i++;
-            }
+    if (i != this->m_selectedWordCount) {
+        m_selectedWordCount = i;
+        emit selectedWordCountChanged();
+    }
 
-            textIterator++;
-        };
-
-        if (i != this->m_selectedWordCount) {
-            m_selectedWordCount = i;
-            emit selectedWordCountChanged();
-        }
-
-        const int selectedPages = m_selectedWordCount / 250 + (m_selectedWordCount % 250 != 0 ? 1 : 0);
-        if (m_selectedPageCount != selectedPages) {
-            m_selectedPageCount = selectedPages;
-            emit selectedPageCountChanged();
-        }
-    });
+    const int selectedPages = m_selectedWordCount / 250 + (m_selectedWordCount % 250 != 0 ? 1 : 0);
+    if (m_selectedPageCount != selectedPages) {
+        m_selectedPageCount = selectedPages;
+        emit selectedPageCountChanged();
+    }
 }
 
 void FormattableTextArea::updateParagraphCount()
@@ -207,10 +208,9 @@ void FormattableTextArea::updateSelectedCounts()
     this->updateSelectedWordCount();
 }
 
-TextIterator FormattableTextArea::wordIterator(const QString& text) const
+TextIterator FormattableTextArea::wordIterator(const QTextCursor& cursor) const
 {
-    TextIterator iterator = TextIterator(text, TextIterator::IterationType::ByWord);
-    iterator.ignoreEnclosedBy(symbols::opening_comment, symbols::closing_comment);
+    TextIterator iterator = TextIterator(cursor, TextIterator::IterationType::ByWord);
 
     return iterator;
 }

@@ -35,9 +35,15 @@ namespace format {
         SceneBreak = 0x8
     };
 
+    enum FormatState {
+        Comment = 0x1
+    };
+
     Q_DECLARE_FLAGS(BlockStates, BlockState);
+    Q_DECLARE_FLAGS(FormatStates, FormatState);
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(format::BlockStates);
+Q_DECLARE_OPERATORS_FOR_FLAGS(format::FormatStates);
 
 #endif // FORMAT_H

@@ -23,7 +23,7 @@ class TextFormatter : public QSyntaxHighlighter
         void refresh();
 
     Q_SIGNALS:
-        void commentsChanged();
+        void blockInvalidated(const QTextBlock block);
 
     protected:
         void highlightBlock(const QString &text) override;

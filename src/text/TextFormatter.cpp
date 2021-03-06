@@ -102,6 +102,15 @@ void TextFormatter::formatComments(const QString& text)
         unsetCurrentBlockStateFlag(format::EndsWithUnclosedComment);
     }
 
+    UserData* userData = dynamic_cast<UserData*>(this->currentBlock().userData());
+
+    if (userData == nullptr) {
+        userData = new UserData();
+    }
+
+    bool hadComments = !userData->comments().isEmpty();
+    userData->clearCommentRanges();
+
     while (startIndex >= 0) {
         int endIndex = text.indexOf(symbols::closing_comment, startIndex);
         int commentLength = 0;
@@ -115,7 +124,14 @@ void TextFormatter::formatComments(const QString& text)
         }
 
         setColor(startIndex, commentLength, commentColor);
+        userData->addCommentRange(startIndex, startIndex + commentLength);
         startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
+    }
+
+    setCurrentBlockUserData(userData);
+
+    if (userData->comments().length() > 0 || hadComments) {
+        emit blockInvalidated(this->currentBlock());
     }
 }
 

@@ -14,6 +14,7 @@ MenuBar {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.ArrowCursor
+            acceptedButtons: Qt.NoButton
         }
     }
 
@@ -29,6 +30,7 @@ MenuBar {
                 id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.LeftButton
                 onClicked: {
                     if (menuBarItem.menu.visible) {
                         menuBarItem.menu.close();

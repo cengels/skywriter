@@ -17,8 +17,13 @@ struct UserData : public QTextBlockUserData
         int wordCount() const;
         void setWordCount(int wordCount);
 
+        void addCommentRange(int from, int to);
+        void clearCommentRanges();
+        const QVector<Range<int>> comments() const;
+
     private:
         int m_wordCount;
+        QVector<Range<int>> m_comments;
 };
 
 #endif // USERDATA_H

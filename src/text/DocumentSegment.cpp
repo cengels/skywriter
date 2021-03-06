@@ -2,7 +2,6 @@
 
 #include "UserData.h"
 #include "DocumentSegment.h"
-#include "TextIterator.h"
 #include "symbols.h"
 
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
@@ -10,7 +9,6 @@ DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_depth(0),
     m_wordCount(0)
 {
-    setAutoDelete(false);
 }
 
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
@@ -18,7 +16,6 @@ DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QOb
     m_depth(depth),
     m_wordCount(0)
 {
-    setAutoDelete(false);
 }
 
 int DocumentSegment::position() const
@@ -209,16 +206,16 @@ QTextBlock DocumentSegment::lastBlock() const
 void DocumentSegment::updateWordCount()
 {
     QTextBlock block = this->firstBlock();
-    const QTextBlock lastBlock = this->lastBlock();
+    int end = this->position() + this->length();
 
     m_wordCount = 0;
 
-    while (block.isValid() && block != lastBlock) {
+    while (block.isValid() && block.position() < end) {
         m_wordCount += UserData::fromBlock(block).wordCount();
         block = block.next();
     }
 
-    emit wordsChanged();
+    emit wordCountChanged();
 }
 
 bool DocumentSegment::operator==(const DocumentSegment& other) const

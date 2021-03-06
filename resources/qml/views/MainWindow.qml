@@ -903,7 +903,6 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.topMargin: 12
             anchors.bottomMargin: 12
-            flickDeceleration: 2000
             boundsBehavior: Flickable.StopAtBounds
             model: textArea.documentStructure
             spacing: 12

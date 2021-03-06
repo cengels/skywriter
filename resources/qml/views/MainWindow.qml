@@ -889,6 +889,7 @@ ApplicationWindow {
                         && Mouse.buttons === Qt.NoButton) {
                     documentStructureDrawer.open();
                 } else if (documentStructureDrawer.opened
+                        && !drawerScrollBar.active
                         && (Mouse.windowPosition.y < documentStructureDrawer.y
                         || Mouse.windowPosition.y >= documentStructureDrawer.y + documentStructureDrawer.height
                         || Mouse.windowPosition.x > documentStructureDrawer.width)) {
@@ -906,7 +907,7 @@ ApplicationWindow {
             boundsBehavior: Flickable.StopAtBounds
             model: textArea.documentStructure
             spacing: 12
-            ScrollBar.vertical: ScrollBar { width: 12 }
+            ScrollBar.vertical: ScrollBar { id: drawerScrollBar; width: 12 }
             delegate: Control {
                 width: listView.width - leftPadding
                 height: button.height

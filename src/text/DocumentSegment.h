@@ -12,6 +12,7 @@ class DocumentSegment : public QObject
     Q_PROPERTY(int position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(QString text READ text NOTIFY textChanged)
     Q_PROPERTY(int wordCount READ wordCount NOTIFY wordCountChanged)
+    Q_PROPERTY(int totalWordCount READ totalWordCount NOTIFY totalWordCountChanged)
     Q_PROPERTY(QString heading READ heading CONSTANT)
     Q_PROPERTY(QString subheading READ subheading CONSTANT)
     Q_PROPERTY(int depth READ depth CONSTANT)
@@ -32,6 +33,8 @@ class DocumentSegment : public QObject
         QString text() const;
         //! Gets the number of words of the text within this DocumentSegment.
         int wordCount() const;
+        //! Gets the number of words of the text within this DocumentSegment and its children.
+        int totalWordCount() const;
 
         //! Gets the heading of this DocumentSegment. A new DocumentSegment
         //! begins at a new heading, so each DocumentSegment must, by definition,
@@ -49,6 +52,7 @@ class DocumentSegment : public QObject
 
         DocumentSegment* next() const;
         DocumentSegment* previous() const;
+        DocumentSegment* parentSegment() const;
 
         //! Gets the QTextDocument this DocumentSegment corresponds to.
         QTextDocument* document() const;
@@ -65,6 +69,7 @@ class DocumentSegment : public QObject
 
         //! Updates the word count of the DocumentSegment.
         void updateWordCount();
+        void updateTotalWordCount();
 
         bool operator==(const DocumentSegment& other) const;
         bool operator==(const DocumentSegment* other) const;
@@ -75,11 +80,13 @@ class DocumentSegment : public QObject
         void positionChanged();
         void textChanged();
         void wordCountChanged();
+        void totalWordCountChanged();
 
     private:
         int m_position;
         int m_depth;
         int m_wordCount;
+        int m_totalWordCount;
 
         int index() const;
 };

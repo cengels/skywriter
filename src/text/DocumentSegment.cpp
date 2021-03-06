@@ -7,14 +7,16 @@
 DocumentSegment::DocumentSegment(QObject *parent) : QObject(parent),
     m_position(0),
     m_depth(0),
-    m_wordCount(0)
+    m_wordCount(0),
+    m_totalWordCount(0)
 {
 }
 
 DocumentSegment::DocumentSegment(int position, int depth, QObject* parent) : QObject(parent),
     m_position(position),
     m_depth(depth),
-    m_wordCount(0)
+    m_wordCount(0),
+    m_totalWordCount(0)
 {
 }
 
@@ -50,6 +52,11 @@ int DocumentSegment::length() const
 int DocumentSegment::wordCount() const
 {
     return m_wordCount;
+}
+
+int DocumentSegment::totalWordCount() const
+{
+    return m_totalWordCount;
 }
 
 QString DocumentSegment::text() const
@@ -110,6 +117,25 @@ DocumentSegment* DocumentSegment::previous() const
     return textArea->documentStructure().at(index - 1);
 }
 
+DocumentSegment* DocumentSegment::parentSegment() const
+{
+    DocumentSegment* segment = previous();
+
+    if (segment == nullptr) {
+        return nullptr;
+    }
+
+    while (segment->m_depth >= this->m_depth) {
+        segment = segment->previous();
+
+        if (segment == nullptr) {
+            return nullptr;
+        }
+    }
+
+    return segment;
+}
+
 QTextDocument* DocumentSegment::document() const
 {
     if (!parent()) {
@@ -167,12 +193,9 @@ int DocumentSegment::index() const
 
     const FormattableTextArea* textArea = qobject_cast<FormattableTextArea*>(parent());
 
-    if (!textArea->document()) {
-        return -1;
-    }
-
     // Can't use indexOf here due to an incomprehensible compiler error.
-    for (int i = 0; i < textArea->documentStructure().size(); i++) {
+    int size = textArea->documentStructure().size();
+    for (int i = 0; i < size; i++) {
         if (textArea->documentStructure().at(i) == this) {
             return i;
         }
@@ -208,6 +231,7 @@ void DocumentSegment::updateWordCount()
     QTextBlock block = this->firstBlock();
     int end = this->position() + this->length();
 
+    int previous = m_wordCount;
     m_wordCount = 0;
 
     while (block.isValid() && block.position() < end) {
@@ -215,7 +239,61 @@ void DocumentSegment::updateWordCount()
         block = block.next();
     }
 
-    emit wordCountChanged();
+    if (m_wordCount != previous) {
+        emit wordCountChanged();
+
+        updateTotalWordCount();
+    }
+}
+
+void DocumentSegment::updateTotalWordCount()
+{
+    int previous = m_totalWordCount;
+
+    m_totalWordCount = m_wordCount;
+
+    if (!parent()) {
+        emit totalWordCountChanged();
+        return;
+    }
+
+    const FormattableTextArea* textArea = qobject_cast<FormattableTextArea*>(parent());
+
+    bool reachedSelf = false;
+    int targetDepth = -1;
+
+    int size = textArea->documentStructure().size();
+    for (int i = 0; i < size; i++) {
+        auto segment = textArea->documentStructure().at(i);
+
+        if (reachedSelf) {
+            if (targetDepth == -1) {
+                if (segment->m_depth <= this->m_depth) {
+                    break;
+                } else {
+                    targetDepth = segment->m_depth;
+                }
+            } else if (segment->m_depth < targetDepth) {
+                break;
+            }
+
+            if (segment->m_depth == targetDepth) {
+                m_totalWordCount += segment->m_totalWordCount;
+            }
+        } else if (segment == this) {
+            reachedSelf = true;
+        }
+    }
+
+    if (previous != m_totalWordCount) {
+        emit totalWordCountChanged();
+
+        DocumentSegment* parentSegment = this->parentSegment();
+
+        if (parentSegment) {
+            parentSegment->updateTotalWordCount();
+        }
+    }
 }
 
 bool DocumentSegment::operator==(const DocumentSegment& other) const

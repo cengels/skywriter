@@ -885,7 +885,7 @@ ApplicationWindow {
                         && Mouse.windowPosition.y >= documentStructureDrawer.y + edgeTolerance
                         && Mouse.windowPosition.y < documentStructureDrawer.y + documentStructureDrawer.height
                         && Mouse.windowPosition.x < edgeTolerance
-                        && !fileMenu.opened
+                        && !fileMenu.visible
                         && Mouse.buttons === Qt.NoButton) {
                     documentStructureDrawer.open();
                 } else if (documentStructureDrawer.opened

@@ -19,7 +19,13 @@ namespace {
 void profiling::start(const QString& name)
 {
     if (timeMap.contains(name)) {
-        debug() << "Profiler" << name << "already started. Not starting another one.";
+        auto value = timeMap.value(name);
+
+        if (value <= 0) {
+            // was paused
+            timeMap.insert(name, QDateTime::currentMSecsSinceEpoch() + timeMap.value(name));
+        }
+
         return;
     }
 
@@ -35,7 +41,10 @@ void profiling::mark(const QString& name)
         return;
     }
 
-    debug() << "[" + name + "]" << QDateTime::currentMSecsSinceEpoch() - timeMap.value(name) << "ms elapsed.";
+    auto value = timeMap.value(name);
+    auto time = value > 0 ? QDateTime::currentMSecsSinceEpoch() - value : -value;
+
+    debug() << "[" + name + "]" << time << "ms elapsed.";
 }
 
 void profiling::stop(const QString& name)
@@ -45,9 +54,25 @@ void profiling::stop(const QString& name)
         return;
     }
 
-    debug() << "[" + name + "]" << QDateTime::currentMSecsSinceEpoch() - timeMap.value(name) << "ms elapsed. Stop.";
+    auto value = timeMap.value(name);
+    auto time = value > 0 ? QDateTime::currentMSecsSinceEpoch() - value : -value;
+
+    debug() << "[" + name + "]" << time << "ms elapsed. Stop.";
 
     timeMap.remove(name);
+}
+
+void profiling::pause(const QString& name)
+{
+    if (!timeMap.contains(name)) {
+        debug() << "Can't pause: profiler" << name << "is not started.";
+        return;
+    }
+
+    // Saves the currently elapsed time, thus temporarily changing the meaning of the time map's value field.
+    // We're saving it as a negative number to be able to identify it later.
+    qint64 msecs = -(QDateTime::currentMSecsSinceEpoch() - timeMap.value(name));
+    timeMap.insert(name, msecs);
 }
 
 void profiling::count(const QString& name)

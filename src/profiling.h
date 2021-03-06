@@ -12,6 +12,8 @@ namespace profiling
     void mark(const QString& name);
     //! Stops the profiler and prints the total elapsed time for the given profiler to the debug output.
     void stop(const QString& name);
+    //! Pauses the profiler. The next time start() is called on it, the time resumes.
+    void pause(const QString& name);
 
     //! Increments the count for the given profiler name.
     void count(const QString& name);

@@ -39,7 +39,7 @@ Menu {
             from: menuHeight
             to: 0
             property: "height"
-            duration: 300
+            duration: 200
         }
         NumberAnimation {
             from: 1.0

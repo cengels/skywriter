@@ -931,7 +931,7 @@ ApplicationWindow {
                         && !drawerScrollBar.active
                         && (Mouse.windowPosition.y < documentStructureDrawer.y
                         || Mouse.windowPosition.y >= documentStructureDrawer.y + documentStructureDrawer.height
-                        || Mouse.windowPosition.x > documentStructureDrawer.width)) {
+                        || Mouse.windowPosition.x > documentStructureDrawer.width + edgeTolerance)) {
                     documentStructureDrawer.close();
                 }
             }
@@ -943,13 +943,14 @@ ApplicationWindow {
             anchors.topMargin: 12
             anchors.bottomMargin: 12
             boundsBehavior: Flickable.StopAtBounds
+            flickDeceleration: 800
             model: textArea.documentStructure
             spacing: 12
             ScrollBar.vertical: ScrollBar { id: drawerScrollBar; width: 12 }
             delegate: Control {
                 width: listView.width - leftPadding
                 height: button.height
-                leftPadding: (modelData.depth - 1) * 20 + 12
+                leftPadding: (modelData.depth - 1) * 10 + 12
                 rightPadding: 12
 
                 Sky.Button {

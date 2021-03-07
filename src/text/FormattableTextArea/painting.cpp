@@ -39,15 +39,16 @@ bool FormattableTextArea::event(QEvent* event)
     return QQuickItem::event(event);
 }
 
-void FormattableTextArea::updateStyling()
+void FormattableTextArea::updateStyling(QTextDocument* document)
 {
-    if (!m_document) {
+    if (!document) {
         return;
     }
 
-    QTextCursor cursor(m_document);
+    QTextCursor cursor(document);
+    QTextBlock lastBlock = document->lastBlock();
 
-    for (; !cursor.atEnd(); cursor.movePosition(QTextCursor::MoveOperation::NextBlock)) {
+    for (; cursor.block() != lastBlock; cursor.movePosition(QTextCursor::MoveOperation::NextBlock)) {
         QTextBlockFormat format = cursor.block().blockFormat();
         int headingLevel = format.headingLevel();
 
@@ -59,12 +60,13 @@ void FormattableTextArea::updateStyling()
     }
 }
 
-void FormattableTextArea::updateDocumentDefaults()
+void FormattableTextArea::updateDocumentDefaults(bool cloneDocument)
 {
     if (!m_document) {
         return;
     }
-	m_document->blockSignals(true);
+
+    QTextDocument* document = cloneDocument ? m_document->clone(this) : m_document;
 
     bool wasModified = this->modified();
 
@@ -77,20 +79,26 @@ void FormattableTextArea::updateDocumentDefaults()
 
     const Theme* theme = ThemeManager::instance()->activeTheme();
 
-    m_document->setDefaultFont(theme->font());
-    QTextOption textOption = m_document->defaultTextOption();
+    document->setDefaultFont(theme->font());
+    QTextOption textOption = document->defaultTextOption();
     textOption.setWrapMode(QTextOption::WordWrap);
     textOption.setAlignment(static_cast<Qt::Alignment>(theme->textAlignment()));
-    m_document->setDefaultTextOption(textOption);
-    m_document->setTextWidth(this->width());
+    document->setDefaultTextOption(textOption);
+    document->setTextWidth(this->width());
 
-    updateStyling();
+    updateStyling(document);
 
     m_document->setUndoRedoEnabled(true);
-	m_document->blockSignals(false);
 
     if (!wasModified) {
         this->setModified(false);
+    }
+
+    if (cloneDocument) {
+        m_document->disconnect(this);
+        m_document = document;
+        m_textCursor = QTextCursor(m_document);
+        connectDocument();
     }
 
     update();

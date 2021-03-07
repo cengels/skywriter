@@ -924,6 +924,8 @@ ApplicationWindow {
                         && Mouse.windowPosition.x < edgeTolerance
                         && !fileMenu.visible
                         && Mouse.buttons === Qt.NoButton) {
+                    const index = textArea.documentStructure.indexOf(textArea.currentDocumentSegment);
+                    listView.positionViewAtIndex(index, ListView.Visible);
                     documentStructureDrawer.open();
                 } else if (documentStructureDrawer.opened
                         && !drawerScrollBar.active

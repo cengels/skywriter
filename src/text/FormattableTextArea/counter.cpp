@@ -79,6 +79,10 @@ void FormattableTextArea::updateCharacterCount()
 
 void FormattableTextArea::countWords(const int position, const int change)
 {
+    if (!m_document) {
+        return;
+    }
+
     QTextBlock block = m_document->findBlock(position);
     int end = position + change;
 
@@ -104,6 +108,10 @@ void FormattableTextArea::countWords(const int position, const int change)
 
 void FormattableTextArea::updateWordCount()
 {
+    if (m_loading) {
+        return;
+    }
+
     int words = 0;
 
     for (const DocumentSegment* segment : m_documentStructure) {

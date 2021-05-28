@@ -108,7 +108,8 @@ void TextFormatter::formatComments(const QString& text)
         userData = new UserData();
     }
 
-    bool hadComments = !userData->comments().isEmpty();
+    const QVector<Range<int>> comments = userData->comments();
+    bool haveCommentsChanged = false;
     userData->clearCommentRanges();
 
     while (startIndex >= 0) {
@@ -125,12 +126,17 @@ void TextFormatter::formatComments(const QString& text)
 
         setColor(startIndex, commentLength, commentColor);
         userData->addCommentRange(startIndex, startIndex + commentLength);
+
+        if (!comments.contains(userData->comments().last())) {
+            haveCommentsChanged = true;
+        }
+
         startIndex = text.indexOf(symbols::opening_comment, startIndex + commentLength);
     }
 
     setCurrentBlockUserData(userData);
 
-    if (userData->comments().length() > 0 || hadComments) {
+    if (!m_refreshing && (haveCommentsChanged || userData->comments().length() != comments.length())) {
         emit blockInvalidated(this->currentBlock());
     }
 }

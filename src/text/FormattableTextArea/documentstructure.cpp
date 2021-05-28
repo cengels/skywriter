@@ -145,9 +145,16 @@ void FormattableTextArea::refreshDocumentStructure()
     m_lastCaretPosition = m_textCursor.position();
     emit currentDocumentSegmentChanged();
 
+    // Prevent each individual call of segment->updateWordCount()
+    // from calling FormattableTextArea::updateWordCount()
+    m_loading = true;
+
     for (DocumentSegment* segment : m_documentStructure) {
         segment->updateWordCount();
     }
+
+    m_loading = false;
+    updateWordCount();
 }
 
 DocumentSegment* FormattableTextArea::currentDocumentSegment() const

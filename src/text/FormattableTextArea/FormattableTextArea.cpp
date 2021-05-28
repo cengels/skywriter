@@ -111,15 +111,17 @@ QTextDocument* FormattableTextArea::newDocument()
 void FormattableTextArea::connectDocument()
 {
     if (m_document) {
-        connect(m_document, &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
-        connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
-        connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
-        connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
         connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged, this, [&] {
             emit contentHeightChanged();
             emit contentWidthChanged();
         });
         connect(m_document->documentLayout(), &QAbstractTextDocumentLayout::update, this, &FormattableTextArea::update);
+        // For some reason QTextDocument::documentLayout() emits a signal for QTextDocument::contentsChange()
+        // so we need to place the connect calls in this order.
+        connect(m_document, &QTextDocument::modificationChanged, this, &FormattableTextArea::modifiedChanged);
+        connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
+        connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
+        connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
 
         if (m_formatter) {
             m_formatter->setDocument(m_document);
@@ -127,7 +129,9 @@ void FormattableTextArea::connectDocument()
             m_formatter = new TextFormatter(m_document);
             connect(m_formatter, &TextFormatter::blockInvalidated, this, [&] (QTextBlock block) -> void {
                 countWords(block.position(), block.length());
+                m_loading = true;
                 findDocumentSegment(block.position())->updateWordCount();
+                m_loading = false;
             });
         }
 

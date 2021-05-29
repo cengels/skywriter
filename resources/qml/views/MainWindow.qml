@@ -1,15 +1,14 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Window 2.14
-import QtQuick.Dialogs 1.3
-import QtQuick.Layouts 1.14
-import Qt.labs.platform 1.1 as Platform
-import Skywriter.Settings 1.0 as Settings
-import Skywriter.Text 1.0
-import Skywriter.Progress 1.0
-import Skywriter.Theming 1.0
-import Skywriter.Events 1.0
-import Skywriter.Errors 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Window
+import QtQuick.Layouts
+import Qt.labs.platform as Platform
+import Skywriter.Settings as Settings
+import Skywriter.Text
+import Skywriter.Progress
+import Skywriter.Theming
+import Skywriter.Events
+import Skywriter.Errors
 import "qrc:/qml/controls" as Sky
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/dialog" as Sky

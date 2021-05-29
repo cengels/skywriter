@@ -24,7 +24,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
             m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
 
             if (event->button() == Qt::LeftButton
-                    && Mouse::isDoubleClick(event, &m_lastMouseUpEvent, &m_lastMouseDownEvent))
+                    && Mouse::isDoubleClick(event, m_lastMouseUpEvent, m_lastMouseDownEvent))
             {
                 expandSelection();
                 break;
@@ -65,7 +65,7 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         default: event->ignore(); break;
     }
 
-    m_lastMouseDownEvent = QMouseEvent(*event);
+    m_lastMouseDownEvent = event->clone();
 }
 
 void FormattableTextArea::expandSelection()
@@ -96,7 +96,11 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
                     m_textCursor.setPosition(position, QTextCursor::KeepAnchor);
                     break;
                 case SelectionMode::WordSelection: {
-                    const int sourcePosition = this->hitTest(this->m_lastMouseDownEvent.localPos());
+                    if (!this->m_lastMouseDownEvent) {
+                        return;
+                    }
+
+                    const int sourcePosition = this->hitTest(this->m_lastMouseDownEvent->localPos());
                     QTextCursor tempCursor(m_document);
                     tempCursor.setPosition(position);
                     selection::selectWord(tempCursor);
@@ -140,7 +144,7 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
 
 void FormattableTextArea::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_lastMouseUpEvent = QMouseEvent(*event);
+    m_lastMouseUpEvent = event->clone();
 
     if (event->button() == Qt::RightButton) {
         emit contextMenuRequested();

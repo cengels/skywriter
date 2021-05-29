@@ -1,9 +1,9 @@
-import QtQuick 2.14
-import QtQuick.Window 2.14
-import QtQuick.Layouts 1.14
+import QtQuick
+import QtQuick.Window
+import QtQuick.Layouts
 
 import 'qrc:/qml/effects' as Sky
-import Skywriter.Theming 1.0
+import Skywriter.Theming
 
 Rectangle {
     id: root
@@ -11,8 +11,8 @@ Rectangle {
     property bool showUI: false
     default property list<Item> content
     clip: true
-    layer.enabled: true
-    layer.effect: Sky.CornerRadius { radius: 15 }
+    // layer.enabled: true
+    // layer.effect: Sky.CornerRadius { radius: 15 }
     color: theme.windowBackground
 
     function getRelativeWidth() {

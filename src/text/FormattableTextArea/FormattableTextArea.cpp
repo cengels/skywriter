@@ -1,7 +1,6 @@
 #include <QCursor>
 #include <QAbstractTextDocumentLayout>
 #include <QQmlFile>
-#include <QTextCodec>
 #include <QFileInfo>
 
 #include "FormattableTextArea.h"
@@ -38,8 +37,8 @@ FormattableTextArea::FormattableTextArea(QQuickItem *parent)
     , m_underline(false)
     , m_caretTimer(this)
     , m_blinking(false)
-    , m_lastMouseUpEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
-    , m_lastMouseDownEvent(QMouseEvent(QMouseEvent::None, QPointF(), Qt::NoButton, 0, 0))
+    , m_lastMouseUpEvent(nullptr)
+    , m_lastMouseDownEvent(nullptr)
     , m_lastCaretPosition(0)
     , m_selectionMode(SelectionMode::NoSelection)
 {
@@ -209,10 +208,8 @@ void FormattableTextArea::load(const QUrl &fileUrl)
 
     QFile file(fileName);
     if (file.open(QFile::ReadOnly)) {
-        QByteArray data = file.readAll();
-        QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+        QString text = file.readAll();
         newDocument();
-        const auto text = codec->toUnicode(data);
         const QString fileType = QFileInfo(file).suffix();
 
         if (fileType == persistence::format_markdown) {

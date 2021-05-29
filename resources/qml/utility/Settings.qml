@@ -1,4 +1,4 @@
-import Qt.labs.settings 1.1
+import Qt.labs.settings
 
 Settings {
     fileName: "skywriter.settings"

@@ -2,6 +2,26 @@
     <qresource prefix="/">
         <file alias="qtquickcontrols2.conf">resources/qtquickcontrols2.conf</file>
     </qresource>
+    <qresource prefix="/qtgraphicaleffects">
+        <file alias="BrightnessContrast.qml">libs/qtgraphicaleffects/src/effects/BrightnessContrast.qml</file>
+        <file alias="Colorize.qml">libs/qtgraphicaleffects/src/effects/Colorize.qml</file>
+        <file alias="ColorOverlay.qml">libs/qtgraphicaleffects/src/effects/ColorOverlay.qml</file>
+        <file alias="ConicalGradient.qml">libs/qtgraphicaleffects/src/effects/ConicalGradient.qml</file>
+        <file alias="Desaturate.qml">libs/qtgraphicaleffects/src/effects/Desaturate.qml</file>
+        <file alias="Displace.qml">libs/qtgraphicaleffects/src/effects/Displace.qml</file>
+        <file alias="DropShadow.qml">libs/qtgraphicaleffects/src/effects/DropShadow.qml</file>
+        <file alias="FastBlur.qml">libs/qtgraphicaleffects/src/effects/FastBlur.qml</file>
+        <file alias="GammaAdjust.qml">libs/qtgraphicaleffects/src/effects/GammaAdjust.qml</file>
+        <file alias="Glow.qml">libs/qtgraphicaleffects/src/effects/Glow.qml</file>
+        <file alias="HueSaturation.qml">libs/qtgraphicaleffects/src/effects/HueSaturation.qml</file>
+        <file alias="LevelAdjust.qml">libs/qtgraphicaleffects/src/effects/LevelAdjust.qml</file>
+        <file alias="LinearGradient.qml">libs/qtgraphicaleffects/src/effects/LinearGradient.qml</file>
+        <file alias="OpacityMask.qml">libs/qtgraphicaleffects/src/effects/OpacityMask.qml</file>
+        <file alias="qmldir">libs/qtgraphicaleffects/src/effects/qmldir</file>
+        <file alias="RadialGradient.qml">libs/qtgraphicaleffects/src/effects/RadialGradient.qml</file>
+        <file alias="RectangularGlow.qml">libs/qtgraphicaleffects/src/effects/RectangularGlow.qml</file>
+        <file alias="ThresholdMask.qml">libs/qtgraphicaleffects/src/effects/ThresholdMask.qml</file>
+    </qresource>
     <qresource prefix="/qml/views">
         <file alias="MainWindow.qml">resources/qml/views/MainWindow.qml</file>
         <file alias="AboutQt.qml">resources/qml/views/AboutQt.qml</file>

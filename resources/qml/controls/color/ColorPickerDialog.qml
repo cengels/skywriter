@@ -1,8 +1,7 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
-import QtQuick.Window 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
 import "qrc:/qml/controls/color" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/forms" as Sky
@@ -165,4 +164,3 @@ Sky.PopupDialog {
         }
     }
 }
-

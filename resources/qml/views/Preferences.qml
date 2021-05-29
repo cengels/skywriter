@@ -1,12 +1,12 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import "qrc:/qml/controls" as Sky
 import "qrc:/qml/controls/dialog" as Sky
 import "qrc:/qml/controls/forms" as Sky
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/menu" as Sky
-import Skywriter.Settings 1.0 as Settings
+import Skywriter.Settings as Settings
 
 // Note that we cannot use ListViews in this file or the form
 // will not be able to bind itself to the fields.
@@ -170,6 +170,7 @@ Sky.Dialog {
         id: groupDelegate
 
         Flickable {
+            id: flickable
             Layout.fillWidth: true
             Layout.fillHeight: true
             boundsBehavior: Flickable.StopAtBounds
@@ -191,6 +192,20 @@ Sky.Dialog {
                         settingDelegate.createObject(settingsList, { setting: setting, category: categoryId });
                     }
                 }
+
+//                Sky.Text {
+//                    anchors.left: parent.left
+//                    anchors.right: parent.right
+//                    Timer {
+//                        interval: 200
+//                        repeat: true
+//                        running: stackLayout.currentIndex === form.categories.findIndex(x => x.categoryId === flickable.categoryId);
+//                        onTriggered: {
+//                            console.log('foo');
+//                            parent.text = new Date().getTime().toString();
+//                        }
+//                    }
+//                }
             }
 
             Connections {

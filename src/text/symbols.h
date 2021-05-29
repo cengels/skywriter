@@ -10,8 +10,8 @@ namespace symbols {
     //! Identifies the token after a comment ends.
     constexpr QChar closing_comment = ']';
     constexpr QChar hyphen = '-';
-    constexpr QChar en_dash = 0x2013;
-    constexpr QChar em_dash = 0x2014;
+    constexpr QChar en_dash = QChar(0x2013);
+    constexpr QChar em_dash = QChar(0x2014);
     constexpr QChar newline = '\n';
     constexpr QChar carriage_return = '\r';
     constexpr QChar paragraph_separator = QChar::SpecialCharacter::ParagraphSeparator;
@@ -23,7 +23,7 @@ namespace symbols {
     constexpr QChar strikethrough_mark = '~';
     constexpr QChar escape_mark = '\\';
     constexpr QChar simple_apostrophe = '\'';
-    constexpr QChar curly_apostrophe = 0x2019;
+    constexpr QChar curly_apostrophe = QChar(0x2019);
     //! Identifies all possible tokens that force the parser to consider
     //! the next token part of a new word.
     //!

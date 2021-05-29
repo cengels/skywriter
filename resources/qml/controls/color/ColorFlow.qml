@@ -1,6 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
 
 Item {
     id: root
@@ -89,15 +88,14 @@ Item {
         }
     }
 
-    DropShadow {
-        anchors.fill: handle
-        horizontalOffset: 1
-        verticalOffset: 1
-        z: 99
-        radius: 4.0
-        samples: 8
-        color: "#80000000"
-        source: handle
-    }
+//    DropShadow {
+//        anchors.fill: handle
+//        horizontalOffset: 1
+//        verticalOffset: 1
+//        z: 99
+//        radius: 4.0
+//        samples: 8
+//        color: "#80000000"
+//        source: handle
+//    }
 }
-

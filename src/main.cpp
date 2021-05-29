@@ -8,6 +8,7 @@
 #include <QPalette>
 #include <QQmlContext>
 #include <QWindow>
+#include <QQuickWindow>
 #include "text/FormattableTextArea/FormattableTextArea.h"
 #include "progress/ProgressTracker.h"
 #include "colors.h"
@@ -58,6 +59,7 @@ int main(int argc, char *argv[])
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // Necessary to avoid flickering when resizing the window.
     QGuiApplication::setAttribute(Qt::AA_UseOpenGLES);
+    QGuiApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
     QGuiApplication::setOrganizationName("cengels");
     QGuiApplication::setOrganizationDomain("www.cengels.com");
     QGuiApplication::setApplicationName("Skywriter");
@@ -78,7 +80,8 @@ int main(int argc, char *argv[])
 
     QFontDatabase::addApplicationFont(":/fonts/Baloo2-Regular.ttf");
     QFont font("Baloo 2", 11);
-    font.setStyleStrategy(QFont::PreferAntialias);
+    font.setHintingPreference(QFont::PreferFullHinting);
+    font.setStyleStrategy(QFont::NoAntialias);
     QGuiApplication::setFont(font);
 
     registerQmlTypes(app);

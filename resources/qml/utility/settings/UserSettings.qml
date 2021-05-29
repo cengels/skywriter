@@ -1,6 +1,6 @@
 pragma Singleton
 import "qrc:/qml/utility" as Sky
-import QtQml 2.14
+import QtQml
 
 QtObject {
     id: userSettings

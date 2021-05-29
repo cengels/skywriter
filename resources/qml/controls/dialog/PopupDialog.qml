@@ -1,6 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14 as QtQuickControls
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls as QtQuickControls
 import "qrc:/qml/controls/text" as Sky
 import "qrc:/qml/controls/forms" as Sky
 
@@ -37,15 +36,15 @@ QtQuickControls.Dialog {
             color: palette.mid
         }
 
-        DropShadow {
-            anchors.fill: background
-            source: background
-            horizontalOffset: 4
-            verticalOffset: 4
-            radius: 12
-            samples: 24.0
-            color: "#62000000"
-        }
+//        DropShadow {
+//            anchors.fill: background
+//            source: background
+//            horizontalOffset: 4
+//            verticalOffset: 4
+//            radius: 12
+//            samples: 24.0
+//            color: "#62000000"
+//        }
     }
 
     enter: Transition {
@@ -57,4 +56,3 @@ QtQuickControls.Dialog {
         NumberAnimation { property: "opacity"; easing.type: Easing.InOutSine; from: 1.0; to: 0.0; duration: 200 }
     }
 }
-

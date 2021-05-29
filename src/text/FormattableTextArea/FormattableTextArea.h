@@ -322,8 +322,8 @@ class FormattableTextArea : public QQuickItem
         QTimer m_caretTimer;
         bool m_blinking;
 
-        QMouseEvent m_lastMouseUpEvent;
-        QMouseEvent m_lastMouseDownEvent;
+        QMouseEvent* m_lastMouseUpEvent;
+        QMouseEvent* m_lastMouseDownEvent;
         int m_lastCaretPosition;
         SelectionMode m_selectionMode;
 };

@@ -25,7 +25,7 @@ void FormattableTextArea::find(const QString& searchString, const SearchOptions 
         return;
     }
 
-    QTextDocument::FindFlags flags = 0x0;
+    QTextDocument::FindFlags flags = QTextDocument::FindFlags(0x0);
     QTextCursor cursor(m_document);
     bool stopOnSelection = false;
 

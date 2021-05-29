@@ -1,8 +1,8 @@
-import QtQuick 2.14
+import QtQuick
 
 import 'qrc:/qml/controls' as Sky
 import 'qrc:/qml/controls/text' as Sky
-import Skywriter.Theming 1.0
+import Skywriter.Theming
 
 Sky.ThemePreview {
     id: root

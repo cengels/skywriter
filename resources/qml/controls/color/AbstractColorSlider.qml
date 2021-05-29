@@ -1,6 +1,5 @@
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtGraphicalEffects 1.14
+import QtQuick
+import QtQuick.Controls
 import "qrc:/qml/effects" as Sky
 
 Slider {
@@ -26,8 +25,8 @@ Slider {
             z: -1
             fillMode: Image.Tile
             source: "qrc:///images/checkered.svg"
-            layer.enabled: true
-            layer.effect: Sky.CornerRadius { radius: rectangle.radius }
+            // layer.enabled: true
+            // layer.effect: Sky.CornerRadius { radius: rectangle.radius }
         }
     }
 
@@ -50,14 +49,13 @@ Slider {
         }
     }
 
-    DropShadow {
-        anchors.fill: handle
-        horizontalOffset: 1
-        verticalOffset: 1
-        radius: 4.0
-        samples: 8
-        color: "#80000000"
-        source: handle
-    }
+//    DropShadow {
+//        anchors.fill: handle
+//        horizontalOffset: 1
+//        verticalOffset: 1
+//        radius: 4.0
+//        samples: 8
+//        color: "#80000000"
+//        source: handle
+//    }
 }
-

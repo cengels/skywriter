@@ -49,7 +49,7 @@ QtObject {
                 ? textArea.directoryUrl
                 : Platform.StandardPaths.writableLocation(Platform.StandardPaths.DocumentsLocation);
         onAccepted: {
-            if (openDialog.fileUrl == null || openDialog.fileUrl === '') {
+            if (openDialog.file == null || openDialog.file === '') {
                 return;
             }
 
@@ -58,7 +58,7 @@ QtObject {
 
                 unsavedDialog.show();
             } else {
-                loadDocument(openDialog.fileUrl);
+                loadDocument(openDialog.file);
             }
         }
     }
@@ -80,14 +80,14 @@ QtObject {
         }
 
         onAccepted: {
-            if (saveDialog.fileUrl == null || saveDialog.fileUrl === '') {
+            if (saveDialog.file == null || saveDialog.file === '') {
                 return;
             }
 
-            saveDocument(saveDialog.fileUrl);
+            saveDocument(saveDialog.file);
 
-            if (saveDialog.fileUrl !== ProgressTracker.fileUrl) {
-                ProgressTracker.changeActiveFile(saveDialog.fileUrl);
+            if (saveDialog.file !== ProgressTracker.fileUrl) {
+                ProgressTracker.changeActiveFile(saveDialog.file);
             }
         }
     }
@@ -106,12 +106,12 @@ QtObject {
         }
 
         onAccepted: {
-            if (renameDialog.fileUrl == null || renameDialog.fileUrl === '') {
+            if (renameDialog.file == null || renameDialog.file === '') {
                 return;
             }
 
-            if (textArea.rename(renameDialog.fileUrl)) {
-                ProgressTracker.renameActiveFile(renameDialog.fileUrl);
+            if (textArea.rename(renameDialog.file)) {
+                ProgressTracker.renameActiveFile(renameDialog.file);
             }
         }
     }
@@ -161,11 +161,11 @@ QtObject {
 
         function onAccepted() {
             saveWithPrompt();
-            loadDocument(openDialog.fileUrl);
+            loadDocument(openDialog.file);
         }
 
         function onDiscarded() {
-            loadDocument(openDialog.fileUrl);
+            loadDocument(openDialog.file);
         }
         function onVisibleChanged() { unsavedNewHandlers.enabled = unsavedNewHandlers.enabled && visible; }
     }

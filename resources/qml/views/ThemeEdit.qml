@@ -92,7 +92,6 @@ Sky.Dialog {
                         title: qsTr("Select image...")
                         nameFilters: ["Image files (*.jpg *.png *.bmp *.gif *.jpeg)"]
                         selectedNameFilter.index: 0
-                        folder: shortcuts.pictures
                         onAccepted: {
                             theme.backgroundImage = imageDialog.fileUrl
                         }

@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
 
     QQuickStyle::setFallbackStyle("Fusion");
 
+    qputenv("QML_XHR_ALLOW_FILE_READ", QByteArray("1"));
+
     // enables anti-aliasing for shapes
     QSurfaceFormat format;
     format.setSamples(8);

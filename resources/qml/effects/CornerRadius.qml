@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Window
-import QtGraphicalEffects
+import Qt5Compat.GraphicalEffects
 
 OpacityMask {
     id: root

@@ -40,7 +40,7 @@ ApplicationWindow {
         mainWindow: mainWindow
     }
 
-    onVisibilityChanged: {
+    onVisibilityChanged: (visibility) => {
         // Ensure that the window does not retain screen size
         // when going from FullScreen/Maximized to Windowed
         // only width is checked because the height may be reduced by
@@ -480,18 +480,21 @@ ApplicationWindow {
             preventStealing: true
             acceptedButtons: Qt.MiddleButton
 
-            onWheel: {
-                wheel.accepted = true;
+            Connections {
+                function onWheel(wheel) {
+                    wheel.accepted = true;
 
-                if (wheel.modifiers === Qt.NoModifier && verticalScrollbar.enabled) {
-                    // Scrolls about 72 pixels per wheel "click"
-                    const delta = (wheel.angleDelta.y * 0.6) / textArea.contentHeight;
+                    if (wheel.modifiers === Qt.NoModifier && verticalScrollbar.enabled) {
+                        // Scrolls about 72 pixels per wheel "click"
+                        const delta = (wheel.angleDelta.y * 0.6) / textArea.contentHeight;
 
-                    verticalScrollbar.scrollTo(wheel.angleDelta.y < 0
-                            ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
-                            : Math.max(verticalScrollbar.position - delta, 0.0));
+                        verticalScrollbar.scrollTo(wheel.angleDelta.y < 0
+                                ? Math.min(verticalScrollbar.position - delta, 1.0 - verticalScrollbar.size)
+                                : Math.max(verticalScrollbar.position - delta, 0.0));
+                    }
                 }
             }
+
             onPressed: {
                 if (verticalScrollbar.middleMouseOriginY >= 0) {
                     verticalScrollbar.middleMouseOriginY = -1;
@@ -527,7 +530,7 @@ ApplicationWindow {
                     clip: true
                     property bool changedSinceLastAutosave: false
 
-                    Keys.onPressed: {
+                    Keys.onPressed: (event) => {
                         const maxScroll = 1.0 - verticalScrollbar.size
                         if (event.key === Qt.Key_PageUp) {
                             verticalScrollbar.position = Math.max(0.0, verticalScrollbar.position - (textArea.height / contentHeight));

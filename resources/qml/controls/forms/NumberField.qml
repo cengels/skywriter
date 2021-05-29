@@ -15,7 +15,7 @@ Sky.TextField {
     property real max: Number.NaN
     property int decimals: 0
 
-    onValidate: {
+    function onValidate(event) {
         if (event.text === '') {
             return;
         }

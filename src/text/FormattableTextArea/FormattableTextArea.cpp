@@ -104,6 +104,18 @@ QTextDocument* FormattableTextArea::newDocument()
     this->updateDocumentDefaults();
     m_textCursor = QTextCursor(m_document);
 
+    if (m_formatter) {
+        m_formatter->setDocument(m_document);
+    } else {
+        m_formatter = new TextFormatter(m_document);
+        connect(m_formatter, &TextFormatter::blockInvalidated, this, [&] (QTextBlock block) -> void {
+            countWords(block.position(), block.length());
+            m_loading = true;
+            findDocumentSegment(block.position())->updateWordCount();
+            m_loading = false;
+        });
+    }
+
     return m_document;
 }
 
@@ -121,18 +133,6 @@ void FormattableTextArea::connectDocument()
         connect(m_document, &QTextDocument::contentsChange, this, &FormattableTextArea::handleTextChange);
         connect(m_document, &QTextDocument::undoAvailable, this, &FormattableTextArea::canUndoChanged);
         connect(m_document, &QTextDocument::redoAvailable, this, &FormattableTextArea::canRedoChanged);
-
-        if (m_formatter) {
-            m_formatter->setDocument(m_document);
-        } else {
-            m_formatter = new TextFormatter(m_document);
-            connect(m_formatter, &TextFormatter::blockInvalidated, this, [&] (QTextBlock block) -> void {
-                countWords(block.position(), block.length());
-                m_loading = true;
-                findDocumentSegment(block.position())->updateWordCount();
-                m_loading = false;
-            });
-        }
 
         countWords(0, m_document->characterCount());
     }

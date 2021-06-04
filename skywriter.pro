@@ -2,6 +2,10 @@ QT += quick quickcontrols2 quick-private concurrent
 
 CONFIG += c++20
 
+versionAtMost(QT_VERSION, 6.0.99) {
+    error(Versions below Qt 6.1.0 are not supported. Please compile this project with at least Qt 6.1.0.)
+}
+
 #Application version
 VERSION_MAJOR = 0
 VERSION_MINOR = 0

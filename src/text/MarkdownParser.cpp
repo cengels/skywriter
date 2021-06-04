@@ -200,17 +200,20 @@ void MarkdownParser::parse(const QString& string)
     m_document->clear();
     QByteArray byteArray = string.toUtf8();
 
+    m_textCursor->beginEditBlock();
     md_parse(byteArray.constData(), MD_SIZE(byteArray.size()), &m_parse_info, this);
+    m_textCursor->endEditBlock();
     m_document->setUndoRedoEnabled(true);
 }
 
 QString MarkdownParser::stringify() const
 {
-    QTextStream stream;
+    QString string;
+    QTextStream stream(&string);
 
     write(stream);
 
-    return stream.readAll();
+    return string;
 }
 
 void MarkdownParser::write(QTextStream& stream) const

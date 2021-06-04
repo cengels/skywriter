@@ -107,6 +107,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
             // intended fallthrough
         default:
             bool hadSelection = m_textCursor.hasSelection();
+            bool changes = false;
             const QString text = symbols::sanitize(event->text());
 
             if (!text.isEmpty() && (m_textCursor.blockFormat() != format::sceneBreakFormat || symbols::isNewLine(text[0]))) {
@@ -127,10 +128,12 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                     m_textCursor.setPosition(selectionStart + start.size());
                     m_textCursor.setPosition(selectionEnd + start.size(), QTextCursor::KeepAnchor);
                     m_textCursor.endEditBlock();
+                    changes = true;
                 } else {
                     const QString replacedText = m_replacer.replace(text, previousCharacter);
                     m_textCursor.insertText(replacedText);
                     moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, replacedText.length() - 1);
+                    changes = true;
                 }
 
                 if (m_textCursor.block().text().isEmpty()) {
@@ -145,7 +148,7 @@ void FormattableTextArea::keyPressEvent(QKeyEvent* event)
                 event->ignore();
             }
 
-            if (hadSelection) {
+            if (hadSelection && changes) {
                 emit selectedTextChanged();
             }
             break;

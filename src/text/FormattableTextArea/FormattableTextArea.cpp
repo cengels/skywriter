@@ -101,7 +101,7 @@ QTextDocument* FormattableTextArea::newDocument()
 
     m_document = new QTextDocument(this);
 
-    this->updateDocumentDefaults(false);
+    this->updateDocumentDefaults();
     m_textCursor = QTextCursor(m_document);
 
     return m_document;

@@ -46,6 +46,7 @@ void FormattableTextArea::updateStyling(QTextDocument* document)
     }
 
     QTextCursor cursor(document);
+    cursor.beginEditBlock();
     QTextBlock lastBlock = document->lastBlock();
 
     for (; cursor.block() != lastBlock; cursor.movePosition(QTextCursor::MoveOperation::NextBlock)) {
@@ -58,15 +59,35 @@ void FormattableTextArea::updateStyling(QTextDocument* document)
             cursor.setBlockFormat(ThemeManager::instance()->activeTheme()->blockFormat());
         }
     }
+
+    cursor.endEditBlock();
 }
 
-void FormattableTextArea::updateDocumentDefaults(bool cloneDocument)
+void FormattableTextArea::updateDocumentDefaults()
 {
     if (!m_document) {
         return;
     }
 
-    QTextDocument* document = cloneDocument ? m_document->clone(this) : m_document;
+    // Due to performance concerns, this function empties the QTextDocument
+    // and then sets its content again at the end.
+    // If we didn't do this, the following functions
+    // would bottleneck theme-switching for example:
+    //   m_document->setDefaultFont(theme->font());  (140ms)
+    //   updateStyling(m_document);  (450ms)
+    // There may be a better solution to this problem, but I haven't found it yet.
+    // A more stable solution may be to use a web view, but at that point you
+    // might as well just use Electron.
+
+    const bool wasEmpty = m_document->isEmpty();
+    MarkdownParser parser(m_document);
+    QString markdown;
+
+    if (!wasEmpty) {
+        m_document->disconnect(this);
+        markdown = parser.stringify();
+        m_document->setPlainText("");
+    }
 
     bool wasModified = this->modified();
 
@@ -79,14 +100,21 @@ void FormattableTextArea::updateDocumentDefaults(bool cloneDocument)
 
     const Theme* theme = ThemeManager::instance()->activeTheme();
 
-    document->setDefaultFont(theme->font());
-    QTextOption textOption = document->defaultTextOption();
+    m_document->setDefaultFont(theme->font());
+    QTextOption textOption = m_document->defaultTextOption();
     textOption.setWrapMode(QTextOption::WordWrap);
     textOption.setAlignment(static_cast<Qt::Alignment>(theme->textAlignment()));
-    document->setDefaultTextOption(textOption);
-    document->setTextWidth(this->width());
+    m_document->setDefaultTextOption(textOption);
+    m_document->setTextWidth(this->width());
 
-    updateStyling(document);
+    // Since the document was emptied, this function will only apply
+    // the format to the first block. Still, it remains here for legacy reasons.
+    updateStyling(m_document);
+
+    if (!wasEmpty) {
+        // About 200ms in a medium-sized document, which is acceptable if not ideal
+        parser.parse(markdown);
+    }
 
     m_document->setUndoRedoEnabled(true);
 
@@ -94,10 +122,7 @@ void FormattableTextArea::updateDocumentDefaults(bool cloneDocument)
         this->setModified(false);
     }
 
-    if (cloneDocument) {
-        m_document->disconnect(this);
-        m_document = document;
-        m_textCursor = QTextCursor(m_document);
+    if (!wasEmpty) {
         connectDocument();
     }
 

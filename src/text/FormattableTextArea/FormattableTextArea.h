@@ -258,7 +258,7 @@ class FormattableTextArea : public QQuickItem
 
     private:
         void updateStyling(QTextDocument* document);
-        void updateDocumentDefaults(bool cloneDocument = true);
+        void updateDocumentDefaults();
 
         const QTextCharFormat getSelectionFormat() const;
         void mergeFormat(const QTextCharFormat &format);

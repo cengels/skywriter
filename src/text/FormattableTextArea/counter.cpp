@@ -5,6 +5,9 @@
 ///                                                                       ///
 /////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
+#include <string>
+
 #include <QTextDocument>
 #include <QQuickTextDocument>
 #include <QtConcurrent/QtConcurrent>
@@ -13,7 +16,6 @@
 #include "../TextIterator.h"
 #include "../UserData.h"
 #include "../symbols.h"
-#include "../../profiling.h"
 
 int FormattableTextArea::characterCount() const
 {
@@ -86,18 +88,20 @@ void FormattableTextArea::countWords(const int position, const int change)
     QTextBlock block = m_document->findBlock(position);
     int end = position + change;
 
+    // Maybe try just using one wordIterator and iterating through the whole thing at once?
+    // Or just remove QTextCursor completely. There's no real reason to use it. Just access the blocks directly.
+    // Another potential optimization is not returning strings from WordIterator, instead
+    // just returning booleans.
     while (block.isValid() && block.position() < end) {
-        QTextCursor cursor = QTextCursor(block);
-        cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-        TextIterator textIterator = this->wordIterator(cursor);
+        TextIterator wordIterator = this->wordIterator(block);
         int i = 0;
 
-        while (!textIterator.atEnd()) {
-            if (!textIterator.current().isEmpty()) {
+        while (!wordIterator.atEnd()) {
+            if (!wordIterator.current().isEmpty()) {
                 i++;
             }
 
-            textIterator++;
+            wordIterator++;
         };
 
         UserData::fromBlock(block).setWordCount(i);
@@ -132,15 +136,29 @@ void FormattableTextArea::updateSelectedWordCount()
         return;
     }
 
-    TextIterator textIterator = this->wordIterator(m_textCursor);
+    if (!m_textCursor.hasSelection()) {
+        if (m_selectedWordCount != 0) {
+            m_selectedWordCount = 0;
+            emit selectedWordCountChanged();
+        }
+
+        if (m_selectedPageCount != 0) {
+            m_selectedPageCount = 0;
+            emit selectedPageCountChanged();
+        }
+
+        return;
+    }
+
+    TextIterator wordIterator = this->wordIterator(m_textCursor);
     int i = 0;
 
-    while (!textIterator.atEnd()) {
-        if (!textIterator.current().isEmpty()) {
+    while (!wordIterator.atEnd()) {
+        if (!wordIterator.current().isEmpty()) {
             i++;
         }
 
-        textIterator++;
+        wordIterator++;
     };
 
     if (i != this->m_selectedWordCount) {
@@ -218,7 +236,10 @@ void FormattableTextArea::updateSelectedCounts()
 
 TextIterator FormattableTextArea::wordIterator(const QTextCursor& cursor) const
 {
-    TextIterator iterator = TextIterator(cursor, TextIterator::IterationType::ByWord);
+    return TextIterator(cursor, TextIterator::IterationType::ByWord);
+}
 
-    return iterator;
+TextIterator FormattableTextArea::wordIterator(const QTextBlock& block) const
+{
+    return TextIterator(block, TextIterator::IterationType::ByWord);
 }

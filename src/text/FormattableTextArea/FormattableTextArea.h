@@ -153,8 +153,6 @@ class FormattableTextArea : public QQuickItem
 
         bool loading() const;
 
-        TextIterator wordIterator(const QTextCursor& cursor) const;
-
         void updateWordCount();
 
     public Q_SLOTS:
@@ -295,6 +293,9 @@ class FormattableTextArea : public QQuickItem
         void countWords(const int position, const int change);
         void updateFindRanges();
         void refreshDocumentStructure();
+
+        TextIterator wordIterator(const QTextCursor& cursor) const;
+        TextIterator wordIterator(const QTextBlock& block) const;
 
         int m_characterCount;
         int m_selectedCharacterCount;

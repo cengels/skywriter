@@ -2,6 +2,7 @@
 #define TEXTITERATOR_H
 
 #include <QString>
+#include <QStringView>
 #include <QSet>
 #include <QTextCursor>
 
@@ -17,6 +18,7 @@ class TextIterator
         };
 
         TextIterator(const QTextCursor& cursor, const IterationType iterationType);
+        TextIterator(const QTextBlock& block, const IterationType iterationType);
         TextIterator(const TextIterator& textIterator);
         TextIterator& operator++();
         TextIterator operator++(int);
@@ -24,7 +26,7 @@ class TextIterator
         bool operator==(const TextIterator& other) const;
         bool operator!=(const TextIterator& other) const;
 
-        const QString current() const;
+        const QStringView current() const;
         bool atEnd() const;
 
         //! If set to true, will not count comments.
@@ -33,17 +35,18 @@ class TextIterator
         bool commentsEnabled();
 
     private:
-        const QTextCursor& m_originalCursor;
+        const QTextDocument* m_document;
         QString m_text;
         QString::const_iterator m_iterator;
         QString::const_iterator m_iteratorEnd;
-        int m_position;
+        int m_documentPosition;
         const IterationType m_iterationType;
-        QString m_current;
+        QStringView m_current;
         bool m_commentsEnabled;
+        bool m_ended;
 
-        const QString nextChar();
-        const QString nextWord();
+        QStringView nextChar();
+        QStringView nextWord();
         bool shouldIgnoreToken();
 };
 

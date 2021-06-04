@@ -8,7 +8,6 @@
 
 #include "symbols.h"
 #include "../Range.h"
-#include "../profiling.h"
 #include "UserData.h"
 #include "format.h"
 #include "TextIterator.h"
@@ -44,36 +43,43 @@ namespace {
 // We also need to make sure that we use iterators to a copy of the selectedText, not to a reference
 // otherwise everything breaks.
 TextIterator::TextIterator(const QTextCursor& cursor, const IterationType iterationType) :
-    m_originalCursor(cursor),
+    m_document(cursor.document()),
     m_text(cursor.selectedText()),
     m_iterator(m_text.constBegin()),
     m_iteratorEnd(m_text.constEnd()),
-    m_position(cursor.selectionStart()),
+    m_documentPosition(cursor.selectionStart()),
     m_iterationType(iterationType),
     m_current(),
-    m_commentsEnabled(false)
+    m_commentsEnabled(true),
+    m_ended(false)
 {
-    switch (m_iterationType) {
-        case TextIterator::IterationType::ByCharacter:
-            m_current = this->nextChar();
-            break;
-        case TextIterator::IterationType::ByWord:
-            m_current = this->nextWord();
-            break;
-        default:
-            Q_ASSERT(false); // not implemented
-    }
+    (*this)++;
+}
+
+TextIterator::TextIterator(const QTextBlock& block, const IterationType iterationType) :
+    m_document(block.document()),
+    m_text(block.text()),
+    m_iterator(m_text.constBegin()),
+    m_iteratorEnd(m_text.constEnd()),
+    m_documentPosition(block.position()),
+    m_iterationType(iterationType),
+    m_current(),
+    m_commentsEnabled(true),
+    m_ended(false)
+{
+    (*this)++;
 }
 
 TextIterator::TextIterator(const TextIterator& textIterator) :
-    m_originalCursor(textIterator.m_originalCursor),
+    m_document(textIterator.m_document),
     m_text(textIterator.m_text),
     m_iterator(textIterator.m_iterator),
     m_iteratorEnd(textIterator.m_iteratorEnd),
-    m_position(textIterator.m_position),
+    m_documentPosition(textIterator.m_documentPosition),
     m_iterationType(textIterator.m_iterationType),
     m_current(textIterator.m_current),
-    m_commentsEnabled(textIterator.m_commentsEnabled) { }
+    m_commentsEnabled(textIterator.m_commentsEnabled),
+    m_ended(textIterator.m_ended) { }
 
 TextIterator& TextIterator::operator++()
 {
@@ -114,7 +120,8 @@ TextIterator& TextIterator::operator+=(int by)
 bool TextIterator::operator==(const TextIterator& other) const
 {
     return this->m_iterationType == other.m_iterationType
-            && this->m_iterator == other.m_iterator;
+            && this->m_iterator == other.m_iterator
+            && this->m_text == other.m_text;
 }
 
 bool TextIterator::operator!=(const TextIterator& other) const
@@ -122,79 +129,100 @@ bool TextIterator::operator!=(const TextIterator& other) const
     return !(this->operator==(other));
 }
 
-const QString TextIterator::current() const
+const QStringView TextIterator::current() const
 {
     return this->m_current;
 }
 
 bool TextIterator::atEnd() const
 {
-    return m_current == '\0' || m_current.isNull();
+    return m_ended;
 }
 
-const QString TextIterator::nextChar()
+QStringView TextIterator::nextChar()
 {
     do {
         if (m_iterator == m_iteratorEnd) {
-            return QString();
+            m_ended = true;
+            return QStringView();
         }
 
         m_iterator++;
-        m_position++;
+        m_documentPosition++;
     } while (this->shouldIgnoreToken());
 
-    return QString(*m_iterator);
+    return QStringView(m_iterator, 1);
 }
 
-const QString TextIterator::nextWord()
+QStringView TextIterator::nextWord()
 {
-    QString word;
-
     if (m_iterator == m_iteratorEnd) {
-        return QString();
+        // We need this additional branch instead of just making
+        // atEnd() return "m_iterator == m_iteratorEnd"
+        // because the last iteration step would be
+        // skipped otherwise in atEnd() based loops.
+        m_ended = true;
+        return QStringView();
     }
 
     // Iterate until it finds a word separator, as long as the current word
     // is not empty (which means that the iteration began with a word
     // separator). Abort if the end of the string is found.
 
+    const QChar* start = nullptr;
+    const QChar* end = nullptr;
+
     while (m_iterator != m_iteratorEnd) {
         if (this->shouldIgnoreToken()) {
             m_iterator++;
-            m_position++;
+            m_documentPosition++;
             continue;
         }
 
         bool isSeparator = isWordSeparator(m_iterator);
 
-        if (isSeparator && !word.isEmpty()) {
+        if (isSeparator && start != nullptr) {
             break;
         }
 
-        QChar character = *m_iterator;
-
-        // The isLetter() check makes sure to exclude non-letter characters
+        // The isLetterOrNumber() check makes sure to exclude non-letter characters
         // from the output. That way free-standing symbols that are not
         // declared word separators don't get falsely interpreted as a word.
 
-        if (!isSeparator && m_iterator->isLetterOrNumber()) {
-            word.append(character);
+        const bool isLetterOrNumber = m_iterator->isLetterOrNumber();
+
+        if (start == nullptr && !isSeparator && m_iterator->isLetterOrNumber()) {
+            start = m_iterator;
         }
+
         m_iterator++;
-        m_position++;
+        m_documentPosition++;
+
+        if (isLetterOrNumber) {
+            // This ensures that, if the word ends in characters which are neither
+            // letters/numbers nor get flagged in isWordSeparator(), they are
+            // excluded from the QStringView.
+            end = m_iterator;
+        }
     }
 
-    return word;
+    if (start == nullptr) {
+        // Usually happens if m_text is empty.
+
+        return QStringView();
+    }
+
+    return QStringView(start, end);
 }
 
 bool TextIterator::shouldIgnoreToken()
 {
-    if (m_commentsEnabled) {
+    if (!m_commentsEnabled) {
         return false;
     }
 
-    QTextBlock block = m_originalCursor.document()->findBlock(m_position);
-    int positionInBlock = m_position - block.position();
+    QTextBlock block = m_document->findBlock(m_documentPosition);
+    int positionInBlock = m_documentPosition - block.position();
     for (Range<int> range : UserData::fromBlock(block).comments()) {
         if (range.contains(positionInBlock)) {
             return true;

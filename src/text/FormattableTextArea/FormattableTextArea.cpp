@@ -162,10 +162,16 @@ void FormattableTextArea::handleTextChange(const int position, const int removed
         return;
     }
 
+    // Qt bug: the first input after opening the application
+    // will always be (0, oldCharacterCount, newCharacterCount),
+    // regardless of where the edit was conducted.
+    // Unfortunately there is no way to handle this without also breaking
+    // edits with the start of the document selected.
+
     if (added != 0 || removed != 0) {
         updateCounts();
         updateFindRanges();
-        countWords(position, added + removed);
+        countWords(position, qMax(added, removed));
         updateDocumentStructure(position, added, removed);
         emit textChanged(position, added, removed);
     }

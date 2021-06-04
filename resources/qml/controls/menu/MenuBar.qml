@@ -10,12 +10,6 @@ MenuBar {
 
     background: Rectangle {
         color: ThemeManager.activeTheme.uiBackground
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.ArrowCursor
-            acceptedButtons: Qt.NoButton
-        }
     }
 
     delegate: MenuBarItem {

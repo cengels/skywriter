@@ -102,7 +102,7 @@ ApplicationWindow {
 
     property bool forceClose: false;
 
-    onClosing: {
+    onClosing: (close) => {
         if (textArea.modified && !forceClose) {
             close.accepted = false;
 
@@ -146,6 +146,7 @@ ApplicationWindow {
 
     menuBar: Item {
         height: mainWindow.visibility === Window.FullScreen ? 0 : menuBar.implicitHeight
+
         Sky.MenuBar {
             id: menuBar
             anchors.fill: mainWindow.visibility === Window.FullScreen ? undefined : parent

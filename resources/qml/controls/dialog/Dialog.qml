@@ -57,7 +57,7 @@ Window {
             contentChildren: dialog.buttons != null ? dialog.buttons : {}
             standardButtons: dialog.standardButtons
 
-            onClicked: {
+            onClicked: (button) => {
                 dialog.close();
 
                 switch (button.DialogButtonBox.buttonRole) {

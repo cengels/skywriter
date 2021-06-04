@@ -28,6 +28,8 @@ class DocumentSegment : public QObject
         void setPosition(int position);
 
         int length() const;
+        //! Sets the length of this document segment by moving all subsequent document segments.
+        void setLength(int length);
 
         //! Gets the text contained in this DocumentSegment.
         QString text() const;

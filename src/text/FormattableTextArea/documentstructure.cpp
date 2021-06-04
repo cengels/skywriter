@@ -10,77 +10,35 @@
 
 void FormattableTextArea::updateDocumentStructure(const int position, const int added, const int removed)
 {
-    const int change = added - removed;
+    // refreshDocumentStructure() always produces a document structure
+    // consistent with the actual text document. It's relatively fast
+    // (usually around 20ms per call in medium size documents)
+    // which is acceptable during larger one-time operations like
+    // loading a new document or pasting something into the document,
+    // but not when typing.
+    // This function is fast but only handles changes within a
+    // document segment, not between them.
 
     if (m_documentStructure.isEmpty()) {
         return;
     }
 
-    if (change > 0) {
-        // Text was inserted.
+    DocumentSegment* segment = findDocumentSegment(position);
+    const int positionInSegment = position - segment->position();
+    const int segmentLength = segment->length();
+    const int charactersLeft = segment->length() - positionInSegment;
 
-        DocumentSegment* targetSegment = nullptr;
+    if (removed >= charactersLeft) {
+        // Characters were removed beyond the DocumentSegment's boundary,
+        // which likely means that two segments have merged.
 
-        for (DocumentSegment* segment : m_documentStructure) {
-            if (targetSegment) {
-                segment->setPosition(segment->position() + change);
-                continue;
-            }
-
-            const DocumentSegment* next = segment->next();
-
-            if (next == nullptr || (position >= segment->position() && position < next->position())) {
-                targetSegment = segment;
-            }
-        }
-
-        if (targetSegment) {
-            emit targetSegment->textChanged();
-            targetSegment->updateWordCount();
-        }
-    } else if (change < 0) {
-        // Text was removed.
-
-        int textEnd = position - change;
-        int length = m_documentStructure.count();
-        int startSegment = -1;
-        int endSegment = -1;
-
-        for (int i = 0; i < length; i++) {
-            DocumentSegment* segment = m_documentStructure.at(i);
-            const int segmentStart = segment->position();
-            const int segmentEnd = i < length - 1 ? m_documentStructure.at(i + 1)->position() : m_document->characterCount() - change;
-
-            if (segmentStart <= position && position < segmentEnd && startSegment == -1) {
-                startSegment = i;
-            }
-
-            if (startSegment != -1 && segmentStart <= textEnd && textEnd < segmentEnd) {
-                endSegment = i;
-            }
-
-            if (startSegment < i) {
-                segment->setPosition(segment->position() + change);
-            }
-        }
-
-        if (startSegment != endSegment) {
-            // Text was removed from more than one DocumentSegment.
-            // This means that a DocumentSegment boundary was removed,
-            // i.e. the number of DocumentSegments is not the same
-            // as before. Must reinstantiate the entire structure.
-
-            refreshDocumentStructure();
-            return;
-        }
-
-        DocumentSegment* targetSegment = m_documentStructure.at(startSegment);
-
-        if (targetSegment) {
-            emit targetSegment->textChanged();
-            targetSegment->updateWordCount();
-        }
+        refreshDocumentStructure();
+        return;
     }
+
+    const int change = added - removed;
+    segment->setLength(segmentLength + change);
+    segment->updateWordCount();
 }
 
 void FormattableTextArea::refreshDocumentStructure()
@@ -168,15 +126,15 @@ DocumentSegment* FormattableTextArea::findDocumentSegment(int position) const
         return nullptr;
     }
 
-    DocumentSegment* lastSegment = nullptr;
+    auto iteratorResult = std::find_if(m_documentStructure.begin(), m_documentStructure.end(), [position](DocumentSegment* segment) {
+        // m_documentStructure is guaranteed to be ordered correctly,
+        // so we don't need to check segment->length() too.
+        return segment->position() <= position;
+    });
 
-    for (DocumentSegment* segment : m_documentStructure) {
-        if (segment->position() <= position) {
-            lastSegment = segment;
-        } else {
-            break;
-        }
+    if (iteratorResult) {
+        return *iteratorResult;
     }
 
-    return lastSegment;
+    return nullptr;
 }

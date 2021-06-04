@@ -49,6 +49,23 @@ int DocumentSegment::length() const
     }
 }
 
+void DocumentSegment::setLength(int length)
+{
+    DocumentSegment* nextSegment = next();
+
+    if (nextSegment) {
+        int currentLength = nextSegment->position() - position();
+        int delta = length - currentLength;
+
+        do {
+            nextSegment->setPosition(nextSegment->position() + delta);
+            nextSegment = nextSegment->next();
+        } while (nextSegment);
+    }
+
+    emit textChanged();
+}
+
 int DocumentSegment::wordCount() const
 {
     return m_wordCount;

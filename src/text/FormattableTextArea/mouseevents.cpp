@@ -12,6 +12,11 @@
 #include "../selection.h"
 #include "../../Mouse.h"
 
+// Since Qt 6 we need to use mapFromScene(event->scenePosition())
+// everywhere instead of just being able to use event->position()
+// as some events happen to be in a different local space than
+// others now, for some reason.
+
 void FormattableTextArea::mousePressEvent(QMouseEvent* event)
 {
     const bool shift = event->modifiers() & Qt::ShiftModifier;
@@ -20,7 +25,8 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         case Qt::LeftButton:
         {
             const bool hadSelection = m_textCursor.hasSelection();
-            const int position = hitTest(event->localPos());
+            const QPointF localPosition = this->mapFromScene(event->scenePosition());
+            const int position = hitTest(localPosition);
             m_textCursor.setPosition(position, event->button() == Qt::LeftButton && shift ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
 
             if (event->button() == Qt::LeftButton
@@ -43,7 +49,8 @@ void FormattableTextArea::mousePressEvent(QMouseEvent* event)
         case Qt::RightButton:
         {
             const bool hadSelection = m_textCursor.hasSelection();
-            const int position = this->hitTest(event->localPos());
+            const QPointF localPosition = this->mapFromScene(event->scenePosition());
+            const int position = this->hitTest(localPosition);
 
             if (!(hadSelection
                 && m_textCursor.selectionStart() <= position
@@ -89,7 +96,8 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
     // TODO: text dragging
 
     if (event->buttons() & Qt::LeftButton) {
-        const int position = hitTest(event->localPos());
+        const QPointF localPosition = this->mapFromScene(event->scenePosition());
+        const int position = hitTest(localPosition);
         if (position != m_textCursor.position()) {
             switch (m_selectionMode) {
                 case SelectionMode::NoSelection:
@@ -100,7 +108,8 @@ void FormattableTextArea::mouseMoveEvent(QMouseEvent* event)
                         return;
                     }
 
-                    const int sourcePosition = this->hitTest(this->m_lastMouseDownEvent->localPos());
+                    const QPointF lastMouseDownPosition = this->mapFromScene(this->m_lastMouseDownEvent->scenePosition());
+                    const int sourcePosition = this->hitTest(lastMouseDownPosition);
                     QTextCursor tempCursor(m_document);
                     tempCursor.setPosition(position);
                     selection::selectWord(tempCursor);

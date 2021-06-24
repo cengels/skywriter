@@ -18,8 +18,8 @@ bool Mouse::isLongPress(QMouseEvent* mouseUpEvent, QMouseEvent* lastMouseDownEve
 {
     return lastMouseDownEvent && mouseUpEvent && (qAbs(lastMouseDownEvent->timestamp() - mouseUpEvent->timestamp())
             > static_cast<unsigned long>(QGuiApplication::styleHints()->mousePressAndHoldInterval())
-            || lastMouseDownEvent->position().x() != mouseUpEvent->position().x()
-            || lastMouseDownEvent->position().y() != mouseUpEvent->position().y());
+            || lastMouseDownEvent->globalPosition().x() != mouseUpEvent->globalPosition().x()
+            || lastMouseDownEvent->globalPosition().y() != mouseUpEvent->globalPosition().y());
 }
 
 bool Mouse::isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent)
@@ -27,8 +27,8 @@ bool Mouse::isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpE
     return lastMouseUpEvent && mouseDownEvent
             && mouseDownEvent->button() == lastMouseUpEvent->button()
             && (qAbs(lastMouseUpEvent->timestamp() - mouseDownEvent->timestamp()) <= static_cast<unsigned long>(QGuiApplication::styleHints()->mouseDoubleClickInterval())
-            && qAbs(lastMouseUpEvent->position().x() - mouseDownEvent->position().x()) < QGuiApplication::styleHints()->mouseDoubleClickDistance()
-            && qAbs(lastMouseUpEvent->position().y() - mouseDownEvent->position().y()) < QGuiApplication::styleHints()->mouseDoubleClickDistance());
+            && qAbs(lastMouseUpEvent->globalPosition().x() - mouseDownEvent->globalPosition().x()) < QGuiApplication::styleHints()->mouseDoubleClickDistance()
+            && qAbs(lastMouseUpEvent->globalPosition().y() - mouseDownEvent->globalPosition().y()) < QGuiApplication::styleHints()->mouseDoubleClickDistance());
 }
 
 bool Mouse::isDoubleClick(QMouseEvent* mouseDownEvent, QMouseEvent* lastMouseUpEvent, QMouseEvent* lastMouseDownEvent)
@@ -41,6 +41,7 @@ bool Mouse::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseMove) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
         this->m_globalPosition = mouseEvent->globalPosition();
         this->m_windowPosition = mouseEvent->scenePosition();
         emit globalPositionChanged();

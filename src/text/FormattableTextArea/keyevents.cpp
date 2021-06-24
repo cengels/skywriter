@@ -7,6 +7,7 @@
 #include "../symbols.h"
 #include "../selection.h"
 #include "FormattableTextArea.h"
+#include "../../profiling.h"
 
 void FormattableTextArea::keyPressEvent(QKeyEvent* event)
 {

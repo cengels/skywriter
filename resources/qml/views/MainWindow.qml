@@ -909,11 +909,9 @@ ApplicationWindow {
 
     Drawer {
         id: documentStructureDrawer
-        y: menuBar.collapsed ? 0 : menuBar.height
+        y: menuBar.collapsed ? 0 : menuBar.contentHeight
         width: 0.2 * mainWindow.width
         height: mainWindow.height - y - (statsBar.collapsed ? 0 : statsBar.height) + (searchBar.collapsed ? 0 : searchBar.y)
-        modal: false
-        clip: true
 
         background: Rectangle { color: Qt.darker(ThemeManager.activeTheme.uiBackground, 1.1) }
 
@@ -945,11 +943,18 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.topMargin: 12
             anchors.bottomMargin: 12
+            // This prevents the ListView from stealing mouse events
+            // while the drawer is closed. Without this, you wouldn't
+            // be able to click on the left of the File button in the menu bar.
+            visible: documentStructureDrawer.visible
             boundsBehavior: Flickable.StopAtBounds
             flickDeceleration: 800
             model: textArea.documentStructure
             spacing: 12
-            ScrollBar.vertical: ScrollBar { id: drawerScrollBar; width: 12 }
+            ScrollBar.vertical: ScrollBar {
+                id: drawerScrollBar
+                width: 12
+            }
             delegate: Control {
                 width: listView.width - leftPadding
                 height: button.height
